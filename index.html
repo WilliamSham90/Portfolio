@@ -230,6 +230,9 @@ body {
 .footer-social-link { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-darker); border: 1px solid var(--border); border-radius: 50%; color: var(--text-secondary); text-decoration: none; transition: all var(--transition-fast); }
 .footer-social-link:hover { background: var(--primary); border-color: var(--primary); color: white; }
 .code-line.indent-2 {padding-left: 20%;}
+.floating-particles { position: absolute; width: 100%; height: 100%; overflow: hidden;}
+.particle {position: absolute; font-family: var(--font-code); font-size: 1.5rem; color: var(--primary); opacity: 0.1; animation: float 15s infinite ease-in-out;}
+@keyframes float {0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }10%, 90% { opacity: 0.1; }50% { transform: translateY(-100px) rotate(180deg); opacity: 0.2; }}
 @media (max-width: 1024px) {
     .hero-container { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
     .hero-image-wrapper { order: -1; }
@@ -299,7 +302,7 @@ body {
     <main class="main-content">
         <!-- Hero Section -->
         <section id="home" class="hero-section">
-            <div class="hero-background"><div class="code-grid-bg"></div></div>
+            <div class="hero-background"><div class="code-grid-bg"></div><div class="floating-particles" id="particles"></div></div>
             <div class="hero-container">
                 <div class="hero-content">
                     <div class="hero-greeting">
@@ -1390,6 +1393,22 @@ function initAnimations() {
     document.querySelectorAll('.stat-number').forEach(stat => statObserver.observe(stat));
 }
 
+function generateParticles() {
+    const particlesContainer = document.getElementById('particles');
+    if (!particlesContainer) return;
+    const codeSymbols = ['{', '}', '[', ']', '(', ')', '<', '>', '/', '*', '=', '+', '-', ';', ':', '&', '|'];
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.textContent = codeSymbols[Math.floor(Math.random() * codeSymbols.length)];
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+        particlesContainer.appendChild(particle);
+    }
+}
+generateParticles();
+
 document.querySelector('.contact-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const form = this;
@@ -1410,6 +1429,9 @@ document.querySelector('.contact-form').addEventListener('submit', function(e) {
     })
     .catch(() => alert('Error sending message. Please try again.'));
 });
+
+
+
     </script>
 </body>
 </html>
