@@ -246,7 +246,7 @@ Back Button - Liquid Glass Effect
 /* Adjust for mobile controls */
 @media (hover: none) and (pointer: coarse) {
   .back-btn {
-    bottom: 200px;
+    bottom: 90vh;
     padding: 14px 22px;
     font-size: 15px;
   }
