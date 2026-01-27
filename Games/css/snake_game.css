@@ -151,7 +151,7 @@ Mobile Controls
   position: fixed;
   bottom: 20px;
   left: 0;
-  right: 0;
+  right: -150px;
   z-index: 100;
   touch-action: manipulation;
 }
@@ -246,7 +246,7 @@ Back Button - Liquid Glass Effect
 /* Adjust for mobile controls */
 @media (hover: none) and (pointer: coarse) {
   .back-btn {
-    bottom: 90vh;
+    bottom: 30px;
     padding: 14px 22px;
     font-size: 15px;
   }
