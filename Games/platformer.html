@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Platformer Game</title>
+    <link rel="stylesheet" href="css/platformer.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="canvas"></canvas>
+        <p class="instructions">
+            Use the left, right and up arrow keys to move.
+        </p>
+        <p class="info">
+            The map data is fully customisable and scriptable. Explore the level and find the yellow goal!
+        </p>
+    </div>
+    
+    <!-- Back Button -->
+    <button class="back-btn" onclick="history.back()" aria-label="Go back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Back</span>
+    </button>
+    
+    <!-- Mobile Controls -->
+    <div class="mobile-controls" aria-label="Game controls">
+        <div class="controls-row">
+            <button class="control-btn" id="btn-up" aria-label="Jump">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="controls-row">
+            <button class="control-btn" id="btn-left" aria-label="Move left">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4 12l8-8v5h8v6h-8v5z"/>
+                </svg>
+            </button>
+            <div class="control-spacer"></div>
+            <button class="control-btn" id="btn-right" aria-label="Move right">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 12l-8 8v-5h-8v-6h8v-5z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <script src="js/platformer.js"></script>
+</body>
+</html>

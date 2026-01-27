@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Word Guessing Game</title>
+    <link href="https://fonts.googleapis.com/css?family=Londrina+Solid|Nunito:400,300" rel="stylesheet">
+    <link rel="stylesheet" href="css/word_guess.css">
+</head>
+<body>
+    <div class="hangman">
+        <h1 class="game-title">Word Guess</h1>
+        
+        <div class="guess"></div>
+        
+        <div class="input-section desktop-input">
+            <form class="guessForm">
+                <input type="text" class="guessLetter" maxlength="1" placeholder="Enter a letter..." autocomplete="off" autocapitalize="off"/>
+                <button type="submit" class="guessButton">Guess</button>
+            </form>
+        </div>
+        
+        <p class="hint">Hint: words are web/tech related.</p>
+        
+        <div class="wrong">
+            <div class="wrongLetters"></div>
+        </div>
+        
+        <!-- On-screen Keyboard for Mobile -->
+        <div class="keyboard" id="keyboard">
+            <div class="keyboard-row">
+                <button class="key" data-letter="Q">Q</button>
+                <button class="key" data-letter="W">W</button>
+                <button class="key" data-letter="E">E</button>
+                <button class="key" data-letter="R">R</button>
+                <button class="key" data-letter="T">T</button>
+                <button class="key" data-letter="Y">Y</button>
+                <button class="key" data-letter="U">U</button>
+                <button class="key" data-letter="I">I</button>
+                <button class="key" data-letter="O">O</button>
+                <button class="key" data-letter="P">P</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key" data-letter="A">A</button>
+                <button class="key" data-letter="S">S</button>
+                <button class="key" data-letter="D">D</button>
+                <button class="key" data-letter="F">F</button>
+                <button class="key" data-letter="G">G</button>
+                <button class="key" data-letter="H">H</button>
+                <button class="key" data-letter="J">J</button>
+                <button class="key" data-letter="K">K</button>
+                <button class="key" data-letter="L">L</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key" data-letter="Z">Z</button>
+                <button class="key" data-letter="X">X</button>
+                <button class="key" data-letter="C">C</button>
+                <button class="key" data-letter="V">V</button>
+                <button class="key" data-letter="B">B</button>
+                <button class="key" data-letter="N">N</button>
+                <button class="key" data-letter="M">M</button>
+            </div>
+        </div>
+        
+        <!-- Win/Lose Message Overlay -->
+        <div class="message">
+            <h1 class="title"></h1>
+            <p class="text"></p>
+            <button class="restart button">Play Again?</button>
+        </div>
+    </div>
+    
+    <!-- Back Button -->
+    <button class="back-btn" onclick="history.back()" aria-label="Go back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Back</span>
+    </button>
+    
+    <script src="js/word_guess.js"></script>
+</body>
+</html>

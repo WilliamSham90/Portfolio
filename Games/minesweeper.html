@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="css/minesweeper.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Back Button -->
+        <button class="back-btn" onclick="history.back()" aria-label="Go back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            <span>Back</span>
+        </button>
+        
+        <div class="action-selector">
+            <button class="mode-btn active" id="modeMine" aria-label="Mine mode" title="Reveal cells">⛏</button>
+            <button class="mode-btn" id="modeFlag" aria-label="Flag mode" title="Place flags">🚩</button>
+        </div>
+        
+        <div class="grid" id="grid"></div>
+        
+        <div class="infos">
+            <div class="counter" id="counter">
+                <span class="face" id="face">🤔</span>
+                <span class="mine-count" id="mineCount">10</span>
+            </div>
+            <button class="restart-btn" id="restartBtn" aria-label="Restart game">🔄</button>
+            <div class="timer" id="timer">
+                <span class="digits" id="timerDisplay">00:00</span>
+            </div>
+        </div>
+        
+        <div class="overlay" id="overlay">
+            <div class="overlay-content">
+                <div class="overlay-message" id="overlayMessage"></div>
+                <button class="overlay-btn" id="overlayBtn">Click to play again</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/minesweeper.js"></script>
+</body>
+</html>

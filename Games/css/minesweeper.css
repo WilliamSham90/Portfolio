@@ -1,0 +1,548 @@
+/*================================================
+  Minesweeper - CSS Styles
+  Mobile-friendly version
+================================================*/
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Roboto Mono', monospace;
+}
+
+body {
+    min-height: 100vh;
+    padding: 10px;
+    background: #7ea2e5 center / cover no-repeat;
+    background-image: url('https://assets.codepen.io/15664/bliss.webp'), url('https://assets.codepen.io/15664/bliss-mini.webp');
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/*================================================
+  Game Container
+================================================*/
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+/*================================================
+  Action Selector (Mine/Flag Mode)
+================================================*/
+
+.action-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.mode-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+    border: 1px solid #808080;
+    border-radius: 4px;
+    background: rgba(210, 210, 210, 0.6);
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s, border-radius 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mode-btn:hover {
+    background: rgba(210, 210, 210, 0.9);
+}
+
+.mode-btn.active {
+    background: rgba(210, 210, 210, 0.95);
+    transform: scale(1.1);
+    border-radius: 50%;
+}
+
+/*================================================
+  Grid
+================================================*/
+
+.grid {
+    display: grid;
+    border: solid #808080;
+    border-width: 1px 0 0 1px;
+    background: #c0c0c0;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.cell {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #c0c0c0;
+    border: solid #808080;
+    border-width: 0 1px 1px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    font-weight: bold;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.cell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #c0c0c0;
+    border: 2px outset #ececec;
+    transition: opacity 0.1s;
+}
+
+.cell:active:not(.revealed):not(.flagged)::before {
+    background: #bdbdbd;
+    border: solid #999;
+    border-width: 2px 0 0 2px;
+}
+
+.cell.revealed::before {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cell-content {
+    position: relative;
+    z-index: 1;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.cell.flagged .cell-content::after {
+    content: '🚩';
+    font-size: 0.75rem;
+}
+
+.cell.revealed.mine {
+    background: #ff0000;
+}
+
+.cell.revealed.mine .cell-content::after {
+    content: '💣';
+    font-size: 0.75rem;
+}
+
+/* Number colors */
+.cell.revealed[data-neighbors="1"] .cell-content { color: #0000ff; }
+.cell.revealed[data-neighbors="2"] .cell-content { color: #008100; }
+.cell.revealed[data-neighbors="3"] .cell-content { color: #ff1300; }
+.cell.revealed[data-neighbors="4"] .cell-content { color: #000083; }
+.cell.revealed[data-neighbors="5"] .cell-content { color: #810500; }
+.cell.revealed[data-neighbors="6"] .cell-content { color: #2a9494; }
+.cell.revealed[data-neighbors="7"] .cell-content { color: #000000; }
+.cell.revealed[data-neighbors="8"] .cell-content { color: #808080; }
+
+/*================================================
+  Info Bar
+================================================*/
+
+.infos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
+.counter, .timer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ccc;
+    border: 1px solid #808080;
+    padding: 0 0.5rem;
+    height: 2.25rem;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.counter {
+    min-width: 80px;
+}
+
+.face {
+    font-size: 1rem;
+}
+
+.mine-count {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.timer {
+    min-width: 70px;
+    justify-content: center;
+}
+
+.digits {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.restart-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+    border: 1px solid #808080;
+    border-radius: 4px;
+    background: #ccc;
+    cursor: pointer;
+    transition: transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.restart-btn:hover {
+    background: #ddd;
+}
+
+.restart-btn:active {
+    transform: scale(0.95);
+}
+
+/*================================================
+  Overlay (Win/Lose)
+================================================*/
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    border-radius: 4px;
+    z-index: 100;
+}
+
+.overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay.victory {
+    background: rgba(0, 50, 0, 0.85);
+}
+
+.overlay-content {
+    text-align: center;
+    color: #fff;
+    font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+}
+
+.overlay-message {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.overlay-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.1s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.overlay-btn:hover {
+    background: #eee;
+}
+
+.overlay-btn:active {
+    transform: scale(0.95);
+}
+
+/*================================================
+  Responsive Design
+================================================*/
+
+/* Desktop - larger cells */
+@media (min-width: 600px) and (min-height: 600px) {
+    .grid {
+        font-size: 24px;
+    }
+    
+    .cell-content {
+        font-size: 0.9rem;
+    }
+    
+    .cell.flagged .cell-content::after,
+    .cell.revealed.mine .cell-content::after {
+        font-size: 0.85rem;
+    }
+}
+
+/* Tablet */
+@media (max-width: 599px), (max-height: 599px) {
+    .grid {
+        font-size: 20px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 400px) {
+    body {
+        padding: 5px;
+    }
+    
+    .grid {
+        font-size: 16px;
+    }
+    
+    .cell-content {
+        font-size: 0.75rem;
+    }
+    
+    .cell.flagged .cell-content::after,
+    .cell.revealed.mine .cell-content::after {
+        font-size: 0.65rem;
+    }
+    
+    .mode-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+    
+    .counter, .timer {
+        height: 2rem;
+        padding: 0 0.35rem;
+    }
+    
+    .mine-count, .digits {
+        font-size: 1rem;
+    }
+    
+    .face {
+        font-size: 0.9rem;
+    }
+    
+    .restart-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 320px) {
+    .grid {
+        font-size: 14px;
+    }
+    
+    .infos {
+        gap: 5px;
+    }
+    
+    .counter {
+        min-width: 70px;
+    }
+    
+    .timer {
+        min-width: 60px;
+    }
+}
+
+/* Landscape mobile */
+@media (max-height: 450px) and (orientation: landscape) {
+    body {
+        padding: 5px;
+        align-items: flex-start;
+    }
+    
+    .game-container {
+        gap: 5px;
+    }
+    
+    .grid {
+        font-size: 18px;
+    }
+    
+    .action-selector {
+        margin-bottom: 0;
+    }
+    
+    .mode-btn {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/*================================================
+  Touch Device Enhancements
+================================================*/
+
+@media (hover: none) and (pointer: coarse) {
+    .mode-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.4rem;
+    }
+    
+    .mode-btn.active {
+        transform: scale(1.05);
+    }
+    
+    /* Larger tap targets on mobile */
+    .restart-btn {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/*================================================
+  Animations
+================================================*/
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.cell.wrong-flag {
+    animation: shake 0.3s ease-in-out;
+}
+
+@keyframes pop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.cell.revealed .cell-content {
+    animation: pop 0.15s ease-out;
+}
+
+/*================================================
+  Back Button - Liquid Glass Effect
+================================================*/
+
+.back-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        inset 0 1px 1px rgba(255, 255, 255, 0.4),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.back-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    border-radius: 16px 16px 0 0;
+    pointer-events: none;
+}
+
+.back-btn:hover {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.25),
+        inset 0 1px 1px rgba(255, 255, 255, 0.5),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.back-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.2),
+        inset 0 1px 1px rgba(255, 255, 255, 0.3),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.back-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+.back-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 400px) {
+    .back-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+        bottom: 15px;
+        left: 15px;
+    }
+    
+    .back-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .back-btn {
+        padding: 14px 22px;
+        font-size: 15px;
+    }
+    
+    .back-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}

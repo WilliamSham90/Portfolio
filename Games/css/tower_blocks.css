@@ -1,0 +1,390 @@
+/*================================================
+  Tower Blocks - CSS Styles
+  Converted from SCSS, Mobile-friendly
+================================================*/
+
+@import url('https://fonts.googleapis.com/css?family=Comfortaa');
+
+:root {
+    --color-dark: #333344;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    margin: 0;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    font-family: 'Comfortaa', cursive;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/*================================================
+  Container
+================================================*/
+
+#container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/*================================================
+  Game Canvas
+================================================*/
+
+#game {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+/*================================================
+  Score
+================================================*/
+
+#score {
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 10vh;
+    transition: transform 0.5s ease;
+    color: var(--color-dark);
+    transform: translateY(-200px) scale(1);
+    pointer-events: none;
+    z-index: 10;
+}
+
+#container.playing #score,
+#container.resetting #score {
+    transform: translateY(0px) scale(1);
+}
+
+#container.ended #score {
+    transform: translateY(6vh) scale(1.5);
+}
+
+/*================================================
+  Instructions
+================================================*/
+
+#instructions {
+    position: absolute;
+    width: 100%;
+    top: 16vh;
+    left: 0;
+    text-align: center;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    color: var(--color-dark);
+    font-size: 16px;
+    padding: 0 20px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#container.playing #instructions {
+    opacity: 1;
+}
+
+#instructions.hide {
+    opacity: 0 !important;
+}
+
+/*================================================
+  Game Over Screen
+================================================*/
+
+.game-over {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 85%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.game-over * {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    transform: translateY(-50px);
+    color: var(--color-dark);
+    text-align: center;
+}
+
+.game-over h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 40px;
+}
+
+.game-over p {
+    font-size: 16px;
+    padding: 0 20px;
+}
+
+#container.ended .game-over * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#container.ended .game-over p {
+    transition-delay: 0.3s;
+}
+
+/*================================================
+  Game Ready Screen
+================================================*/
+
+.game-ready {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#start-button {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    transform: translateY(-50px);
+    border: 3px solid var(--color-dark);
+    padding: 10px 20px;
+    background-color: transparent;
+    color: var(--color-dark);
+    font-size: 30px;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#start-button:hover {
+    background-color: rgba(51, 51, 68, 0.1);
+}
+
+#start-button:active {
+    transform: translateY(0) scale(0.95);
+}
+
+#container.ready .game-ready #start-button {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/*================================================
+  Responsive Design
+================================================*/
+
+@media (max-width: 480px) {
+    #score {
+        font-size: 8vh;
+        top: 15px;
+    }
+    
+    #instructions {
+        font-size: 14px;
+        top: 14vh;
+    }
+    
+    .game-over h2 {
+        font-size: 32px;
+    }
+    
+    .game-over p {
+        font-size: 14px;
+    }
+    
+    #start-button {
+        font-size: 24px;
+        padding: 12px 24px;
+    }
+}
+
+@media (max-height: 500px) {
+    #score {
+        font-size: 6vh;
+        top: 10px;
+    }
+    
+    #instructions {
+        font-size: 12px;
+        top: 10vh;
+    }
+    
+    .game-over {
+        height: 80%;
+    }
+    
+    .game-over h2 {
+        font-size: 28px;
+    }
+    
+    .game-over p {
+        font-size: 12px;
+        margin: 5px 0;
+    }
+}
+
+/*================================================
+  Touch Device Enhancements
+================================================*/
+
+@media (hover: none) and (pointer: coarse) {
+    #start-button {
+        padding: 15px 30px;
+        font-size: 28px;
+    }
+    
+    #instructions {
+        font-size: 15px;
+    }
+}
+
+/*================================================
+  Back Button - Liquid Glass Effect
+================================================*/
+
+.back-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    font-family: 'Comfortaa', cursive;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-dark);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 1px rgba(255, 255, 255, 0.6),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.back-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    border-radius: 16px 16px 0 0;
+    pointer-events: none;
+}
+
+.back-btn:hover {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.2) 100%
+    );
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.7),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.back-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.1),
+        inset 0 1px 1px rgba(255, 255, 255, 0.4),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.back-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    stroke: var(--color-dark);
+}
+
+.back-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 480px) {
+    .back-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+        bottom: 15px;
+        left: 15px;
+    }
+    
+    .back-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media (max-height: 500px) {
+    .back-btn {
+        padding: 8px 14px;
+        font-size: 12px;
+        bottom: 10px;
+        left: 10px;
+        border-radius: 12px;
+    }
+    
+    .back-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .back-btn {
+        padding: 14px 22px;
+        font-size: 15px;
+    }
+    
+    .back-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}
