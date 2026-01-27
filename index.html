@@ -251,16 +251,15 @@ body {
 }
 
 .lang-toggle:hover, .theme-toggle:hover {
-    background: var(--bg-hover);
     border-color: var(--primary);
-    color: var(--primary);
+    background: var(--bg-hover);
 }
 
 .menu-toggle {
     display: none;
     flex-direction: column;
-    gap: 4px;
-    padding: 0.5rem;
+    gap: 5px;
+    padding: 0.65rem;
 }
 
 .menu-toggle span {
@@ -270,28 +269,31 @@ body {
     transition: transform var(--transition), opacity var(--transition);
 }
 
-.menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-.menu-toggle.active span:nth-child(2) { opacity: 0; }
-.menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -5px); }
+.menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
 
-/* ===== MAIN CONTENT ===== */
-.main-content { margin-top: 70px; padding: 5% 8%;}
+.menu-toggle.active span:nth-child(2) { opacity: 0; }
+
+.menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
 
 /* ===== HERO SECTION ===== */
 .hero-section {
-    min-height: calc(100vh - 70px);
+    min-height: 100vh;
     display: flex;
     align-items: center;
+    justify-content: center;
     position: relative;
     overflow: hidden;
-    padding: 3rem 0;
-    contain: layout;
+    padding: 6rem 8% 4rem;
 }
 
 .hero-background {
     position: absolute;
     inset: 0;
-    z-index: -1;
+    pointer-events: none;
     overflow: hidden;
 }
 
@@ -299,147 +301,168 @@ body {
     position: absolute;
     inset: 0;
     background-image: 
-        linear-gradient(var(--primary) 1px, transparent 1px),
-        linear-gradient(90deg, var(--primary) 1px, transparent 1px);
+        linear-gradient(rgba(192, 132, 252, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(192, 132, 252, 0.02) 1px, transparent 1px);
     background-size: 50px 50px;
-    opacity: 0.03;
+    mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
 }
 
-/* Particles - reduced for performance */
 .floating-particles {
     position: absolute;
     inset: 0;
     overflow: hidden;
-    pointer-events: none;
 }
 
 .particle {
     position: absolute;
     font-family: var(--font-code);
-    font-size: 1.2rem;
     color: var(--primary);
-    opacity: 0;
-    will-change: transform, opacity;
-    animation: float 20s infinite ease-in-out;
+    opacity: 0.08;
+    font-size: 1.5rem;
+    animation: float 20s ease-in-out infinite;
 }
 
 @keyframes float {
     0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-    10%, 90% { opacity: 0.08; }
-    50% { transform: translateY(-50px) rotate(180deg); opacity: 0.12; }
+    10% { opacity: 0.08; }
+    90% { opacity: 0.08; }
+    100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
 }
 
 .hero-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    align-items: center;
+    max-width: 1200px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-content {
+    max-width: 700px;
 }
 
 .hero-greeting {
     font-family: var(--font-code);
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
-    color: var(--primary);
-    margin-bottom: 0.75rem;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: var(--cyan);
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.greeting-cursor { animation: blink 1s step-end infinite; }
+.greeting-cursor {
+    animation: blink 1s infinite;
+    color: var(--primary);
+}
 
 @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
 
 .hero-name {
-    font-family: var(--font-code);
-    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
     font-weight: 700;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     line-height: 1.2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.name-prefix { color: var(--purple); }
-.name-operator { color: var(--cyan); margin: 0 0.4rem; }
+.name-prefix {
+    font-family: var(--font-code);
+    color: var(--purple);
+    font-size: 0.6em;
+}
+
+.name-operator {
+    font-family: var(--font-code);
+    color: var(--cyan);
+    font-size: 0.6em;
+}
+
 .name-value {
     background: var(--gradient-1);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
-.name-suffix { color: var(--primary); }
+
+.name-suffix {
+    font-family: var(--font-code);
+    color: var(--accent);
+    font-size: 0.6em;
+}
 
 .hero-title {
     font-family: var(--font-code);
-    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
-    color: var(--cyan);
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: var(--text-secondary);
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.title-prefix {
-    color: var(--text-muted);
-    margin-right: 0.5rem;
-}
+.title-prefix { color: var(--text-muted); }
 
 .hero-description {
-    font-size: clamp(0.95rem, 2vw, 1.05rem);
+    font-size: clamp(0.95rem, 1.5vw, 1.05rem);
     color: var(--text-secondary);
+    max-width: 560px;
     margin-bottom: 2rem;
     line-height: 1.8;
-    max-width: 550px;
 }
 
 .hero-buttons {
     display: flex;
-    gap: 1.25rem;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
     flex-wrap: wrap;
 }
 
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.75rem;
+    gap: 0.6rem;
+    padding: 0.875rem 1.5rem;
     border-radius: 10px;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     text-decoration: none;
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
-    border: 2px solid transparent;
+    transition: all var(--transition);
+    border: none;
     cursor: pointer;
 }
 
 .btn-primary {
     background: var(--gradient-1);
     color: white;
+    box-shadow: 0 4px 15px rgba(192, 132, 252, 0.3);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(192, 132, 252, 0.3);
+    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.4);
 }
 
 .btn-secondary {
     background: transparent;
-    color: var(--primary);
-    border-color: var(--primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {
-    background: var(--primary);
-    color: white;
-    transform: translateY(-2px);
+    border-color: var(--primary);
+    background: rgba(192, 132, 252, 0.1);
 }
 
 .hero-social {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .social-icon {
@@ -448,12 +471,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 10px;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 10px;
     color: var(--text-secondary);
+    font-size: 1.2rem;
+    transition: all var(--transition-fast);
     text-decoration: none;
-    transition: transform var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
 .social-icon:hover {
@@ -462,183 +486,46 @@ body {
     transform: translateY(-2px);
 }
 
-/* Hero Image */
-.hero-image-wrapper {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.hero-image-container {
-    position: relative;
-    width: min(350px, 80vw);
-    aspect-ratio: 1;
-}
-
-.profile-image-glow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 115%;
-    height: 115%;
-    background: radial-gradient(circle, rgba(192, 132, 252, 0.15) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: pulse 4s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
-    50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.7; }
-}
-
-.profile-image-frame {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 3px solid var(--primary);
-    overflow: hidden;
-    background: var(--bg-card);
-}
-
-.profile-image {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-card);
-}
-
-.profile-placeholder {
-    font-size: 5rem;
-    color: var(--primary);
-    opacity: 0.25;
-}
-
-/* Floating badges - optimized */
-.floating-badge {
-    position: absolute;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 0.875rem 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 600;
-    animation: floatBadge 4s ease-in-out infinite;
-    min-width: 160px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.floating-badge i {
-    font-size: 1.5rem;
-    color: var(--primary);
-}
-
-.badge-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-}
-
-.badge-title {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.badge-libs {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-}
-
-.badge-1 { top: 8%; right: -3%; animation-delay: 0s; }
-.badge-2 { bottom: 18%; right: -8%; animation-delay: 1.3s; }
-.badge-3 { top: 48%; left: -8%; animation-delay: 2.6s; }
-
-@keyframes floatBadge {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
-}
-
-/* Scroll indicator */
-.scroll-indicator {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-}
-
-.scroll-mouse {
-    width: 24px;
-    height: 38px;
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    padding-top: 6px;
-}
-
-.scroll-wheel {
-    width: 3px;
-    height: 7px;
-    background: var(--primary);
-    border-radius: 2px;
-    animation: scrollWheel 2s infinite;
-}
-
-@keyframes scrollWheel {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(12px); opacity: 0; }
-}
-
 /* ===== SECTIONS ===== */
 .section {
-    padding: 4rem 0;
-    scroll-margin-top: 80px;
-    contain: layout style;
+    padding: 5rem 0;
+    position: relative;
 }
 
 .section-container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 8%;
 }
 
 .section-header {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
     margin-bottom: 3rem;
 }
 
 .section-number {
     font-family: var(--font-code);
-    font-size: 1.2rem;
+    font-size: 0.9rem;
     color: var(--primary);
-    font-weight: 700;
+    opacity: 0.8;
 }
 
 .section-title {
-    font-family: var(--font-code);
-    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-size: clamp(1.5rem, 3vw, 1.8rem);
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.3rem;
+    white-space: nowrap;
 }
 
-.title-bracket { color: var(--purple); }
+.title-bracket {
+    font-family: var(--font-code);
+    color: var(--purple);
+    font-weight: 400;
+}
 
 .title-text {
     background: var(--gradient-1);
@@ -649,51 +536,30 @@ body {
 
 .section-line {
     flex: 1;
-    height: 2px;
-    background: var(--gradient-1);
-    margin-left: 1.5rem;
-    opacity: 0.6;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+    max-width: 300px;
 }
 
 /* ===== ABOUT SECTION ===== */
-.about-content {
+.about-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     align-items: start;
 }
 
-.about-text {
-    font-size: 1rem;
+.about-text p {
     color: var(--text-secondary);
-    line-height: 1.8;
-    margin-bottom: 1.25rem;
-}
-
-.about-languages {
     margin-bottom: 1.5rem;
-    padding: 1.25rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-}
-
-.about-languages h4 {
-    color: var(--primary);
-    margin-bottom: 0.4rem;
-    font-family: var(--font-code);
-    font-size: 0.95rem;
-}
-
-.about-languages p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+    line-height: 1.8;
 }
 
 .about-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+    margin-top: 2rem;
 }
 
 .stat-item {
@@ -948,6 +814,189 @@ body {
     border: 1px solid var(--border);
 }
 
+/* ===== GAMES SECTION ===== */
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.game-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    contain: layout;
+}
+
+.game-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: 0 8px 30px rgba(192, 132, 252, 0.15);
+}
+
+.game-preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/10;
+    background: var(--bg-darker);
+    overflow: hidden;
+}
+
+.game-iframe-wrapper {
+    position: absolute;
+    inset: 0;
+    transform: scale(0.5);
+    transform-origin: top left;
+    width: 200%;
+    height: 200%;
+}
+
+.game-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    pointer-events: none;
+    background: var(--bg-darker);
+}
+
+.game-card:hover .game-iframe {
+    pointer-events: auto;
+}
+
+.game-loader {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-darker);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.game-loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.game-loader-icon {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+.game-loader-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-right-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 0.75rem;
+}
+
+.game-loader-text {
+    font-family: var(--font-code);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.game-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 1rem;
+    z-index: 5;
+}
+
+.game-card:hover .game-overlay {
+    opacity: 1;
+}
+
+.game-play-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: var(--gradient-1);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transform: translateY(10px);
+    opacity: 0;
+    transition: all var(--transition-fast);
+}
+
+.game-card:hover .game-play-btn {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.game-play-btn:hover {
+    transform: scale(1.05);
+}
+
+.game-content {
+    padding: 1.25rem;
+}
+
+.game-title {
+    font-family: var(--font-code);
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.game-title i {
+    color: var(--accent);
+    font-size: 0.9rem;
+}
+
+.game-description {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+}
+
+.game-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.game-tag {
+    background: var(--bg-darker);
+    color: var(--cyan);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: var(--font-code);
+    border: 1px solid var(--border);
+}
+
 /* ===== PROJECTS ===== */
 .projects-grid {
     display: grid;
@@ -1002,7 +1051,7 @@ body {
 .project-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(15, 23, 42, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1013,35 +1062,39 @@ body {
 .project-card:hover .project-overlay { opacity: 1; }
 
 .project-link {
-    width: 42px;
-    height: 42px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--primary);
-    color: white;
+    background: var(--gradient-1);
     border-radius: 50%;
-    text-decoration: none;
+    color: white;
+    font-size: 1.2rem;
+    transform: scale(0.8);
     transition: transform var(--transition-fast);
+    text-decoration: none;
 }
 
-.project-link:hover { transform: scale(1.1); }
+.project-card:hover .project-link { transform: scale(1); }
 
-.project-content { padding: 1.25rem; }
+.project-content {
+    padding: 1.25rem;
+}
 
 .project-title {
     font-family: var(--font-code);
     font-size: 1rem;
-    color: var(--primary);
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
     font-weight: 700;
 }
 
 .project-description {
     color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 1rem;
     font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
 }
 
 .project-tags {
@@ -1053,146 +1106,131 @@ body {
 /* ===== CONTACT ===== */
 .contact-content {
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 2.5rem;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
+    align-items: start;
 }
 
 .contact-info {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;
 }
 
 .contact-item {
     display: flex;
-    gap: 1.25rem;
-    padding: 1.25rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    transition: border-color var(--transition-fast), transform var(--transition-fast);
-}
-
-.contact-item:hover {
-    border-color: var(--primary);
-    transform: translateX(4px);
+    align-items: flex-start;
+    gap: 1rem;
 }
 
 .contact-icon {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--gradient-1);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: 10px;
-    color: white;
-    font-size: 1.1rem;
+    color: var(--primary);
+    font-size: 1.2rem;
     flex-shrink: 0;
 }
 
 .contact-label {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 0.2rem;
     font-family: var(--font-code);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-bottom: 0.2rem;
 }
 
 .contact-value {
-    color: var(--primary);
-    font-weight: 600;
+    color: var(--text-primary);
     text-decoration: none;
-    font-family: var(--font-code);
-    font-size: 0.9rem;
-    word-break: break-word;
+    font-weight: 600;
+    transition: color var(--transition-fast);
 }
 
-.contact-value:hover { color: var(--cyan); }
+.contact-value:hover { color: var(--primary); }
 
 .contact-form {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
 }
 
 .form-input {
-    width: 100%;
-    padding: 0.875rem 1rem;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 10px;
+    padding: 1rem 1.25rem;
     color: var(--text-primary);
     font-family: var(--font-primary);
     font-size: 0.95rem;
-    transition: border-color var(--transition-fast);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .form-input:focus {
     outline: none;
     border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.15);
 }
 
 .form-input::placeholder { color: var(--text-muted); }
 
 .form-textarea {
+    min-height: 140px;
     resize: vertical;
-    min-height: 130px;
 }
 
-.btn-submit { align-self: flex-start; }
+.btn-submit {
+    align-self: flex-start;
+}
 
 /* ===== FOOTER ===== */
 .main-footer {
-    background: var(--bg-card);
+    background: var(--bg-darker);
     border-top: 1px solid var(--border);
-    padding: 2.5rem 0;
-    margin-top: 3rem;
+    padding: 2rem 0;
 }
 
 .footer-container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 8%;
 }
 
 .footer-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .footer-text {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
 }
 
-.footer-copyright {
-    color: var(--text-primary);
-    font-weight: 600;
-}
+.footer-copyright { color: var(--text-secondary); }
 
-.footer-divider { color: var(--text-muted); }
+.footer-divider {
+    margin: 0 0.75rem;
+    color: var(--border);
+}
 
 .footer-author {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
-    margin-top: 0.4rem;
+    margin-top: 0.3rem;
 }
 
 .footer-author-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
     color: var(--primary);
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
+    transition: color var(--transition-fast);
 }
 
 .footer-author-link:hover { color: var(--cyan); }
@@ -1208,100 +1246,76 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-darker);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 50%;
+    border-radius: 8px;
     color: var(--text-secondary);
+    transition: all var(--transition-fast);
     text-decoration: none;
-    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
 .footer-social-link:hover {
-    background: var(--primary);
     border-color: var(--primary);
-    color: white;
+    color: var(--primary);
 }
 
-.profile-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
-/* ===== RESPONSIVE - TABLET ===== */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
-    .hero-container {
+    .about-grid {
         grid-template-columns: 1fr;
-        text-align: center;
         gap: 2rem;
     }
     
-    .hero-image-wrapper { order: -1; }
-    .hero-description { margin-left: auto; margin-right: auto; }
-    .hero-buttons { justify-content: center; }
-    .hero-social { justify-content: center; }
-    
-    .about-content { grid-template-columns: 1fr; gap: 2rem; }
-    .contact-content { grid-template-columns: 1fr; }
-    
-    .floating-badge { display: none; }
-}
-
-/* ===== RESPONSIVE - MOBILE ===== */
-@media (max-width: 768px) {
-    html { font-size: 15px; }
-    
-    .nav-menu {
-        position: fixed;
-        top: 60px;
-        left: -100%;
-        width: 100%;
-        height: calc(100vh - 60px);
-        background: var(--bg-card);
-        flex-direction: column;
-        padding: 2rem 1.5rem;
-        gap: 0.5rem;
-        transition: left var(--transition);
-        z-index: 999;
-        overflow-y: auto;
+    .contact-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
     }
     
-    .nav-menu.active { left: 0; }
+    .hero-section { padding: 5rem 5% 3rem; }
+    .section-container { padding: 0 5%; }
+}
+
+@media (max-width: 768px) {
+    .nav-menu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        max-width: 300px;
+        height: 100vh;
+        background: var(--bg-darker);
+        flex-direction: column;
+        padding: 5rem 2rem 2rem;
+        gap: 0.5rem;
+        transition: right 0.3s ease;
+        border-left: 1px solid var(--border);
+        z-index: 999;
+    }
+    
+    .nav-menu.active { right: 0; }
     
     .nav-link {
         width: 100%;
         padding: 1rem;
         border-radius: 8px;
-        background: var(--bg-darker);
     }
+    
+    .nav-link:hover { background: var(--bg-card); }
     
     .menu-toggle { display: flex; }
     
-    .main-content { margin-top: 60px;  padding: 40px 20px;}
+    .hero-section { min-height: auto; padding: 6rem 5% 3rem; }
     
-    .hero-section {
-        min-height: auto;
-        padding: 2rem 0;
+    .about-stats {
+        grid-template-columns: 1fr 1fr;
     }
-    
-    .hero-image-container {
-        width: min(280px, 70vw);
-    }
-    
-    .scroll-indicator { display: none; }
-    
-    .section { padding: 3rem 0; }
-    .section-header { margin-bottom: 2rem; }
-    
-    .about-stats { grid-template-columns: 1fr; }
     
     .code-block {
         font-size: 0.7rem;
         padding: 1rem;
     }
     
-    .projects-grid {
+    .projects-grid, .games-grid {
         grid-template-columns: 1fr;
     }
     
@@ -1344,6 +1358,14 @@ body {
     .timeline-item { padding-left: 2rem; }
     .timeline-marker { left: -1.5rem; }
     .timeline-content { padding: 1.25rem; }
+    
+    .games-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .game-card {
+        max-width: 100%;
+    }
 }
 
 /* ===== ACCESSIBILITY ===== */
@@ -1403,6 +1425,7 @@ body {
                 <a href="#about" class="nav-link" role="menuitem"><i class="fas fa-user" aria-hidden="true"></i><span data-text-en="About" data-text-af="Oor My">About</span></a>
                 <a href="#skills" class="nav-link" role="menuitem"><i class="fas fa-code" aria-hidden="true"></i><span data-text-en="Skills" data-text-af="Vaardighede">Skills</span></a>
                 <a href="#experience" class="nav-link" role="menuitem"><i class="fas fa-briefcase" aria-hidden="true"></i><span data-text-en="Experience" data-text-af="Ervaring">Experience</span></a>
+                <a href="#games" class="nav-link" role="menuitem"><i class="fas fa-gamepad" aria-hidden="true"></i><span data-text-en="Games" data-text-af="Speletjies">Games</span></a>
                 <a href="#projects" class="nav-link" role="menuitem"><i class="fas fa-rocket" aria-hidden="true"></i><span data-text-en="Projects" data-text-af="Projekte">Projects</span></a>
                 <a href="#contact" class="nav-link" role="menuitem"><i class="fas fa-envelope" aria-hidden="true"></i><span data-text-en="Contact" data-text-af="Kontak">Contact</span></a>
             </div>
@@ -1448,25 +1471,8 @@ body {
                         <a href="https://github.com/WilliamSham90" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="GitHub Profile"><i class="fab fa-github"></i></a>
                         <a href="https://www.linkedin.com/in/william-sham-0a1a12211/" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a>
                         <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216&searchtext=crash" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Steam Profile"><i class="fab fa-steam"></i></a>
-                        <a href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="CodePen Profile"><i class="fab fa-codepen"></i></a>
-                        <a href="mailto:williamsham90@gmail.com" class="social-icon" aria-label="Email"><i class="fas fa-envelope"></i></a>
                     </div>
                 </div>
-                <div class="hero-image-wrapper">
-                    <div class="hero-image-container">
-                        <div class="profile-image-glow" aria-hidden="true"></div>
-                        <div class="profile-image-frame">
-                           <div class="profile-image"><img src="https://raw.githubusercontent.com/WilliamSham90/Portfolio/main/Images/williampp.jpg" alt="William Sham - Full Stack Web Developer" loading="eager"></div>
-                        </div>
-                        <div class="floating-badge badge-1" aria-hidden="true"><i class="fab fa-react"></i><div class="badge-content"><span class="badge-title">React.js</span><span class="badge-libs">Frontend</span></div></div>
-                        <div class="floating-badge badge-2" aria-hidden="true"><i class="fab fa-php"></i><div class="badge-content"><span class="badge-title">PHP Laravel</span><span class="badge-libs">Backend</span></div></div>
-                        <div class="floating-badge badge-3" aria-hidden="true"><i class="fab fa-microsoft"></i><div class="badge-content"><span class="badge-title">Azure</span><span class="badge-libs">Cloud</span></div></div>
-                    </div>
-                </div>
-            </div>
-            <div class="scroll-indicator" aria-hidden="true">
-                <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
-                <span data-text-en="Scroll Down" data-text-af="Blaai Af">Scroll Down</span>
             </div>
         </section>
 
@@ -1475,35 +1481,32 @@ body {
             <div class="section-container">
                 <div class="section-header">
                     <span class="section-number" aria-hidden="true">01</span>
-                    <h2 class="section-title" id="about-title"><span class="title-bracket" aria-hidden="true">&lt;</span><span class="title-text" data-text-en="About Me" data-text-af="Oor My">About Me</span><span class="title-bracket" aria-hidden="true">/&gt;</span></h2>
+                    <h2 class="section-title" id="about-title"><span class="title-bracket" aria-hidden="true">&lt;</span><span class="title-text" data-text-en="About" data-text-af="Oor My">About</span><span class="title-bracket" aria-hidden="true">/&gt;</span></h2>
                     <div class="section-line" aria-hidden="true"></div>
                 </div>
-                <div class="about-content">
-                    <div>
-                       <p class="about-text" data-text-en="Hi there! I have a genuine passion for coding that started long before I graduated from CTU and honestly, it hasn't faded one bit. I specialize in full-stack web development. But what really lights me up? Creating games. There's something magical about building interactive experiences from scratch." data-text-af="Hallo daar! Ek het 'n opregte passie vir kodering wat lank voor my studies by CTU begin het en eerlikwaar, dit het nog gladnie vervaag nie. Ek spesialiseer in full-stack webontwikkeling. Maar wat my regtig opgewonde maak? Om speletjies te skep. Daar is iets magies daaraan om interaktiewe ervarings van nuuts af te bou.">
-                            Hi there! I have a genuine passion for coding that started long before I graduated from CTU and honestly, it hasn't faded one bit. I specialize in full-stack web development. But what really lights me up? Creating games. There's something magical about building interactive experiences from scratch.
+                <div class="about-grid">
+                    <div class="about-text">
+                        <p data-text-en="Hi, I'm William — a passionate full-stack developer who thrives at the intersection of creativity and code. With experience spanning multiple industries, I've learned that the best solutions come from understanding both the technical requirements and the human experience." data-text-af="Hallo, ek is William — 'n passievolle full-stack ontwikkelaar wat floreer by die kruispunt van kreatiwiteit en kode. Met ervaring oor verskeie industrieë het ek geleer dat die beste oplossings kom van die verstaan van beide die tegniese vereistes en die menslike ervaring.">
+                            Hi, I'm William — a passionate full-stack developer who thrives at the intersection of creativity and code. With experience spanning multiple industries, I've learned that the best solutions come from understanding both the technical requirements and the human experience.
                         </p>
-                        <p class="about-text" data-text-en="When I'm not behind a screen, you'll probably find me at the gym, out on a walk clearing my head, or enjoying a good pizza (my absolute favorite). I'm a fast learner who thrives on mastering new technologies, and I bring reliability, a strong work ethic, and a commitment to continuous improvement to everything I do." data-text-af="Wanneer ek nie agter 'n skerm sit nie, sal jy my waarskynlik by die gimnasium kry, op 'n stap om my kop helder te kry, of besig om 'n lekker pizza te geniet (my absolute gunsteling). Ek is 'n vinnige leerder wat floreer deur nuwe tegnologieë te bemeester, en ek bring betroubaarheid, 'n sterk werksetiek, en 'n toewyding aan voortdurende verbetering na alles wat ek doen.">
-                            When I'm not behind a screen, you'll probably find me at the gym, out on a walk clearing my head, or enjoying a good pizza (my absolute favorite). I'm a fast learner who thrives on mastering new technologies, and I bring reliability, a strong work ethic, and a commitment to continuous improvement to everything I do.
+                        <p data-text-en="My journey in tech has equipped me with a versatile skill set: from crafting pixel-perfect frontends with modern JavaScript frameworks to designing robust backend systems. When I'm not coding, you'll find me exploring 3D modeling, game development, or diving into the latest tech trends." data-text-af="My reis in tegnologie het my toegerus met 'n veelsydige vaardigheidstel: van die skep van pixel-perfekte frontends met moderne JavaScript-raamwerke tot die ontwerp van robuuste backend-stelsels. Wanneer ek nie kodeer nie, sal jy my vind wat 3D-modellering, spelontwikkeling verken, of in die nuutste tegnologie-neigings duik.">
+                            My journey in tech has equipped me with a versatile skill set: from crafting pixel-perfect frontends with modern JavaScript frameworks to designing robust backend systems. When I'm not coding, you'll find me exploring 3D modeling, game development, or diving into the latest tech trends.
                         </p>
-                        <div class="about-languages">
-                            <h4 data-text-en="Languages" data-text-af="Tale">Languages</h4>
-                            <p data-text-en="English – Fluent | Afrikaans – Native Speaker | Dutch – Basic" data-text-af="Engels – Vloeiend | Afrikaans – Moedertaalspreker | Nederlands – Basies">English – Fluent | Afrikaans – Native Speaker | Dutch – Basic</p>
-                        </div>
                         <div class="about-stats">
-                            <div class="stat-item"><div class="stat-number" data-count="46">0</div><div class="stat-label" data-text-en="Websites Built" data-text-af="Webwerwe Gebou">Websites Built</div></div>
-                            <div class="stat-item"><div class="stat-number" data-count="7">0</div><div class="stat-label" data-text-en="Years Experience" data-text-af="Jaar Ervaring">Years Experience</div></div>
-                            <div class="stat-item"><div class="stat-number" data-count="2">0</div><div class="stat-label" data-text-en="Games Created" data-text-af="Speletjies Geskep">Games Created</div></div>
+                            <div class="stat-item"><span class="stat-number" data-count="4">0</span><span class="stat-label" data-text-en="Years Experience" data-text-af="Jaar Ervaring">Years Experience</span></div>
+                            <div class="stat-item"><span class="stat-number" data-count="50">0</span><span class="stat-label" data-text-en="Projects Completed" data-text-af="Projekte Voltooi">Projects Completed</span></div>
+                            <div class="stat-item"><span class="stat-number" data-count="30">0</span><span class="stat-label" data-text-en="Technologies" data-text-af="Tegnologieë">Technologies</span></div>
+                            <div class="stat-item"><span class="stat-number" data-count="100">0</span><span class="stat-label" data-text-en="Commits This Year" data-text-af="Commits Hierdie Jaar">Commits This Year</span></div>
                         </div>
                     </div>
-
-                    <div class="code-block" aria-label="Developer profile code block">
-                        <div class="code-line"><span class="code-keyword">const</span> <span class="code-variable">william</span> <span class="code-operator">=</span> <span class="code-brace">{</span></div>
+                    <div class="code-block" aria-label="Developer profile code">
+                        <div class="code-line"><span class="code-keyword">const</span> <span class="code-variable">developer</span> <span class="code-operator">=</span> <span class="code-brace">{</span></div>
                         <div class="code-line indent"><span class="code-property">name</span><span class="code-operator">:</span> <span class="code-string">'William Sham'</span><span class="code-comma">,</span></div>
-                        <div class="code-line indent"><span class="code-property">title</span><span class="code-operator">:</span> <span class="code-string">'Senior Web Developer'</span><span class="code-comma">,</span></div>
-                        <div class="code-line indent"><span class="code-property">certified</span><span class="code-operator">:</span> <span class="code-string">'CompTIA A+, MCSD'</span><span class="code-comma">,</span></div>
-                       <div class="code-line indent"><span class="code-property">skills</span><span class="code-operator">:</span> <span class="code-bracket">[</span> <span class="code-string">'JavaScript'</span><span class="code-comma">,</span> <span class="code-string">'HTML'</span><span class="code-comma">,</span> <span class="code-string">'CSS'</span><span class="code-comma">,</span> <span class="code-string">'React.js'</span><span class="code-comma">,</span></div>
-                        <div class="code-line indent-2"><span class="code-string">'PHP'</span><span class="code-comma">,</span> <span class="code-string">'ASP.NET'</span><span class="code-comma">,</span> <span class="code-string">'C#'</span><span class="code-comma">,</span> <span class="code-string">'Delphi'</span><span class="code-comma">,</span> <span class="code-string">'Java'</span><span class="code-comma">,</span> <span class="code-string">'C++'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent"><span class="code-property">role</span><span class="code-operator">:</span> <span class="code-string">'Full Stack Developer'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent"><span class="code-property">location</span><span class="code-operator">:</span> <span class="code-string">'South Africa'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent"><span class="code-property">skills</span><span class="code-operator">:</span> <span class="code-bracket">[</span></div>
+                        <div class="code-line indent-2"><span class="code-string">'JavaScript'</span><span class="code-comma">,</span> <span class="code-string">'React'</span><span class="code-comma">,</span> <span class="code-string">'Vue.js'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent-2"><span class="code-string">'PHP'</span><span class="code-comma">,</span> <span class="code-string">'C#'</span><span class="code-comma">,</span> <span class="code-string">'ASP.NET'</span><span class="code-comma">,</span> <span class="code-string">'Java'</span><span class="code-comma">,</span> <span class="code-string">'C++'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'SQL'</span><span class="code-comma">,</span> <span class="code-string">'Microsoft Azure'</span><span class="code-comma">,</span> <span class="code-string">'Azure DevOps'</span><span class="code-comma">,</span> <span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'Git'</span><span class="code-comma">,</span> <span class="code-string">'Unreal Engine 4'</span><span class="code-comma">,</span> <span class="code-string">'Unity'</span><span class="code-comma">,</span> <span class="code-string">'Radiant'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'WordPress'</span><span class="code-comma">,</span> <span class="code-string">'Shopify'</span><span class="code-comma">,</span> <span class="code-string">'Wix'</span><span class="code-comma">,</span> <span class="code-string">'Webflow'</span><span class="code-comma">,</span></div>
@@ -1598,46 +1601,39 @@ body {
                         <div class="timeline-content">
                             <div class="timeline-header"><div class="timeline-year">Mar 2023 - Aug 2024</div></div>
                             <h3 class="timeline-title" data-text-en="Web Developer" data-text-af="Web Ontwikkelaar">Web Developer</h3>
-                            <div class="timeline-company"><i class="fas fa-building" aria-hidden="true"></i>Current Automation, Randburg</div>
-                            <p class="timeline-description" data-text-en="Full-stack website development, server management, and cross-functional team collaboration." data-text-af="Full-stack webwerfontwikkeling, bedienerbestuur, en kruisfunksionele spansamewerking.">Full-stack website development, server management, and cross-functional team collaboration.</p>
+                            <div class="timeline-company"><i class="fas fa-building" aria-hidden="true"></i>Silverstone Group, Centurion</div>
+                            <p class="timeline-description" data-text-en="Full-stack web development, Perfex CRM modules, business solutions development, and e-commerce platform creation." data-text-af="Full-stack webontwikkeling, Perfex CRM-modules, besigheidsoplossings-ontwikkeling, en e-handelsplatform-skepping.">Full-stack web development, Perfex CRM modules, business solutions development, and e-commerce platform creation.</p>
                             <div class="timeline-achievements">
-                                <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-text-en="Generated R150,000 revenue in 2 months" data-text-af="R150,000 inkomste in 2 maande gegenereer">Generated R150,000 revenue in 2 months</span></div>
-                                <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-text-en="Built dual-market e-commerce platform" data-text-af="Dubbelmark e-handelsplatform gebou">Built dual-market e-commerce platform</span></div>
-                                <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-text-en="Revamped 12 websites, delivered 3 months early" data-text-af="12 webwerwe herontwerp, 3 maande vroeg gelewer">Revamped 12 websites, delivered 3 months early</span></div>
+                                <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-text-en="Developed 15+ custom Perfex CRM modules" data-text-af="15+ pasgemaakte Perfex CRM-modules ontwikkel">Developed 15+ custom Perfex CRM modules</span></div>
+                                <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-text-en="Built WhatsApp chatbot integration" data-text-af="WhatsApp-kletsbotintegrasie gebou">Built WhatsApp chatbot integration</span></div>
                             </div>
-                            <div class="timeline-tags"><span class="tag">PHP</span><span class="tag">HTML/CSS</span><span class="tag">JavaScript</span><span class="tag">E-commerce</span></div>
+                            <div class="timeline-tags"><span class="tag">PHP</span><span class="tag">JavaScript</span><span class="tag">Perfex CRM</span><span class="tag">MySQL</span></div>
                         </div>
                     </article>
                     <article class="timeline-item">
                         <div class="timeline-marker" aria-hidden="true"></div>
                         <div class="timeline-content">
-                            <div class="timeline-header"><div class="timeline-year">Feb 2022 - Jul 2022</div></div>
-                            <h3 class="timeline-title" data-text-en="Technical Manager" data-text-af="Tegniese Bestuurder">Technical Manager</h3>
-                            <div class="timeline-company"><i class="fas fa-building" aria-hidden="true"></i>MVT-Tech and MVT-Systems, Randburg</div>
-                            <p class="timeline-description" data-text-en="Led team of technicians, improved response times by 15%, maintained 97% SLA compliance." data-text-af="Gelei span tegnici, reaksietye met 15% verbeter, 97% SLA-nakoming gehandhaaf.">Led team of technicians, improved response times by 15%, maintained 97% SLA compliance.</p>
-                            <div class="timeline-tags"><span class="tag">IT Support</span><span class="tag">Team Leadership</span><span class="tag">SLA Management</span></div>
+                            <div class="timeline-header"><div class="timeline-year">2021 - 2022</div></div>
+                            <h3 class="timeline-title" data-text-en="Freelance Developer" data-text-af="Vryskut Ontwikkelaar">Freelance Developer</h3>
+                            <div class="timeline-company"><i class="fas fa-laptop-house" aria-hidden="true"></i><span data-text-en="Self-Employed" data-text-af="Selfstandig">Self-Employed</span></div>
+                            <p class="timeline-description" data-text-en="Built custom websites and web applications for various clients. Focused on WordPress development, custom themes, and e-commerce solutions." data-text-af="Pasgemaakte webwerwe en webtoepassings vir verskeie kliënte gebou. Gefokus op WordPress-ontwikkeling, pasgemaakte temas, en e-handelsoplossings.">Built custom websites and web applications for various clients. Focused on WordPress development, custom themes, and e-commerce solutions.</p>
+                            <div class="timeline-tags"><span class="tag">WordPress</span><span class="tag">WooCommerce</span><span class="tag">PHP</span><span class="tag">JavaScript</span></div>
                         </div>
                     </article>
-                    <article class="timeline-item">
-                        <div class="timeline-marker" aria-hidden="true"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-header"><div class="timeline-year">Feb 2022 - Jul 2022</div></div>
-                            <h3 class="timeline-title" data-text-en="IT Support Engineer" data-text-af="IT Ondersteuning Ingenieur">IT Support Engineer</h3>
-                            <div class="timeline-company"><i class="fas fa-building" aria-hidden="true"></i>Reflex Solutions, Randburg</div>
-                            <p class="timeline-description" data-text-en="Resolved hardware and software issues for 50+ users daily. Maintained 95% first-contact resolution rate." data-text-af="Opgelos hardeware en sagteware kwessies vir 50+ gebruikers daagliks. 95% eerste-kontak oplossing koers gehandhaaf.">Resolved hardware and software issues for 50+ users daily. Maintained 95% first-contact resolution rate.</p>
-                            <div class="timeline-tags"><span class="tag">IT Support</span><span class="tag">System Configuration</span><span class="tag">Network Troubleshooting</span></div>
-                        </div>
-                    </article>
-                    <article class="timeline-item">
-                        <div class="timeline-marker" aria-hidden="true"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-header"><div class="timeline-year">2020 - 2021</div></div>
-                            <h3 class="timeline-title" data-text-en="Freelance IT Consultant" data-text-af="Vryskut IT Konsultant">Freelance IT Consultant</h3>
-                            <div class="timeline-company"><i class="fas fa-briefcase" aria-hidden="true"></i>ENTREPRENEURIAL EXPERIENCE</div>
-                            <p class="timeline-description" data-text-en="Created websites for CTU Training Solutions, LMH Projects, GhostX, and 3DLazerMonkey. Set up servers and IT infrastructure for small businesses." data-text-af="Webwerwe geskep vir CTU Opleidings Oplossings, LMH Projekte, GhostX, en 3DLazerMonkey. Bedieners en IT infrastruktuur opgestel vir klein besighede.">Created websites for CTU Training Solutions, LMH Projects, GhostX, and 3DLazerMonkey. Set up servers and IT infrastructure for small businesses.</p>
-                            <div class="timeline-tags"><span class="tag">Web Development</span><span class="tag">Server Setup</span><span class="tag">IT Infrastructure</span></div>
-                        </div>
-                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Games Section -->
+        <section id="games" class="section" aria-labelledby="games-title">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number" aria-hidden="true">04</span>
+                    <h2 class="section-title" id="games-title"><span class="title-bracket" aria-hidden="true">&lt;</span><span class="title-text" data-text-en="Games" data-text-af="Speletjies">Games</span><span class="title-bracket" aria-hidden="true">/&gt;</span></h2>
+                    <div class="section-line" aria-hidden="true"></div>
+                </div>
+                <div class="games-grid" id="games-grid">
+                    <!-- Games will be loaded dynamically -->
                 </div>
             </div>
         </section>
@@ -1646,7 +1642,7 @@ body {
         <section id="projects" class="section" aria-labelledby="projects-title">
             <div class="section-container">
                 <div class="section-header">
-                    <span class="section-number" aria-hidden="true">04</span>
+                    <span class="section-number" aria-hidden="true">05</span>
                     <h2 class="section-title" id="projects-title"><span class="title-bracket" aria-hidden="true">&lt;</span><span class="title-text" data-text-en="Projects" data-text-af="Projekte">Projects</span><span class="title-bracket" aria-hidden="true">/&gt;</span></h2>
                     <div class="section-line" aria-hidden="true"></div>
                 </div>
@@ -1660,7 +1656,7 @@ body {
         <section id="contact" class="section" aria-labelledby="contact-title">
             <div class="section-container">
                 <div class="section-header">
-                    <span class="section-number" aria-hidden="true">05</span>
+                    <span class="section-number" aria-hidden="true">06</span>
                     <h2 class="section-title" id="contact-title"><span class="title-bracket" aria-hidden="true">&lt;</span><span class="title-text" data-text-en="Contact" data-text-af="Kontak">Contact</span><span class="title-bracket" aria-hidden="true">/&gt;</span></h2>
                     <div class="section-line" aria-hidden="true"></div>
                 </div>
@@ -1711,6 +1707,64 @@ const App = {
         menuOpen: false,
         loaded: false
     },
+    
+    // Games data
+    games: [
+        { 
+            id: 'minesweeper',
+            title: 'Minesweeper', 
+            file: 'minesweeper.html',
+            icon: 'fas fa-bomb',
+            tags: ['Puzzle', 'Classic', 'JavaScript'],
+            descEn: 'Classic minesweeper game with multiple difficulty levels',
+            descAf: 'Klassieke mynveer-speletjie met verskeie moeilikheidsgrade'
+        },
+        { 
+            id: 'platformer',
+            title: 'Platformer', 
+            file: 'platformer.html',
+            icon: 'fas fa-running',
+            tags: ['Action', 'Platform', 'Canvas'],
+            descEn: 'Side-scrolling platformer with challenging obstacles',
+            descAf: 'Sy-rollende platform met uitdagende hindernisse'
+        },
+        { 
+            id: 'pong',
+            title: 'Pong', 
+            file: 'pong.html',
+            icon: 'fas fa-table-tennis',
+            tags: ['Arcade', 'Classic', 'Multiplayer'],
+            descEn: 'The classic arcade game - play against AI or a friend',
+            descAf: 'Die klassieke arcade-speletjie - speel teen AI of \'n vriend'
+        },
+        { 
+            id: 'snake',
+            title: 'Snake Game', 
+            file: 'snake_game.html',
+            icon: 'fas fa-worm',
+            tags: ['Arcade', 'Classic', 'JavaScript'],
+            descEn: 'Guide the snake to eat and grow without hitting walls',
+            descAf: 'Lei die slang om te eet en te groei sonder om mure te tref'
+        },
+        { 
+            id: 'tower',
+            title: 'Tower Blocks', 
+            file: 'tower_blocks.html',
+            icon: 'fas fa-cubes',
+            tags: ['Puzzle', 'Stacking', 'Skill'],
+            descEn: 'Stack blocks as high as you can - precision required!',
+            descAf: 'Stapel blokke so hoog as moontlik - presisie vereis!'
+        },
+        { 
+            id: 'wordguess',
+            title: 'Word Guess', 
+            file: 'word_guess.html',
+            icon: 'fas fa-spell-check',
+            tags: ['Word', 'Puzzle', 'Brain'],
+            descEn: 'Guess the hidden word before running out of attempts',
+            descAf: 'Raai die verborge woord voordat pogings opraak'
+        }
+    ],
     
     // Project data for lazy loading
     projects: [
@@ -1859,8 +1913,9 @@ function initLoader() {
                 loader.classList.add('hidden');
                 App.state.loaded = true;
                 initAnimations();
+                loadGames();
                 loadProjects();
-                // Re-apply language after projects are loaded
+                // Re-apply language after content is loaded
                 setLanguage(App.state.lang);
             }, 200);
         }
@@ -1923,6 +1978,90 @@ function animateNumber(el, start, end, duration) {
     }
     
     requestAnimationFrame(update);
+}
+
+// ===== GAMES (Dynamically loaded with iframes) =====
+function loadGames() {
+    const grid = $('#games-grid');
+    if (!grid) return;
+    
+    const gameBase = 'https://williamsham90.github.io/Portfolio/Games/';
+    const fragment = document.createDocumentFragment();
+    
+    App.games.forEach((game, index) => {
+        const card = document.createElement('article');
+        card.className = 'game-card';
+        card.innerHTML = `
+            <div class="game-preview">
+                <div class="game-loader" id="loader-${game.id}">
+                    <i class="${game.icon} game-loader-icon" aria-hidden="true"></i>
+                    <div class="game-loader-spinner"></div>
+                    <span class="game-loader-text" data-text-en="Loading game..." data-text-af="Laai speletjie...">Loading game...</span>
+                </div>
+                <div class="game-iframe-wrapper">
+                    <iframe 
+                        class="game-iframe" 
+                        data-src="${gameBase}${game.file}"
+                        title="${game.title}"
+                        loading="lazy"
+                        sandbox="allow-scripts allow-same-origin"
+                        aria-label="Preview of ${game.title}"
+                    ></iframe>
+                </div>
+                <div class="game-overlay">
+                    <a href="${gameBase}${game.file}" target="_blank" rel="noopener noreferrer" class="game-play-btn">
+                        <i class="fas fa-play" aria-hidden="true"></i>
+                        <span data-text-en="Play Game" data-text-af="Speel Speletjie">Play Game</span>
+                    </a>
+                </div>
+            </div>
+            <div class="game-content">
+                <h3 class="game-title"><i class="${game.icon}" aria-hidden="true"></i>${game.title}</h3>
+                <p class="game-description" data-text-en="${game.descEn}" data-text-af="${game.descAf}">${App.state.lang === 'en' ? game.descEn : game.descAf}</p>
+                <div class="game-tags">${game.tags.map(t => `<span class="game-tag">${t}</span>`).join('')}</div>
+            </div>
+        `;
+        fragment.appendChild(card);
+    });
+    
+    grid.appendChild(fragment);
+    
+    // Initialize lazy loading for game iframes
+    initGameIframeLazyLoad();
+}
+
+// Lazy load game iframes when they come into view
+function initGameIframeLazyLoad() {
+    const gameObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const card = entry.target;
+                const iframe = card.querySelector('.game-iframe');
+                const loader = card.querySelector('.game-loader');
+                const src = iframe.getAttribute('data-src');
+                
+                if (src && !iframe.src) {
+                    iframe.src = src;
+                    
+                    iframe.addEventListener('load', () => {
+                        // Add a small delay for smooth transition
+                        setTimeout(() => {
+                            loader.classList.add('hidden');
+                        }, 500);
+                    });
+                    
+                    // Fallback: Hide loader after timeout if load event doesn't fire
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                    }, 5000);
+                }
+                
+                gameObserver.unobserve(card);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '100px 0px' });
+    
+    $$('.game-card').forEach(card => gameObserver.observe(card));
 }
 
 // ===== PROJECTS (Lazy loaded) =====
@@ -2036,14 +2175,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     $('#menuToggle').addEventListener('click', toggleMenu);
     
-    // Close menu on escape
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && App.state.menuOpen) toggleMenu();
-    });
+    // Start loader
+    initLoader();
 });
-
-// Start loader after DOM is ready
-window.addEventListener('load', initLoader);
     </script>
 </body>
 </html>
