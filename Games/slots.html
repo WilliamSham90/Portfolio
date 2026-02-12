@@ -233,6 +233,8 @@ let crystalBonusActive=false,crystalBonusSpins=0,crystalStickyWilds=[];
 let displayedWin=0,displayedBalance=CONFIG.STARTING_BALANCE;
 let pendingBonusBalance=0;
 let winAnimId=null,balAnimId=null;
+// Bonus cooldown: prevent same bonus from re-triggering immediately
+let lastBonusType='',bonusCooldownSpins=0;
 
 /* ANIMATED COUNTER */
 function animateValue(elementId,startVal,endVal,duration,onDone){
@@ -270,7 +272,30 @@ function highlightWinningLineNumbers(li){document.querySelectorAll('.line-number
 function setupBetButtons(){document.querySelectorAll('.multiplier-btn').forEach(b=>{b.addEventListener('click',()=>{if(isSpinning)return;playSound('click');document.querySelectorAll('.multiplier-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');betMultiplier=parseInt(b.dataset.mult);updateAllDisplays()})})}
 
 /* REELS */
-function generateReelStrip(){const pool=[];Object.keys(SYMBOLS).forEach(k=>{for(let i=0;i<SYMBOLS[k].weight;i++)pool.push(k)});const strip=[];for(let i=0;i<CONFIG.SYMBOLS_PER_REEL;i++)strip.push(pool[Math.floor(Math.random()*pool.length)]);return strip}
+function generateReelStrip(){
+    const pool=[];
+    Object.keys(SYMBOLS).forEach(k=>{
+        let w=SYMBOLS[k].weight;
+        // During cooldown, suppress the last bonus type's scatter weight
+        if(bonusCooldownSpins>0){
+            if(lastBonusType==='diamond'&&SYMBOLS[k].isDiamondScatter) w=Math.max(1,Math.floor(w*0.3));
+            if(lastBonusType==='crystal'&&SYMBOLS[k].isCrystalScatter) w=Math.max(1,Math.floor(w*0.3));
+            if(lastBonusType==='moneybag'&&SYMBOLS[k].isBonus) w=Math.max(1,Math.floor(w*0.3));
+        }
+        for(let i=0;i<w;i++)pool.push(k);
+    });
+    const strip=[];
+    for(let i=0;i<CONFIG.SYMBOLS_PER_REEL;i++)strip.push(pool[Math.floor(Math.random()*pool.length)]);
+    return strip;
+}
+/* Regenerate ALL reel strips fresh — clears any contamination from bonus rounds */
+function regenerateAllStrips(){
+    for(let i=0;i<CONFIG.REEL_COUNT;i++){
+        reelStrips[i]=generateReelStrip();
+        rerenderReelSymbols(i);
+        updateReelPosition(i,currentPositions[i]);
+    }
+}
 function renderReels(){const c=document.getElementById('reelsContainer');c.innerHTML='';for(let i=0;i<CONFIG.REEL_COUNT;i++){const reel=document.createElement('div');reel.className='reel';reel.id=`reel-${i}`;const strip=document.createElement('div');strip.className='reel-strip';strip.id=`strip-${i}`;const t=[...reelStrips[i],...reelStrips[i],...reelStrips[i]];t.forEach((k,idx)=>{const s=document.createElement('div');s.className='symbol';s.dataset.index=idx%CONFIG.SYMBOLS_PER_REEL;s.dataset.symbol=k;const c2=document.createElement('div');c2.className='symbol-content';c2.textContent=SYMBOLS[k].emoji;s.appendChild(c2);strip.appendChild(s)});reel.appendChild(strip);c.appendChild(reel)}}
 function updateReelPosition(ri,pos){const s=document.getElementById(`strip-${ri}`);if(!s)return;const h=getSymH();s.style.transform=`translateY(-${pos*h}px)`}
 function rerenderReelSymbols(ri){const strip=document.getElementById(`strip-${ri}`);const syms=strip.querySelectorAll('.symbol');const tripled=[...reelStrips[ri],...reelStrips[ri],...reelStrips[ri]];syms.forEach((s,idx)=>{const key=tripled[idx];s.dataset.symbol=key;s.querySelector('.symbol-content').textContent=SYMBOLS[key].emoji})}
@@ -339,6 +364,8 @@ async function spin(){
     sb.className='spin-btn'; // reset all bonus classes
     clearWinEffects();currentWinningLines=[];
     playSound('spin');
+    // Decrement bonus cooldown each spin
+    if(bonusCooldownSpins>0)bonusCooldownSpins--;
 
     if(diamondBonusActive){
         diamondBonusSpins--;document.getElementById('diamondSpinsLeft').textContent=diamondBonusSpins;
@@ -359,7 +386,9 @@ async function spin(){
     // Diamond bonus: pick 2-4 fresh random columns, bake diamonds into target positions
     diamondReelsThisSpin=[];
     if(diamondBonusActive){
-        const numDiamondCols=[2,2,3,3,3,4][Math.floor(Math.random()*6)]; // weighted: mostly 2-3, sometimes 4
+        // 2 columns = common (~65%), 3 = rare (~27%), 4 = epic (~8%)
+        const roll=Math.random();
+        const numDiamondCols=roll<0.65?2:roll<0.92?3:4;
         const available=[0,1,2,3,4];
         for(let i=0;i<numDiamondCols;i++){
             const pick=available.splice(Math.floor(Math.random()*available.length),1)[0];
@@ -431,6 +460,10 @@ function finishBonusRound(){
     bonusRoundActive=false;bonusRoundWinTotal=0;bonusSpinsUsed=0;
     document.getElementById('bonusWinTotal').textContent='0';
     document.getElementById('freeSpinsBanner').classList.remove('active');
+    // CRITICAL: regenerate fresh reel strips to clear all contamination
+    regenerateAllStrips();
+    // Set cooldown: 8-15 spins before same bonus type can trigger again
+    bonusCooldownSpins=8+Math.floor(Math.random()*8);
 }
 
 async function animateSpin(targets){
@@ -463,9 +496,10 @@ async function processWins(){
     // --- During free spins from money bag: CAN trigger diamond/crystal bonuses ---
     // --- During diamond/crystal bonus: NO other bonus triggers ---
     if(!inLockedBonus){
-        // Sticky bonus check (money bags)
+        // Sticky bonus check (money bags) — skip if moneybag on cooldown
         const bonusPos=findScatterPositions('isBonus');
-        if(bonusPos.length>=CONFIG.SCATTERS_FOR_BONUS&&!stickyBonusActive){
+        const moneybagBlocked=(bonusCooldownSpins>0&&lastBonusType==='moneybag');
+        if(bonusPos.length>=CONFIG.SCATTERS_FOR_BONUS&&!stickyBonusActive&&!moneybagBlocked){
             playSound('bonus');stickyBonusActive=true;stickyPositions=bonusPos;
             showStickySymbols();document.getElementById('stickyBonusBanner').classList.add('active');
             showWinMessage('💰 STICKY BONUS ACTIVATED! 💰');
@@ -477,9 +511,9 @@ async function processWins(){
                 // Sticky phase done — calculate win & award free spins
                 const sw=calculateStickyWin();
                 const ct=stickyPositions.length;
-                // Updated free spin amounts: 3=7, 4=10, 5=15, 6+=20
                 const sp=ct>=6?20:ct>=5?15:ct>=4?10:7;
                 freeSpins+=sp;freeSpinSource='moneybag';
+                lastBonusType='moneybag';
                 bonusRoundActive=true;bonusRoundWinTotal=sw;pendingBonusBalance=sw;bonusSpinsUsed=0;
                 playSound('bigwin');showWinMessage(`💰 STICKY WIN: ${sw.toLocaleString()} + ${sp} FREE SPINS!`);
                 animateWinTo(sw);
@@ -489,44 +523,51 @@ async function processWins(){
             }
         }
 
-        // Diamond scatter: consecutive reels
-        const dConsec=findConsecutiveDiamondReels();
-        if(dConsec.length>=3){
-            const spins=dConsec.length>=5?7:dConsec.length>=4?6:5;
-            diamondBonusActive=true;diamondBonusSpins=spins;diamondReelsThisSpin=[];
-            if(!bonusRoundActive){
-                bonusRoundActive=true;bonusRoundWinTotal=0;pendingBonusBalance=0;bonusSpinsUsed=0;
-                displayedWin=0;document.getElementById('lastWin').textContent='0';
+        // Diamond scatter: consecutive reels — skip if diamond on cooldown
+        const diamondBlocked=(bonusCooldownSpins>0&&lastBonusType==='diamond');
+        if(!diamondBlocked){
+            const dConsec=findConsecutiveDiamondReels();
+            if(dConsec.length>=3){
+                const spins=dConsec.length>=5?7:dConsec.length>=4?6:5;
+                diamondBonusActive=true;diamondBonusSpins=spins;diamondReelsThisSpin=[];
+                lastBonusType='diamond';
+                if(!bonusRoundActive){
+                    bonusRoundActive=true;bonusRoundWinTotal=0;pendingBonusBalance=0;bonusSpinsUsed=0;
+                    displayedWin=0;document.getElementById('lastWin').textContent='0';
+                }
+                playSound('bonus');
+                document.getElementById('diamondBonusBanner').classList.add('active');
+                document.getElementById('diamondSpinsLeft').textContent=diamondBonusSpins;
+                document.getElementById('freeSpinsBanner').classList.add('active');
+                document.getElementById('bonusWinTotal').textContent=bonusRoundWinTotal.toLocaleString();
+                showWinMessage(`💎 DIAMOND BONUS! ${spins} FREE SPINS! 💎`);
+                await delay(1500);isSpinning=false;setTimeout(()=>spin(),500);return;
             }
-            playSound('bonus');
-            document.getElementById('diamondBonusBanner').classList.add('active');
-            document.getElementById('diamondSpinsLeft').textContent=diamondBonusSpins;
-            document.getElementById('freeSpinsBanner').classList.add('active');
-            document.getElementById('bonusWinTotal').textContent=bonusRoundWinTotal.toLocaleString();
-            showWinMessage(`💎 DIAMOND BONUS! ${spins} FREE SPINS! 💎`);
-            await delay(1500);isSpinning=false;setTimeout(()=>spin(),500);return;
         }
 
-        // Crystal ball scatter
-        const cPos=findScatterPositions('isCrystalScatter');
-        if(cPos.length>=3){
-            const spins=cPos.length>=5?7:cPos.length>=4?6:5;
-            crystalBonusActive=true;crystalBonusSpins=spins;
-            if(!bonusRoundActive){
-                bonusRoundActive=true;bonusRoundWinTotal=0;pendingBonusBalance=0;bonusSpinsUsed=0;
-                displayedWin=0;document.getElementById('lastWin').textContent='0';
+        // Crystal ball scatter — skip if crystal on cooldown
+        const crystalBlocked=(bonusCooldownSpins>0&&lastBonusType==='crystal');
+        if(!crystalBlocked){
+            const cPos=findScatterPositions('isCrystalScatter');
+            if(cPos.length>=3){
+                const spins=cPos.length>=5?7:cPos.length>=4?6:5;
+                crystalBonusActive=true;crystalBonusSpins=spins;
+                lastBonusType='crystal';
+                if(!bonusRoundActive){
+                    bonusRoundActive=true;bonusRoundWinTotal=0;pendingBonusBalance=0;bonusSpinsUsed=0;
+                    displayedWin=0;document.getElementById('lastWin').textContent='0';
+                }
+                crystalStickyWilds=[];placeRandomStickyWilds(2);
+                syncCrystalStrip();buildCrystalOverlays();
+                playSound('bonus');
+                document.getElementById('crystalBonusBanner').classList.add('active');
+                document.getElementById('crystalSpinsLeft').textContent=crystalBonusSpins;
+                document.getElementById('stickyWildCount').textContent=crystalStickyWilds.length;
+                document.getElementById('freeSpinsBanner').classList.add('active');
+                document.getElementById('bonusWinTotal').textContent=bonusRoundWinTotal.toLocaleString();
+                showWinMessage(`🔮 CRYSTAL BALL BONUS! ${spins} FREE SPINS + STICKY WILDS! 🔮`);
+                await delay(1500);isSpinning=false;setTimeout(()=>spin(),500);return;
             }
-            crystalStickyWilds=[];placeRandomStickyWilds(2);
-            // Sync wilds into strip immediately
-            syncCrystalStrip();buildCrystalOverlays();
-            playSound('bonus');
-            document.getElementById('crystalBonusBanner').classList.add('active');
-            document.getElementById('crystalSpinsLeft').textContent=crystalBonusSpins;
-            document.getElementById('stickyWildCount').textContent=crystalStickyWilds.length;
-            document.getElementById('freeSpinsBanner').classList.add('active');
-            document.getElementById('bonusWinTotal').textContent=bonusRoundWinTotal.toLocaleString();
-            showWinMessage(`🔮 CRYSTAL BALL BONUS! ${spins} FREE SPINS + STICKY WILDS! 🔮`);
-            await delay(1500);isSpinning=false;setTimeout(()=>spin(),500);return;
         }
     }
 
