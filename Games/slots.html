@@ -52,7 +52,8 @@
         .reel.winner-column{animation:columnGlow .5s ease-in-out infinite alternate}
         @keyframes columnGlow{from{box-shadow:inset 0 0 20px rgba(255,215,0,.3);border-color:var(--gold)}to{box-shadow:inset 0 0 40px rgba(255,215,0,.5);border-color:#fff}}
         .reel.sticky{border:2px solid var(--neon-pink);box-shadow:inset 0 0 15px rgba(255,20,147,.3)}
-        .reel.diamond-locked{border:2px solid #00bfff;box-shadow:inset 0 0 15px rgba(0,191,255,.4)}
+        .reel.diamond-locked{border:2px solid #00bfff;box-shadow:inset 0 0 20px rgba(0,191,255,.5);animation:diamondFlash .6s ease-in-out}
+        @keyframes diamondFlash{0%{box-shadow:inset 0 0 5px rgba(0,191,255,.2)}50%{box-shadow:inset 0 0 30px rgba(0,191,255,.7)}100%{box-shadow:inset 0 0 20px rgba(0,191,255,.5)}}
         .reel-strip{display:flex;flex-direction:column;will-change:transform}
         .reel.spinning .reel-strip{animation:spinReel .08s linear infinite}
         @keyframes spinReel{0%{transform:translateY(0)}100%{transform:translateY(calc(var(--symbol-height)*-1))}}
@@ -68,9 +69,6 @@
         .sticky-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
         .sticky-overlay-cell{position:absolute;left:0;width:100%;display:flex;align-items:center;justify-content:center;z-index:11}
         .sticky-overlay-cell .symbol-content{filter:drop-shadow(2px 2px 3px rgba(0,0,0,.8))}
-        .sticky-overlay-cell.diamond-cell{background:radial-gradient(circle,rgba(0,191,255,.35) 0%,rgba(0,100,200,.15) 50%,transparent 80%)}
-        .sticky-overlay-cell.diamond-cell::before{content:'🔒';position:absolute;top:2px;right:4px;font-size:11px;z-index:12}
-        .sticky-overlay-cell.diamond-cell::after{content:'';position:absolute;inset:2px;border:2px solid rgba(0,191,255,.6);border-radius:5px}
         .sticky-overlay-cell.wild-cell{background:radial-gradient(circle,rgba(218,112,214,.4) 0%,rgba(150,50,180,.15) 50%,transparent 80%);box-shadow:inset 0 0 15px rgba(218,112,214,.3)}
         .sticky-overlay-cell.wild-cell::before{content:'✨';position:absolute;top:2px;right:4px;font-size:11px;z-index:12}
         .sticky-overlay-cell.wild-cell::after{content:'';position:absolute;inset:2px;border:2px solid rgba(218,112,214,.6);border-radius:5px}
@@ -183,7 +181,7 @@
         <div class="paytable-grid" id="paytableGrid"></div>
         <div class="paytable-section"><h3>🃏 WILD Symbol</h3><p>Substitutes for all symbols except BONUS, DIAMOND and CRYSTAL BALL scatters.</p></div>
         <div class="paytable-section"><h3>💰 BONUS Symbol (3=7, 4=10, 5=15, 6+=20 Free Spins)</h3><p>Land 3+ BONUS symbols anywhere → Sticky Respin! Symbols lock, reels respin. Can trigger other bonuses during free spins!</p></div>
-        <div class="paytable-section"><h3>💎 DIAMOND Bonus</h3><p>3 Diamonds on CONSECUTIVE reels = 5 Free Spins (4=6, 5=7). Diamonds lock on screen! 2-3 reels become ALL DIAMONDS. No extra bonus during this round.</p></div>
+        <div class="paytable-section"><h3>💎 DIAMOND Bonus</h3><p>3 Diamonds on CONSECUTIVE reels = 5 Free Spins (4=6, 5=7). Each spin, 2-4 random reels become ALL DIAMONDS! Diamond reels change position every spin. No extra bonus during this round.</p></div>
         <div class="paytable-section"><h3>🔮 CRYSTAL BALL Bonus</h3><p>3 Crystal Balls anywhere = 5 Free Spins (4=6, 5=7). 2 Sticky Wilds placed & locked! New wilds also stick. Screen full = reset. No extra spins during this round.</p></div>
     </div>
 </div>
@@ -230,7 +228,7 @@ let isSpinning=false,canStop=false,stopRequested=false,autoSpinActive=false;
 let freeSpins=0,freeSpinSource='',reelStrips=[],currentPositions=[],lastWin=0;
 let stickyBonusActive=false,stickyPositions=[],bonusRoundActive=false,bonusRoundWinTotal=0,bonusSpinsUsed=0;
 let currentWinningLines=[];
-let diamondBonusActive=false,diamondBonusSpins=0,diamondLockedReels=[],diamondLockedPositions=[];
+let diamondBonusActive=false,diamondBonusSpins=0,diamondReelsThisSpin=[];
 let crystalBonusActive=false,crystalBonusSpins=0,crystalStickyWilds=[];
 let displayedWin=0,displayedBalance=CONFIG.STARTING_BALANCE;
 let pendingBonusBalance=0;
@@ -303,14 +301,7 @@ function addStickyCell(reelIdx,row,emoji,cssClass){
 function clearAllOverlays(){document.querySelectorAll('.sticky-overlay').forEach(o=>o.remove())}
 function clearReelOverlay(ri){const reel=document.getElementById(`reel-${ri}`);const ov=reel?.querySelector('.sticky-overlay');if(ov)ov.remove()}
 
-/* Build overlays for diamond locked positions */
-function buildDiamondOverlays(){
-    diamondLockedReels.forEach(ri=>{
-        clearReelOverlay(ri);
-        for(let r=0;r<CONFIG.VISIBLE_ROWS;r++)addStickyCell(ri,r,SYMBOLS.diamond.emoji,'diamond-cell');
-        document.getElementById(`reel-${ri}`).classList.add('diamond-locked');
-    });
-}
+/* Diamond reels now spin naturally - no overlays or sync needed */
 /* Build overlays for crystal sticky wilds */
 function buildCrystalOverlays(){
     // Clear all existing wild overlays
@@ -320,14 +311,7 @@ function buildCrystalOverlays(){
     });
 }
 
-/* After spin stops, sync the underlying strip data to match overlays */
-function syncDiamondStrip(){
-    diamondLockedReels.forEach(ri=>{
-        const pos=currentPositions[ri];
-        for(let r=0;r<CONFIG.VISIBLE_ROWS;r++)reelStrips[ri][(pos+r)%CONFIG.SYMBOLS_PER_REEL]='diamond';
-        rerenderReelSymbols(ri);
-    });
-}
+/* Crystal: sync strip data to match sticky wild overlays */
 function syncCrystalStrip(){
     crystalStickyWilds.forEach(w=>{
         const pos=(currentPositions[w.col]+w.row)%CONFIG.SYMBOLS_PER_REEL;
@@ -372,20 +356,49 @@ async function spin(){
     if(stickyBonusActive)targets=generateStickySpinResult();
     else targets=generateSpinResult();
 
+    // Diamond bonus: pick 2-4 fresh random columns, bake diamonds into target positions
+    diamondReelsThisSpin=[];
+    if(diamondBonusActive){
+        const numDiamondCols=[2,2,3,3,3,4][Math.floor(Math.random()*6)]; // weighted: mostly 2-3, sometimes 4
+        const available=[0,1,2,3,4];
+        for(let i=0;i<numDiamondCols;i++){
+            const pick=available.splice(Math.floor(Math.random()*available.length),1)[0];
+            diamondReelsThisSpin.push(pick);
+        }
+        // Write diamonds into the strip at target positions so they land naturally
+        diamondReelsThisSpin.forEach(ri=>{
+            for(let r=0;r<CONFIG.VISIBLE_ROWS;r++){
+                reelStrips[ri][(targets[ri]+r)%CONFIG.SYMBOLS_PER_REEL]='diamond';
+            }
+            rerenderReelSymbols(ri);
+        });
+    }
+
     await animateSpin(targets);
     currentPositions=targets;
 
-    // After spin: sync sticky data into strips
-    if(diamondBonusActive)syncDiamondStrip();
+    // After spin: sync crystal sticky data into strips
     if(crystalBonusActive)syncCrystalStrip();
+
+    // Diamond: highlight which reels landed as diamonds
+    if(diamondBonusActive&&diamondReelsThisSpin.length>0){
+        diamondReelsThisSpin.forEach(ri=>{
+            document.getElementById(`reel-${ri}`).classList.add('diamond-locked');
+        });
+        // Remove glow after a moment (will be cleared next spin anyway)
+        setTimeout(()=>{
+            diamondReelsThisSpin.forEach(ri=>{
+                document.getElementById(`reel-${ri}`)?.classList.remove('diamond-locked');
+            });
+        },1500);
+    }
 
     await processWins();
 
     // End diamond bonus
     if(diamondBonusActive&&diamondBonusSpins<=0){
-        diamondBonusActive=false;diamondLockedReels=[];diamondLockedPositions=[];
+        diamondBonusActive=false;diamondReelsThisSpin=[];
         document.querySelectorAll('.reel.diamond-locked').forEach(r=>r.classList.remove('diamond-locked'));
-        clearAllOverlays();
         document.getElementById('diamondBonusBanner').classList.remove('active');
         finishBonusRound();
     }
@@ -422,11 +435,9 @@ function finishBonusRound(){
 
 async function animateSpin(targets){
     const sb=document.getElementById('spinBtn');
-    // Start spinning reels (skip locked ones)
+    // Start spinning reels (skip only sticky bonus locked ones)
     for(let i=0;i<CONFIG.REEL_COUNT;i++){
         if(stickyBonusActive&&isReelSticky(i))continue;
-        // Diamond: entire locked reels don't spin
-        if(diamondBonusActive&&diamondLockedReels.includes(i))continue;
         document.getElementById(`reel-${i}`).classList.add('spinning');
     }
     await delay(CONFIG.SPIN_MIN_DURATION/2);canStop=true;sb.textContent='STOP';sb.classList.add('stop-mode');
@@ -434,7 +445,6 @@ async function animateSpin(targets){
     const h=getSymH();
     for(let i=0;i<CONFIG.REEL_COUNT;i++){
         if(stickyBonusActive&&isReelSticky(i))continue;
-        if(diamondBonusActive&&diamondLockedReels.includes(i))continue;
         const reel=document.getElementById(`reel-${i}`),strip=document.getElementById(`strip-${i}`);
         reel.classList.remove('spinning');playSound('stop');
         strip.style.transition='transform .15s cubic-bezier(.2,.8,.3,1.05)';
@@ -483,24 +493,11 @@ async function processWins(){
         const dConsec=findConsecutiveDiamondReels();
         if(dConsec.length>=3){
             const spins=dConsec.length>=5?7:dConsec.length>=4?6:5;
-            diamondBonusActive=true;diamondBonusSpins=spins;
-            // If we're already in a moneybag free-spin bonus, keep accumulating
+            diamondBonusActive=true;diamondBonusSpins=spins;diamondReelsThisSpin=[];
             if(!bonusRoundActive){
                 bonusRoundActive=true;bonusRoundWinTotal=0;pendingBonusBalance=0;bonusSpinsUsed=0;
                 displayedWin=0;document.getElementById('lastWin').textContent='0';
             }
-            // Lock 2-3 of the consecutive reels
-            const numLocked=dConsec.length>=5?3:2;
-            const pool=[...dConsec];diamondLockedReels=[];
-            while(diamondLockedReels.length<numLocked&&pool.length>0)
-                diamondLockedReels.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
-            // Write diamonds into strip & build overlays
-            diamondLockedReels.forEach(ri=>{
-                const pos=currentPositions[ri];
-                for(let r=0;r<CONFIG.VISIBLE_ROWS;r++)reelStrips[ri][(pos+r)%CONFIG.SYMBOLS_PER_REEL]='diamond';
-                rerenderReelSymbols(ri);
-            });
-            buildDiamondOverlays();
             playSound('bonus');
             document.getElementById('diamondBonusBanner').classList.add('active');
             document.getElementById('diamondSpinsLeft').textContent=diamondBonusSpins;
@@ -663,7 +660,7 @@ function minBet(){if(isSpinning)return;playSound('click');betMultiplier=1;active
 function maxBet(){if(isSpinning)return;playSound('click');betMultiplier=100;activeLines=CONFIG.MAX_LINES;document.querySelectorAll('.multiplier-btn').forEach(b=>b.classList.toggle('active',b.dataset.mult==='100'));updateAllDisplays()}
 function toggleAutoSpin(){playSound('click');autoSpinActive=!autoSpinActive;const b=document.getElementById('autoSpinBtn');b.classList.toggle('active',autoSpinActive);b.textContent=autoSpinActive?'STOP':'AUTO';if(autoSpinActive&&!isSpinning)spin()}
 function togglePaytable(){playSound('click');document.getElementById('paytableModal').classList.toggle('active')}
-function renderPaytable(){const c=document.getElementById('paytableGrid');Object.entries(SYMBOLS).forEach(([k,s])=>{const item=document.createElement('div');item.className='paytable-item';let v=`${s.value}x`,sp='';if(s.isWild){v='500x';sp='Substitutes all!'}if(s.isBonus){v='3+ triggers';sp='STICKY + 7-20 FREE SPINS!'}if(s.isDiamondScatter){v='150x + Scatter';sp='3 consecutive = DIAMOND BONUS!'}if(s.isCrystalScatter){v='Scatter';sp='3+ = CRYSTAL BALL BONUS!'}item.innerHTML=`<span class="paytable-symbol">${s.emoji}</span><div class="paytable-info"><div class="paytable-name">${s.name}</div><div class="paytable-value">${v}</div>${sp?`<div class="paytable-special">${sp}</div>`:''}</div>`;c.appendChild(item)})}
+function renderPaytable(){const c=document.getElementById('paytableGrid');Object.entries(SYMBOLS).forEach(([k,s])=>{const item=document.createElement('div');item.className='paytable-item';let v=`${s.value}x`,sp='';if(s.isWild){v='500x';sp='Substitutes all!'}if(s.isBonus){v='3+ triggers';sp='STICKY + 7-20 FREE SPINS!'}if(s.isDiamondScatter){v='150x + Scatter';sp='3 consecutive = DIAMOND BONUS! 2-4 reels!'}if(s.isCrystalScatter){v='Scatter';sp='3+ = CRYSTAL BALL BONUS!'}item.innerHTML=`<span class="paytable-symbol">${s.emoji}</span><div class="paytable-info"><div class="paytable-name">${s.name}</div><div class="paytable-value">${v}</div>${sp?`<div class="paytable-special">${sp}</div>`:''}</div>`;c.appendChild(item)})}
 
 /* EVENTS */
 document.getElementById('paytableModal').addEventListener('click',e=>{if(e.target.id==='paytableModal')togglePaytable()});
