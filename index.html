@@ -43,6 +43,8 @@
     --gradient-1: linear-gradient(135deg, #c084fc 0%, #a78bfa 50%, #67e8f9 100%);
     --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
     --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-code: 'Fira Code', 'Consolas', monospace;
 }
@@ -186,6 +188,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.2rem;
+    text-decoration: none;
 }
 
 .logo-bracket { color: var(--purple); }
@@ -331,10 +334,14 @@ body {
 }
 
 .hero-container {
-    max-width: 1200px;
+    max-width: 1400px;
     width: 100%;
     position: relative;
     z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
 }
 
 .hero-content {
@@ -486,6 +493,189 @@ body {
     transform: translateY(-2px);
 }
 
+/* ===== HERO IMAGE ===== */
+.hero-image-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-image-container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+}
+
+.profile-image-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(192, 132, 252, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+.profile-image-frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 4px solid var(--primary);
+    box-shadow: 
+        0 0 30px rgba(192, 132, 252, 0.3),
+        0 0 60px rgba(192, 132, 252, 0.1);
+    overflow: hidden;
+    background: var(--bg-card);
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    will-change: transform;
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+}
+
+.profile-placeholder {
+    font-size: 8rem;
+    color: var(--primary);
+    opacity: 0.3;
+}
+
+.floating-badge {
+    position: absolute;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+    animation: floatBadge 3s ease-in-out infinite;
+    min-width: 200px;
+    transition: all var(--transition-smooth);
+    z-index: 2;
+}
+
+.floating-badge:hover {
+    transform: translateY(-3px) scale(1.03);
+    border-color: var(--primary);
+    box-shadow: 0 5px 20px rgba(192, 132, 252, 0.25);
+}
+
+.floating-badge i {
+    font-size: 2rem;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.badge-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.badge-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.badge-libs {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.badge-1 {
+    top: 10%;
+    right: -10%;
+    animation-delay: 0s;
+}
+
+.badge-2 {
+    bottom: 20%;
+    right: -15%;
+    animation-delay: 1s;
+}
+
+.badge-3 {
+    top: 50%;
+    left: -15%;
+    animation-delay: 2s;
+}
+
+@keyframes floatBadge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+/* ===== SCROLL INDICATOR ===== */
+.scroll-indicator {
+    position: absolute;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    z-index: 2;
+}
+
+.scroll-mouse {
+    width: 30px;
+    height: 50px;
+    border: 2px solid var(--border);
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    padding-top: 8px;
+}
+
+.scroll-wheel {
+    width: 4px;
+    height: 10px;
+    background: var(--primary);
+    border-radius: 2px;
+    animation: scrollWheel 2s infinite;
+}
+
+@keyframes scrollWheel {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(20px); opacity: 0; }
+}
+
 /* ===== SECTIONS ===== */
 .section {
     padding: 5rem 0;
@@ -493,7 +683,7 @@ body {
 }
 
 .section-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 8%;
 }
@@ -1195,7 +1385,7 @@ body {
 }
 
 .footer-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 8%;
 }
@@ -1273,6 +1463,30 @@ body {
     
     .hero-section { padding: 5rem 5% 3rem; }
     .section-container { padding: 0 5%; }
+    
+    .hero-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .hero-image-wrapper {
+        order: -1;
+    }
+    
+    .hero-image-container {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .floating-badge {
+        min-width: 160px;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .badge-1 { right: -5%; }
+    .badge-2 { right: -8%; }
+    .badge-3 { left: -8%; }
 }
 
 @media (max-width: 768px) {
@@ -1306,6 +1520,19 @@ body {
     
     .hero-section { min-height: auto; padding: 6rem 5% 3rem; }
     
+    .hero-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-image-container {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .floating-badge {
+        display: none;
+    }
+    
     .about-stats {
         grid-template-columns: 1fr 1fr;
     }
@@ -1324,6 +1551,8 @@ body {
         gap: 1.5rem;
         text-align: center;
     }
+    
+    .scroll-indicator { display: none; }
     
     /* Reduce animations on mobile for performance */
     .particle { display: none; }
@@ -1351,6 +1580,11 @@ body {
     .btn { width: 100%; justify-content: center; }
     
     .hero-social { flex-wrap: wrap; justify-content: center; }
+    
+    .hero-image-container {
+        width: 200px;
+        height: 200px;
+    }
     
     .skill-category { padding: 1.25rem; }
     
@@ -1397,7 +1631,7 @@ body {
 </head>
 <body data-theme="dark" data-lang="en">
     
-    <!-- Loading Screen - Reduced animation time -->
+    <!-- Loading Screen -->
     <div class="loader-screen" id="loader" aria-label="Loading">
         <div class="loader-content">
             <div class="loader-code-text">
@@ -1470,9 +1704,50 @@ body {
                     <div class="hero-social">
                         <a href="https://github.com/WilliamSham90" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="GitHub Profile"><i class="fab fa-github"></i></a>
                         <a href="https://www.linkedin.com/in/william-sham-0a1a12211/" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="CodePen Profile"><i class="fab fa-codepen"></i></a>
                         <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216&searchtext=crash" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Steam Profile"><i class="fab fa-steam"></i></a>
                     </div>
                 </div>
+
+                <!-- Hero Image -->
+                <div class="hero-image-wrapper">
+                    <div class="hero-image-container">
+                        <div class="profile-image-glow"></div>
+                        <div class="profile-image-frame">
+                            <div class="profile-image" id="profileImage">
+                                <img src="https://raw.githubusercontent.com/WilliamSham90/Portfolio/main/Images/williampp.jpg" alt="William Sham - Full Stack Web Developer" loading="eager">
+                            </div>
+                        </div>
+                        <div class="floating-badge badge-1">
+                            <i class="fab fa-react"></i>
+                            <div class="badge-content">
+                                <span class="badge-title">React</span>
+                                <span class="badge-libs">Redux, Router, Hooks</span>
+                            </div>
+                        </div>
+                        <div class="floating-badge badge-2">
+                            <i class="fab fa-node-js"></i>
+                            <div class="badge-content">
+                                <span class="badge-title">Node.js</span>
+                                <span class="badge-libs">Express, Socket.io, MongoDB</span>
+                            </div>
+                        </div>
+                        <div class="floating-badge badge-3">
+                            <i class="fab fa-js"></i>
+                            <div class="badge-content">
+                                <span class="badge-title">JavaScript</span>
+                                <span class="badge-libs">ES6+, TypeScript, jQuery</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="scroll-indicator">
+                <div class="scroll-mouse">
+                    <div class="scroll-wheel"></div>
+                </div>
+                <span class="scroll-text" data-text-en="Scroll Down" data-text-af="Blaai Af">Scroll Down</span>
             </div>
         </section>
 
@@ -1507,17 +1782,17 @@ body {
                         <div class="code-line indent"><span class="code-property">skills</span><span class="code-operator">:</span> <span class="code-bracket">[</span></div>
                         <div class="code-line indent-2"><span class="code-string">'JavaScript'</span><span class="code-comma">,</span> <span class="code-string">'React'</span><span class="code-comma">,</span> <span class="code-string">'Vue.js'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'PHP'</span><span class="code-comma">,</span> <span class="code-string">'C#'</span><span class="code-comma">,</span> <span class="code-string">'ASP.NET'</span><span class="code-comma">,</span> <span class="code-string">'Java'</span><span class="code-comma">,</span> <span class="code-string">'C++'</span><span class="code-comma">,</span></div>
-                        <div class="code-line indent-2"><span class="code-string">'SQL'</span><span class="code-comma">,</span> <span class="code-string">'Microsoft Azure'</span><span class="code-comma">,</span> <span class="code-string">'Azure DevOps'</span><span class="code-comma">,</span> <span class="code-comma">,</span></div>
+                        <div class="code-line indent-2"><span class="code-string">'SQL'</span><span class="code-comma">,</span> <span class="code-string">'Microsoft Azure'</span><span class="code-comma">,</span> <span class="code-string">'Azure DevOps'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'Git'</span><span class="code-comma">,</span> <span class="code-string">'Unreal Engine 4'</span><span class="code-comma">,</span> <span class="code-string">'Unity'</span><span class="code-comma">,</span> <span class="code-string">'Radiant'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'WordPress'</span><span class="code-comma">,</span> <span class="code-string">'Shopify'</span><span class="code-comma">,</span> <span class="code-string">'Wix'</span><span class="code-comma">,</span> <span class="code-string">'Webflow'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'Laravel Framework'</span><span class="code-comma">,</span> <span class="code-string">'Perfex CRM'</span><span class="code-comma">,</span> <span class="code-string">'Umbraco'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'Adobe Photoshop'</span><span class="code-comma">,</span> <span class="code-string">'Figma'</span><span class="code-comma">,</span> <span class="code-string">'Blender'</span><span class="code-comma">,</span> <span class="code-string">'Maya'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'SEO'</span><span class="code-comma">,</span> <span class="code-string">'Google Search Console'</span><span class="code-comma">,</span> <span class="code-string">'Canva'</span><span class="code-comma">,</span> <span class="code-string">'Spline'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent"><span class="code-bracket">]</span><span class="code-comma">,</span></div>
-
                         <div class="code-line indent"><span class="code-property">passion</span><span class="code-operator">:</span> <span class="code-bracket">[</span><span class="code-string">'Websites'</span><span class="code-comma">,</span> <span class="code-string">'Digital Art'</span><span class="code-comma">,</span> <span class="code-string">'3D Models'</span><span class="code-comma">,</span></div>
                         <div class="code-line indent-2"><span class="code-string">'Game Design'</span><span class="code-comma">,</span> <span class="code-string">'Creating Solutions'</span></div>
-                        <div class="code-line indent"><span class="code-bracket">]</span></div><div class="code-line"><span class="code-brace">}</span><span class="code-semicolon">;</span></div>
+                        <div class="code-line indent"><span class="code-bracket">]</span></div>
+                        <div class="code-line"><span class="code-brace">}</span><span class="code-semicolon">;</span></div>
                     </div>
                 </div>
             </div>
@@ -1647,7 +1922,7 @@ body {
                     <div class="section-line" aria-hidden="true"></div>
                 </div>
                 <div class="projects-grid" id="projects-grid">
-                    <!-- Projects will be loaded dynamically for better performance -->
+                    <!-- Projects will be loaded dynamically -->
                 </div>
             </div>
         </section>
@@ -1665,6 +1940,7 @@ body {
                         <div class="contact-item"><div class="contact-icon"><i class="fas fa-envelope" aria-hidden="true"></i></div><div><h4 class="contact-label" data-text-en="Email" data-text-af="E-pos">Email</h4><a href="mailto:williamsham90@gmail.com" class="contact-value">williamsham90@gmail.com</a></div></div>
                         <div class="contact-item"><div class="contact-icon"><i class="fas fa-phone" aria-hidden="true"></i></div><div><h4 class="contact-label" data-text-en="Phone" data-text-af="Telefoon">Phone</h4><a href="tel:+27817238996" class="contact-value">+27 81 723 8996</a></div></div>
                         <div class="contact-item"><div class="contact-icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></div><div><h4 class="contact-label" data-text-en="Location" data-text-af="Ligging">Location</h4><span class="contact-value" data-text-en="Krugersdorp, Gauteng, South Africa" data-text-af="Krugersdorp, Gauteng, Suid-Afrika">Krugersdorp, Gauteng, South Africa</span></div></div>
+                        <div class="contact-item"><div class="contact-icon"><i class="fab fa-codepen" aria-hidden="true"></i></div><div><h4 class="contact-label">CodePen</h4><a href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener noreferrer" class="contact-value">codepen.io/WilliamSham90</a></div></div>
                     </div>
                     <form class="contact-form" id="contactForm" action="https://formsubmit.co/williamsham90@gmail.com" method="POST">
                         <input type="hidden" name="_subject" value="New Portfolio Contact Message">
@@ -1691,6 +1967,7 @@ body {
                 <div class="footer-social">
                     <a href="https://www.linkedin.com/in/william-sham-0a1a12211/" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                     <a href="https://github.com/WilliamSham90" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="CodePen"><i class="fab fa-codepen"></i></a>
                     <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216&searchtext=crash" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="Steam"><i class="fab fa-steam"></i></a>
                 </div>
             </div>
@@ -1735,7 +2012,7 @@ const App = {
             icon: 'fas fa-table-tennis',
             tags: ['Arcade', 'Classic', 'Multiplayer'],
             descEn: 'The classic arcade game - play against AI or a friend',
-            descAf: 'Die klassieke arcade-speletjie - speel teen AI of \'n vriend'
+            descAf: 'Die klassieke arcade-speletjie - speel teen KI of \'n vriend'
         },
         { 
             id: 'snake',
@@ -1775,7 +2052,7 @@ const App = {
         }
     ],
     
-    // Project data for lazy loading
+    // Project data
     projects: [
         { title: 'LKDA - Strategic Creative Advertising', img: 'Lkda.png', url: 'https://www.lkda.co.za/', tags: ['Laravel', 'Umbraco', 'CMS'], descEn: 'Creative advertising agency website', descAf: 'Kreatiewe advertensie-agentskap webwerf' },
         { title: 'Nissan SA', img: 'NissanSA.png', url: 'https://www.nissan.co.za/', tags: ['WordPress', 'PHP', 'SEO'], descEn: 'Official Nissan South Africa website', descAf: 'Amptelike Nissan Suid-Afrika webwerf' },
@@ -1818,7 +2095,6 @@ const App = {
 const $ = sel => document.querySelector(sel);
 const $$ = sel => document.querySelectorAll(sel);
 
-// Debounce function for scroll events
 function debounce(fn, delay) {
     let timeout;
     return (...args) => {
@@ -1827,7 +2103,6 @@ function debounce(fn, delay) {
     };
 }
 
-// Throttle function for frequent events
 function throttle(fn, limit) {
     let inThrottle;
     return (...args) => {
@@ -1864,7 +2139,6 @@ function setTheme(theme) {
 
 // ===== NAVIGATION =====
 function initNavigation() {
-    // Smooth scroll for nav links
     $$('.nav-link[href^="#"]').forEach(link => {
         link.addEventListener('click', e => {
             e.preventDefault();
@@ -1878,12 +2152,10 @@ function initNavigation() {
         });
     });
     
-    // Optimized scroll handler
     const handleScroll = throttle(() => {
         const scrollY = window.scrollY;
         $('#header').classList.toggle('scrolled', scrollY > 50);
         
-        // Update active nav link
         const sections = $$('section[id]');
         for (const section of sections) {
             const top = section.offsetTop - 100;
@@ -1924,7 +2196,6 @@ function initLoader() {
                 initAnimations();
                 loadGames();
                 loadProjects();
-                // Re-apply language after content is loaded
                 setLanguage(App.state.lang);
             }, 200);
         }
@@ -1932,9 +2203,8 @@ function initLoader() {
     }, 80);
 }
 
-// ===== ANIMATIONS (Optimized with Intersection Observer) =====
+// ===== ANIMATIONS =====
 function initAnimations() {
-    // Skill bars animation
     const skillObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -1955,7 +2225,6 @@ function initAnimations() {
     
     $$('.skill-item').forEach(item => skillObserver.observe(item));
     
-    // Stats counter animation
     const statObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -1970,14 +2239,13 @@ function initAnimations() {
     $$('.stat-number').forEach(stat => statObserver.observe(stat));
 }
 
-// Optimized number animation
 function animateNumber(el, start, end, duration) {
     const startTime = performance.now();
     
     function update(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const easeProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
         const current = Math.floor(start + (end - start) * easeProgress);
         el.textContent = current + (el.classList.contains('skill-percent') ? '%' : '');
         
@@ -1989,7 +2257,7 @@ function animateNumber(el, start, end, duration) {
     requestAnimationFrame(update);
 }
 
-// ===== GAMES (Dynamically loaded with iframes) =====
+// ===== GAMES =====
 function loadGames() {
     const grid = $('#games-grid');
     if (!grid) return;
@@ -2034,12 +2302,9 @@ function loadGames() {
     });
     
     grid.appendChild(fragment);
-    
-    // Initialize lazy loading for game iframes
     initGameIframeLazyLoad();
 }
 
-// Lazy load game iframes when they come into view
 function initGameIframeLazyLoad() {
     const gameObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -2053,13 +2318,11 @@ function initGameIframeLazyLoad() {
                     iframe.src = src;
                     
                     iframe.addEventListener('load', () => {
-                        // Add a small delay for smooth transition
                         setTimeout(() => {
                             loader.classList.add('hidden');
                         }, 500);
                     });
                     
-                    // Fallback: Hide loader after timeout if load event doesn't fire
                     setTimeout(() => {
                         loader.classList.add('hidden');
                     }, 5000);
@@ -2073,13 +2336,12 @@ function initGameIframeLazyLoad() {
     $$('.game-card').forEach(card => gameObserver.observe(card));
 }
 
-// ===== PROJECTS (Lazy loaded) =====
+// ===== PROJECTS =====
 function loadProjects() {
     const grid = $('#projects-grid');
     if (!grid) return;
     
     const imgBase = 'https://raw.githubusercontent.com/WilliamSham90/Portfolio/main/Images/';
-    
     const fragment = document.createDocumentFragment();
     
     App.projects.forEach(project => {
@@ -2106,7 +2368,7 @@ function loadProjects() {
     grid.appendChild(fragment);
 }
 
-// ===== PARTICLES (Reduced for performance) =====
+// ===== PARTICLES =====
 function generateParticles() {
     const container = $('#particles');
     if (!container || window.innerWidth < 768) return;
@@ -2164,16 +2426,13 @@ function initContactForm() {
 
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Apply saved settings
     setLanguage(App.state.lang);
     setTheme(App.state.theme);
     
-    // Initialize components
     initNavigation();
     initContactForm();
     generateParticles();
     
-    // Event listeners
     $('#langToggle').addEventListener('click', () => {
         setLanguage(App.state.lang === 'en' ? 'af' : 'en');
     });
@@ -2184,7 +2443,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     $('#menuToggle').addEventListener('click', toggleMenu);
     
-    // Start loader
     initLoader();
 });
     </script>
