@@ -256,14 +256,16 @@
         var imageSection  = byId('imageSection');
         var polygonSection = byId('polygonSection');
 
-        /* ── Accordion toggle ─────────────────────── */
-        document.querySelectorAll('.acc-header').forEach(function (hdr) {
-            hdr.addEventListener('click', function () {
-                var acc = this.closest('.accordion');
-                var opening = !acc.classList.contains('open');
-                acc.classList.toggle('open', opening);
-                this.setAttribute('aria-expanded', String(opening));
-            });
+        /* ── Accordion toggle (event delegation for Firefox compat) ── */
+        document.addEventListener('click', function (e) {
+            var hdr = e.target.closest('.acc-header');
+            if (!hdr) return;
+            e.preventDefault();
+            var acc = hdr.closest('.accordion');
+            if (!acc) return;
+            var opening = !acc.classList.contains('open');
+            acc.classList.toggle('open', opening);
+            hdr.setAttribute('aria-expanded', String(opening));
         });
 
         /* ── Build tsParticles Options ────────────── */
