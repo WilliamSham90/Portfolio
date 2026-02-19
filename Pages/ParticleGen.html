@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Particle Generator</title>
+    <title>ParticleGen — Particle Generator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -11,99 +11,131 @@
 </head>
 <body>
 
-    <!-- Particle Canvas -->
+    <!-- Particle Canvas — full screen background -->
     <div id="tsparticles"></div>
 
-    <!-- UI Overlay -->
-    <div class="ui-layer">
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">✦</span>
+            <span class="logo-text">ParticleGen</span>
+        </div>
+        <p class="header-credit">Made by <strong>William</strong></p>
+    </header>
 
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <span class="logo-icon">✦</span>
-                <span class="logo-text">ParticleGen</span>
-            </div>
-            <a href="https://williamsham90.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" class="github-btn" aria-label="View GitHub Portfolio">
-                <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                </svg>
-                <span>Portfolio</span>
-            </a>
-        </header>
+    <!-- Side Panel -->
+    <aside class="side-panel open" id="sidePanel">
 
-        <!-- Theme Selector Panel -->
-        <div class="theme-panel" id="themePanel">
-            <button class="panel-toggle" id="panelToggle" aria-label="Toggle theme panel">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        <div class="panel-header">
+            <button class="panel-toggle" id="panelToggle" aria-label="Toggle panel">
+                <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
                 </svg>
-                <span>Themes</span>
             </button>
-
-            <div class="panel-body" id="panelBody">
-                <h3 class="panel-title">Select Theme</h3>
-                <div class="theme-grid" id="themeGrid">
-                    <!-- Theme buttons injected by JS -->
-                </div>
-
-                <div class="panel-divider"></div>
-
-                <h3 class="panel-title">Controls</h3>
-
-                <div class="control-group">
-                    <label class="control-label" for="particleCount">Particles</label>
-                    <div class="control-row">
-                        <input type="range" id="particleCount" class="range-input" min="10" max="300" value="80" step="5">
-                        <span class="range-value" id="particleCountValue">80</span>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label class="control-label" for="particleSpeed">Speed</label>
-                    <div class="control-row">
-                        <input type="range" id="particleSpeed" class="range-input" min="0.5" max="15" value="3" step="0.5">
-                        <span class="range-value" id="particleSpeedValue">3</span>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label class="control-label" for="particleSize">Size</label>
-                    <div class="control-row">
-                        <input type="range" id="particleSize" class="range-input" min="1" max="20" value="4" step="0.5">
-                        <span class="range-value" id="particleSizeValue">4</span>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label class="control-label">Interaction</label>
-                    <div class="toggle-row">
-                        <button class="toggle-btn active" data-interact="repulse">Repulse</button>
-                        <button class="toggle-btn" data-interact="grab">Grab</button>
-                        <button class="toggle-btn" data-interact="bubble">Bubble</button>
-                        <button class="toggle-btn" data-interact="attract">Attract</button>
-                    </div>
-                </div>
-
-                <button class="reset-btn" id="resetBtn">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="1 4 1 10 7 10"></polyline>
-                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            <div class="panel-actions">
+                <a href="https://williamsham90.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" class="action-btn" aria-label="GitHub Portfolio" title="Portfolio">
+                    <svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
                     </svg>
-                    Reset Defaults
+                </a>
+                <button class="action-btn" id="downloadBtn" aria-label="Download config JSON" title="Download JSON">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </button>
+                <button class="action-btn" id="copyBtn" aria-label="Copy config to clipboard" title="Copy JSON">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
                 </button>
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <p>Made by <strong>William</strong></p>
-            <p class="footer-note">Powered by tsParticles v3</p>
-        </footer>
+        <div class="panel-scroll" id="panelScroll">
+
+            <h3 class="section-label">Themes</h3>
+            <div class="theme-grid" id="themeGrid"></div>
+
+            <div class="sep"></div>
+
+            <h3 class="section-label">Controls</h3>
+
+            <div class="ctrl">
+                <div class="ctrl-top">
+                    <span class="ctrl-name">Particles</span>
+                    <span class="ctrl-val" id="countVal">80</span>
+                </div>
+                <input type="range" class="range" id="rangeCount" min="10" max="300" value="80" step="5">
+            </div>
+
+            <div class="ctrl">
+                <div class="ctrl-top">
+                    <span class="ctrl-name">Speed</span>
+                    <span class="ctrl-val" id="speedVal">3</span>
+                </div>
+                <input type="range" class="range" id="rangeSpeed" min="0.5" max="15" value="3" step="0.5">
+            </div>
+
+            <div class="ctrl">
+                <div class="ctrl-top">
+                    <span class="ctrl-name">Size</span>
+                    <span class="ctrl-val" id="sizeVal">4</span>
+                </div>
+                <input type="range" class="range" id="rangeSize" min="1" max="20" value="4" step="0.5">
+            </div>
+
+            <div class="sep"></div>
+
+            <h3 class="section-label">Hover Interaction</h3>
+            <div class="pill-row" id="hoverRow">
+                <button class="pill active" data-mode="repulse">Repulse</button>
+                <button class="pill" data-mode="grab">Grab</button>
+                <button class="pill" data-mode="bubble">Bubble</button>
+                <button class="pill" data-mode="attract">Attract</button>
+            </div>
+
+            <div class="sep"></div>
+
+            <h3 class="section-label">Click Action</h3>
+            <div class="pill-row" id="clickRow">
+                <button class="pill active" data-click="push">Push</button>
+                <button class="pill" data-click="remove">Remove</button>
+                <button class="pill" data-click="repulse">Repulse</button>
+            </div>
+
+            <div class="sep"></div>
+
+            <button class="reset-btn" id="resetBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1 4 1 10 7 10"/>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                </svg>
+                Reset Defaults
+            </button>
+        </div>
+    </aside>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="toastText">Copied!</span>
     </div>
 
-    <!-- tsParticles v3.9.1 CDN Bundle -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/3.9.1/tsparticles.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Footer -->
+    <footer class="footer">
+        <span>Powered by <strong>tsParticles</strong></span>
+    </footer>
+
+    <!-- tsParticles — full bundle via CDN (with fallback) -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles/tsparticles.bundle.min.js"></script>
+    <script>
+        if (typeof tsParticles === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/3.7.1/tsparticles.bundle.min.js"><\/script>');
+        }
+    </script>
     <script src="js/ParticleGen.js"></script>
 </body>
 </html>
