@@ -1661,6 +1661,7 @@ body {
                 <a href="#experience" class="nav-link" role="menuitem"><i class="fas fa-briefcase" aria-hidden="true"></i><span data-text-en="Experience" data-text-af="Ervaring">Experience</span></a>
                 <a href="#games" class="nav-link" role="menuitem"><i class="fas fa-gamepad" aria-hidden="true"></i><span data-text-en="Games" data-text-af="Speletjies">Games</span></a>
                 <a href="#projects" class="nav-link" role="menuitem"><i class="fas fa-rocket" aria-hidden="true"></i><span data-text-en="Projects" data-text-af="Projekte">Projects</span></a>
+                <a href="#pages" class="nav-link" role="menuitem"><i class="fas fa-file-code" aria-hidden="true"></i><span data-text-en="Pages" data-text-af="Bladsye">Pages</span></a>
                 <a href="#contact" class="nav-link" role="menuitem"><i class="fas fa-envelope" aria-hidden="true"></i><span data-text-en="Contact" data-text-af="Kontak">Contact</span></a>
             </div>
             <div class="nav-controls">
@@ -1927,11 +1928,25 @@ body {
             </div>
         </section>
 
+        <!-- Pages Section -->
+        <section id="pages" class="section" aria-labelledby="pages-title">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number" aria-hidden="true">06</span>
+                    <h2 class="section-title" id="pages-title"><span class="title-bracket" aria-hidden="true">&lt;</span><span class="title-text" data-text-en="Pages" data-text-af="Bladsye">Pages</span><span class="title-bracket" aria-hidden="true">/&gt;</span></h2>
+                    <div class="section-line" aria-hidden="true"></div>
+                </div>
+                <div class="games-grid" id="pages-grid">
+                    <!-- Pages will be loaded dynamically -->
+                </div>
+            </div>
+        </section>
+
         <!-- Contact Section -->
         <section id="contact" class="section" aria-labelledby="contact-title">
             <div class="section-container">
                 <div class="section-header">
-                    <span class="section-number" aria-hidden="true">06</span>
+                    <span class="section-number" aria-hidden="true">07</span>
                     <h2 class="section-title" id="contact-title"><span class="title-bracket" aria-hidden="true">&lt;</span><span class="title-text" data-text-en="Contact" data-text-af="Kontak">Contact</span><span class="title-bracket" aria-hidden="true">/&gt;</span></h2>
                     <div class="section-line" aria-hidden="true"></div>
                 </div>
@@ -2052,6 +2067,19 @@ const App = {
         }
     ],
     
+    // Pages data
+    pages: [
+        {
+            id: 'filterlab',
+            title: 'CSS Filter Showcase',
+            file: 'Filterlab.html',
+            icon: 'fas fa-palette',
+            tags: ['CSS', 'Filters', 'Interactive'],
+            descEn: 'Every CSS filter function — visualised. Click any card to copy the code.',
+            descAf: 'Elke CSS-filterfunksie — gevisualiseer. Klik enige kaart om die kode te kopieer.'
+        }
+    ],
+
     // Project data
     projects: [
         { title: 'LKDA - Strategic Creative Advertising', img: 'Lkda.png', url: 'https://www.lkda.co.za/', tags: ['Laravel', 'Umbraco', 'CMS'], descEn: 'Creative advertising agency website', descAf: 'Kreatiewe advertensie-agentskap webwerf' },
@@ -2196,6 +2224,7 @@ function initLoader() {
                 initAnimations();
                 loadGames();
                 loadProjects();
+                loadPages();
                 setLanguage(App.state.lang);
             }, 200);
         }
@@ -2366,6 +2395,85 @@ function loadProjects() {
     });
     
     grid.appendChild(fragment);
+}
+
+// ===== PAGES (like Games with iframe previews) =====
+function loadPages() {
+    const grid = $('#pages-grid');
+    if (!grid) return;
+    
+    const pageBase = 'https://williamsham90.github.io/Portfolio/Pages/';
+    const fragment = document.createDocumentFragment();
+    
+    App.pages.forEach((page) => {
+        const card = document.createElement('article');
+        card.className = 'game-card';
+        card.innerHTML = `
+            <div class="game-preview">
+                <div class="game-loader" id="loader-page-${page.id}">
+                    <i class="${page.icon} game-loader-icon" aria-hidden="true"></i>
+                    <div class="game-loader-spinner"></div>
+                    <span class="game-loader-text" data-text-en="Loading page..." data-text-af="Laai bladsy...">Loading page...</span>
+                </div>
+                <div class="game-iframe-wrapper">
+                    <iframe 
+                        class="game-iframe page-iframe" 
+                        data-src="${pageBase}${page.file}"
+                        title="${page.title}"
+                        loading="lazy"
+                        sandbox="allow-scripts allow-same-origin"
+                        aria-label="Preview of ${page.title}"
+                    ></iframe>
+                </div>
+                <div class="game-overlay">
+                    <a href="${pageBase}${page.file}" target="_blank" rel="noopener noreferrer" class="game-play-btn">
+                        <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                        <span data-text-en="View Page" data-text-af="Bekyk Bladsy">View Page</span>
+                    </a>
+                </div>
+            </div>
+            <div class="game-content">
+                <h3 class="game-title"><i class="${page.icon}" aria-hidden="true"></i>${page.title}</h3>
+                <p class="game-description" data-text-en="${page.descEn}" data-text-af="${page.descAf}">${App.state.lang === 'en' ? page.descEn : page.descAf}</p>
+                <div class="game-tags">${page.tags.map(t => `<span class="game-tag">${t}</span>`).join('')}</div>
+            </div>
+        `;
+        fragment.appendChild(card);
+    });
+    
+    grid.appendChild(fragment);
+    initPageIframeLazyLoad();
+}
+
+function initPageIframeLazyLoad() {
+    const pageObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const card = entry.target;
+                const iframe = card.querySelector('.page-iframe');
+                const loader = card.querySelector('.game-loader');
+                const src = iframe.getAttribute('data-src');
+                
+                if (src && !iframe.src) {
+                    iframe.src = src;
+                    
+                    iframe.addEventListener('load', () => {
+                        setTimeout(() => {
+                            loader.classList.add('hidden');
+                        }, 500);
+                    });
+                    
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                    }, 5000);
+                }
+                
+                pageObserver.unobserve(card);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '100px 0px' });
+    
+    $$('#pages-grid .game-card').forEach(card => pageObserver.observe(card));
 }
 
 // ===== PARTICLES =====
