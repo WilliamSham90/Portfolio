@@ -185,242 +185,244 @@
     var hoverMode = 'repulse';
     var clickMode = 'push';
     var particleContainer = null;
-
-    /* ── DOM ──────────────────────────────────── */
-    var themeGrid     = document.getElementById('themeGrid');
-    var sidePanel     = document.getElementById('sidePanel');
-    var panelToggle   = document.getElementById('panelToggle');
-    var resetBtn      = document.getElementById('resetBtn');
-    var downloadBtn   = document.getElementById('downloadBtn');
-    var copyBtn       = document.getElementById('copyBtn');
-    var toast         = document.getElementById('toast');
-    var toastText     = document.getElementById('toastText');
-
-    var rangeCount = document.getElementById('rangeCount');
-    var rangeSpeed = document.getElementById('rangeSpeed');
-    var rangeSize  = document.getElementById('rangeSize');
-    var countVal   = document.getElementById('countVal');
-    var speedVal   = document.getElementById('speedVal');
-    var sizeVal    = document.getElementById('sizeVal');
-
-    /* ── Build Full Options Object ───────────── */
-    function buildOptions(themeIdx) {
-        var theme = THEMES[themeIdx];
-        var p = JSON.parse(JSON.stringify(theme.particles));
-
-        // Override with slider values
-        p.number = p.number || {};
-        p.number.value = parseInt(rangeCount.value, 10);
-
-        p.move = p.move || {};
-        p.move.enable = true;
-        p.move.speed = parseFloat(rangeSpeed.value);
-
-        var sz = parseFloat(rangeSize.value);
-        p.size = p.size || {};
-        p.size.value = { min: Math.max(0.5, sz * 0.25), max: sz };
-
-        return {
-            fullScreen: { enable: true, zIndex: 0 },
-            background: { color: { value: theme.bg } },
-            fpsLimit: 120,
-            detectRetina: true,
-            particles: p,
-            interactivity: {
-                detectsOn: 'window',
-                events: {
-                    onHover: { enable: true, mode: hoverMode },
-                    onClick: { enable: true, mode: clickMode },
-                    resize: { enable: true }
-                },
-                modes: {
-                    repulse: { distance: 150, duration: 0.4 },
-                    grab: { distance: 250, links: { opacity: 0.6 } },
-                    bubble: { distance: 200, size: 14, duration: 0.3, opacity: 0.8 },
-                    attract: { distance: 200, duration: 0.4 },
-                    push: { quantity: 4 },
-                    remove: { quantity: 2 }
-                }
-            }
-        };
-    }
-
-    /* ── Load / Reload Particles ─────────────── */
     var engineReady = false;
 
-    async function ensureEngine() {
-        if (!engineReady) {
-            // The bundle exposes loadFull globally — must call before first load
-            if (typeof loadFull === 'function') {
-                await loadFull(tsParticles);
+    /* ── Wait for DOM ─────────────────────────── */
+    document.addEventListener('DOMContentLoaded', function () {
+
+        /* ── DOM ──────────────────────────────────── */
+        var themeGrid   = document.getElementById('themeGrid');
+        var sidePanel   = document.getElementById('sidePanel');
+        var panelToggle = document.getElementById('panelToggle');
+        var resetBtn    = document.getElementById('resetBtn');
+        var downloadBtn = document.getElementById('downloadBtn');
+        var copyBtn     = document.getElementById('copyBtn');
+        var toast       = document.getElementById('toast');
+        var toastText   = document.getElementById('toastText');
+
+        var rangeCount  = document.getElementById('rangeCount');
+        var rangeSpeed  = document.getElementById('rangeSpeed');
+        var rangeSize   = document.getElementById('rangeSize');
+        var countVal    = document.getElementById('countVal');
+        var speedVal    = document.getElementById('speedVal');
+        var sizeVal     = document.getElementById('sizeVal');
+
+        /* ── Build Full Options Object ───────────── */
+        function buildOptions(themeIdx) {
+            var theme = THEMES[themeIdx];
+            var p = JSON.parse(JSON.stringify(theme.particles));
+
+            // Override with slider values
+            p.number = p.number || {};
+            p.number.value = parseInt(rangeCount.value, 10);
+
+            p.move = p.move || {};
+            p.move.enable = true;
+            p.move.speed = parseFloat(rangeSpeed.value);
+
+            var sz = parseFloat(rangeSize.value);
+            p.size = p.size || {};
+            p.size.value = { min: Math.max(0.5, sz * 0.25), max: sz };
+
+            return {
+                fullScreen: { enable: true, zIndex: 0 },
+                background: { color: { value: theme.bg } },
+                fpsLimit: 120,
+                detectRetina: true,
+                particles: p,
+                interactivity: {
+                    detectsOn: 'window',
+                    events: {
+                        onHover: { enable: true, mode: hoverMode },
+                        onClick: { enable: true, mode: clickMode },
+                        resize: { enable: true }
+                    },
+                    modes: {
+                        repulse: { distance: 150, duration: 0.4 },
+                        grab: { distance: 250, links: { opacity: 0.6 } },
+                        bubble: { distance: 200, size: 14, duration: 0.3, opacity: 0.8 },
+                        attract: { distance: 200, duration: 0.4 },
+                        push: { quantity: 4 },
+                        remove: { quantity: 2 }
+                    }
+                }
+            };
+        }
+
+        /* ── Load / Reload Particles ─────────────── */
+        async function ensureEngine() {
+            if (!engineReady) {
+                if (typeof loadFull === 'function') {
+                    await loadFull(tsParticles);
+                }
+                engineReady = true;
             }
-            engineReady = true;
         }
-    }
 
-    function loadTheme(idx) {
-        activeTheme = idx;
-        var opts = buildOptions(idx);
+        function loadTheme(idx) {
+            activeTheme = idx;
+            var opts = buildOptions(idx);
 
-        ensureEngine().then(function () {
-            return tsParticles.load({ id: 'tsparticles', options: opts });
-        }).then(function (container) {
-            particleContainer = container;
-        }).catch(function (err) {
-            console.error('tsParticles error:', err);
-        });
-    }
-
-    function reload() {
-        loadTheme(activeTheme);
-    }
-
-    /* ── Render Theme Buttons ────────────────── */
-    function renderThemes() {
-        THEMES.forEach(function (theme, i) {
-            var btn = document.createElement('button');
-            btn.className = 'theme-btn' + (i === 0 ? ' active' : '');
-            btn.setAttribute('data-idx', i);
-            btn.style.background = theme.preview;
-            btn.setAttribute('aria-label', 'Theme: ' + theme.name);
-            btn.innerHTML = '<span class="theme-label">' + theme.name + '</span>';
-            themeGrid.appendChild(btn);
-        });
-    }
-
-    /* ── Theme Click ─────────────────────────── */
-    themeGrid.addEventListener('click', function (e) {
-        var btn = e.target.closest('.theme-btn');
-        if (!btn) return;
-        var idx = parseInt(btn.getAttribute('data-idx'), 10);
-
-        themeGrid.querySelectorAll('.theme-btn').forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-
-        loadTheme(idx);
-    });
-
-    /* ── Panel Toggle ────────────────────────── */
-    panelToggle.addEventListener('click', function () {
-        sidePanel.classList.toggle('open');
-    });
-
-    /* ── Sliders ─────────────────────────────── */
-    function bindSlider(slider, display) {
-        slider.addEventListener('input', function () { display.textContent = slider.value; });
-        slider.addEventListener('change', reload);
-    }
-
-    bindSlider(rangeCount, countVal);
-    bindSlider(rangeSpeed, speedVal);
-    bindSlider(rangeSize, sizeVal);
-
-    /* ── Hover Mode Pills ────────────────────── */
-    document.getElementById('hoverRow').addEventListener('click', function (e) {
-        var pill = e.target.closest('.pill');
-        if (!pill) return;
-        hoverMode = pill.getAttribute('data-mode');
-        this.querySelectorAll('.pill').forEach(function (p) { p.classList.remove('active'); });
-        pill.classList.add('active');
-        reload();
-    });
-
-    /* ── Click Mode Pills ────────────────────── */
-    document.getElementById('clickRow').addEventListener('click', function (e) {
-        var pill = e.target.closest('.pill');
-        if (!pill) return;
-        clickMode = pill.getAttribute('data-click');
-        this.querySelectorAll('.pill').forEach(function (p) { p.classList.remove('active'); });
-        pill.classList.add('active');
-        reload();
-    });
-
-    /* ── Reset ────────────────────────────────── */
-    resetBtn.addEventListener('click', function () {
-        rangeCount.value = 80;  countVal.textContent = '80';
-        rangeSpeed.value = 3;   speedVal.textContent = '3';
-        rangeSize.value  = 4;   sizeVal.textContent  = '4';
-
-        hoverMode = 'repulse';
-        clickMode = 'push';
-
-        document.querySelectorAll('#hoverRow .pill').forEach(function (p) {
-            p.classList.toggle('active', p.getAttribute('data-mode') === 'repulse');
-        });
-        document.querySelectorAll('#clickRow .pill').forEach(function (p) {
-            p.classList.toggle('active', p.getAttribute('data-click') === 'push');
-        });
-
-        themeGrid.querySelectorAll('.theme-btn').forEach(function (b, i) {
-            b.classList.toggle('active', i === 0);
-        });
-
-        loadTheme(0);
-    });
-
-    /* ── Export Helpers ───────────────────────── */
-    function getCurrentConfig() {
-        return JSON.stringify(buildOptions(activeTheme), null, 2);
-    }
-
-    /* ── Toast ────────────────────────────────── */
-    var toastTimer = null;
-    function showToast(msg) {
-        toastText.textContent = msg;
-        if (toastTimer) { clearTimeout(toastTimer); toast.classList.remove('show'); }
-        // force reflow
-        void toast.offsetWidth;
-        toast.classList.add('show');
-        toastTimer = setTimeout(function () { toast.classList.remove('show'); toastTimer = null; }, 2000);
-    }
-
-    /* ── Copy Config ─────────────────────────── */
-    copyBtn.addEventListener('click', function () {
-        var json = getCurrentConfig();
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(json).then(function () {
-                showToast('Config copied!');
-            }).catch(function () {
-                fallbackCopy(json);
+            ensureEngine().then(function () {
+                return tsParticles.load({ id: 'tsparticles', options: opts });
+            }).then(function (container) {
+                particleContainer = container;
+            }).catch(function (err) {
+                console.error('tsParticles error:', err);
             });
-        } else {
-            fallbackCopy(json);
         }
-    });
 
-    function fallbackCopy(text) {
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.cssText = 'position:fixed;opacity:0';
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); showToast('Config copied!'); }
-        catch (e) { showToast('Copy failed'); }
-        document.body.removeChild(ta);
-    }
+        function reload() {
+            loadTheme(activeTheme);
+        }
 
-    /* ── Download Config ─────────────────────── */
-    downloadBtn.addEventListener('click', function () {
-        var json = getCurrentConfig();
-        var blob = new Blob([json], { type: 'application/json' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'particles-config.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast('Config downloaded!');
-    });
+        /* ── Render Theme Buttons ────────────────── */
+        function renderThemes() {
+            THEMES.forEach(function (theme, i) {
+                var btn = document.createElement('button');
+                btn.className = 'theme-btn' + (i === 0 ? ' active' : '');
+                btn.setAttribute('data-idx', i);
+                btn.style.background = theme.preview;
+                btn.setAttribute('aria-label', 'Theme: ' + theme.name);
+                btn.innerHTML = '<span class="theme-label">' + theme.name + '</span>';
+                themeGrid.appendChild(btn);
+            });
+        }
 
-    /* ── Keyboard ─────────────────────────────── */
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') sidePanel.classList.toggle('open');
-    });
+        /* ── Theme Click ─────────────────────────── */
+        themeGrid.addEventListener('click', function (e) {
+            var btn = e.target.closest('.theme-btn');
+            if (!btn) return;
+            var idx = parseInt(btn.getAttribute('data-idx'), 10);
 
-    /* ── Init ─────────────────────────────────── */
-    renderThemes();
-    loadTheme(0);
+            themeGrid.querySelectorAll('.theme-btn').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+
+            loadTheme(idx);
+        });
+
+        /* ── Panel Toggle ────────────────────────── */
+        panelToggle.addEventListener('click', function () {
+            sidePanel.classList.toggle('open');
+        });
+
+        /* ── Sliders ─────────────────────────────── */
+        function bindSlider(slider, display) {
+            slider.addEventListener('input', function () { display.textContent = slider.value; });
+            slider.addEventListener('change', reload);
+        }
+
+        bindSlider(rangeCount, countVal);
+        bindSlider(rangeSpeed, speedVal);
+        bindSlider(rangeSize, sizeVal);
+
+        /* ── Hover Mode Pills ────────────────────── */
+        document.getElementById('hoverRow').addEventListener('click', function (e) {
+            var pill = e.target.closest('.pill');
+            if (!pill) return;
+            hoverMode = pill.getAttribute('data-mode');
+            this.querySelectorAll('.pill').forEach(function (p) { p.classList.remove('active'); });
+            pill.classList.add('active');
+            reload();
+        });
+
+        /* ── Click Mode Pills ────────────────────── */
+        document.getElementById('clickRow').addEventListener('click', function (e) {
+            var pill = e.target.closest('.pill');
+            if (!pill) return;
+            clickMode = pill.getAttribute('data-click');
+            this.querySelectorAll('.pill').forEach(function (p) { p.classList.remove('active'); });
+            pill.classList.add('active');
+            reload();
+        });
+
+        /* ── Reset ────────────────────────────────── */
+        resetBtn.addEventListener('click', function () {
+            rangeCount.value = 80;  countVal.textContent = '80';
+            rangeSpeed.value = 3;   speedVal.textContent = '3';
+            rangeSize.value  = 4;   sizeVal.textContent  = '4';
+
+            hoverMode = 'repulse';
+            clickMode = 'push';
+
+            document.querySelectorAll('#hoverRow .pill').forEach(function (p) {
+                p.classList.toggle('active', p.getAttribute('data-mode') === 'repulse');
+            });
+            document.querySelectorAll('#clickRow .pill').forEach(function (p) {
+                p.classList.toggle('active', p.getAttribute('data-click') === 'push');
+            });
+
+            themeGrid.querySelectorAll('.theme-btn').forEach(function (b, i) {
+                b.classList.toggle('active', i === 0);
+            });
+
+            loadTheme(0);
+        });
+
+        /* ── Export Helpers ───────────────────────── */
+        function getCurrentConfig() {
+            return JSON.stringify(buildOptions(activeTheme), null, 2);
+        }
+
+        /* ── Toast ────────────────────────────────── */
+        var toastTimer = null;
+        function showToast(msg) {
+            toastText.textContent = msg;
+            if (toastTimer) { clearTimeout(toastTimer); toast.classList.remove('show'); }
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            toastTimer = setTimeout(function () { toast.classList.remove('show'); toastTimer = null; }, 2000);
+        }
+
+        /* ── Copy Config ─────────────────────────── */
+        copyBtn.addEventListener('click', function () {
+            var json = getCurrentConfig();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(json).then(function () {
+                    showToast('Config copied!');
+                }).catch(function () {
+                    fallbackCopy(json);
+                });
+            } else {
+                fallbackCopy(json);
+            }
+        });
+
+        function fallbackCopy(text) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;opacity:0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); showToast('Config copied!'); }
+            catch (e) { showToast('Copy failed'); }
+            document.body.removeChild(ta);
+        }
+
+        /* ── Download Config ─────────────────────── */
+        downloadBtn.addEventListener('click', function () {
+            var json = getCurrentConfig();
+            var blob = new Blob([json], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'particles-config.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Config downloaded!');
+        });
+
+        /* ── Keyboard ─────────────────────────────── */
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') sidePanel.classList.toggle('open');
+        });
+
+        /* ── Init ─────────────────────────────────── */
+        renderThemes();
+        loadTheme(0);
+
+    }); // end DOMContentLoaded
 
 })();
