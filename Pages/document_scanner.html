@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>DocScan — Smart Document Scanner</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ==================== LOADING OVERLAY ==================== -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-scanner">
+        <div class="scan-line"></div>
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+      </div>
+      <h2>Loading DocScan</h2>
+      <p class="loading-sub">Initializing OpenCV &amp; OCR engines&hellip;</p>
+      <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- ==================== APP SHELL ==================== -->
+  <div id="app" class="app hidden">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-left">
+        <svg class="logo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="m21 15-5-5L5 21"/>
+        </svg>
+        <div class="logo-group">
+          <span class="logo-text">DocScan</span>
+          <span class="logo-credit">by William</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="btnSwitchCamera" class="icon-btn" title="Switch Camera" aria-label="Switch camera">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/>
+            <path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5"/>
+            <circle cx="12" cy="12" r="3"/>
+            <path d="m18 22-3-3 3-3"/>
+            <path d="m6 2 3 3-3 3"/>
+          </svg>
+        </button>
+        <button id="btnUpload" class="icon-btn" title="Upload Image" aria-label="Upload image">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </button>
+        <!-- GitHub link -->
+        <a href="https://williamsham90.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" class="icon-btn github-btn" title="William's GitHub Portfolio" aria-label="GitHub Portfolio">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+        </a>
+        <input type="file" id="fileInput" accept="image/*" hidden />
+      </div>
+    </header>
+
+    <!-- ==================== CAMERA VIEW ==================== -->
+    <section id="viewCamera" class="view active">
+      <div class="camera-wrapper">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="overlayCanvas" class="overlay-canvas"></canvas>
+        <div class="scan-brackets">
+          <div class="bracket tl"></div>
+          <div class="bracket tr"></div>
+          <div class="bracket bl"></div>
+          <div class="bracket br"></div>
+        </div>
+        <div id="detectionStatus" class="detection-badge hidden">
+          <span class="dot"></span> Document detected
+        </div>
+      </div>
+
+      <!-- Document type selector -->
+      <div class="doc-type-bar">
+        <span class="doc-type-label">Document:</span>
+        <div class="doc-type-chips" id="docTypeChips">
+          <button class="chip active" data-type="auto">Auto</button>
+          <button class="chip" data-type="id">ID Book</button>
+          <button class="chip" data-type="smartid">Smart ID</button>
+          <button class="chip" data-type="passport">Passport</button>
+          <button class="chip" data-type="license">Licence</button>
+        </div>
+      </div>
+
+      <div class="camera-controls">
+        <button id="btnGallery" class="ctrl-btn secondary" aria-label="Gallery">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </button>
+        <button id="btnCapture" class="capture-btn" aria-label="Capture">
+          <span class="capture-ring"></span>
+          <span class="capture-dot"></span>
+        </button>
+        <button id="btnAutoCapture" class="ctrl-btn secondary" aria-label="Toggle auto-capture">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span class="auto-label">Auto</span>
+        </button>
+      </div>
+      <p class="hint-text">Position your document within the frame</p>
+    </section>
+
+    <!-- ==================== CROP / ADJUST VIEW ==================== -->
+    <section id="viewCrop" class="view">
+      <div class="crop-wrapper">
+        <canvas id="cropCanvas"></canvas>
+      </div>
+      <div class="crop-controls">
+        <button id="btnCropBack" class="pill-btn ghost">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          Retake
+        </button>
+        <button id="btnCropApply" class="pill-btn primary">
+          Apply Crop
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== RESULT VIEW ==================== -->
+    <section id="viewResult" class="view">
+
+      <!-- Mode toggle: Scanned Image vs Extract Text -->
+      <div class="mode-toggle-bar">
+        <button class="mode-btn active" data-mode="image">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="m21 15-5-5L5 21"/>
+          </svg>
+          Scanned Image
+        </button>
+        <button class="mode-btn" data-mode="ocr">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          Extract Text
+        </button>
+      </div>
+
+      <!-- IMAGE PANEL -->
+      <div id="panelImage" class="result-panel active">
+        <div class="result-wrapper">
+          <canvas id="resultCanvas"></canvas>
+        </div>
+        <div class="result-toolbar">
+          <button class="filter-btn active" data-filter="original">Original</button>
+          <button class="filter-btn" data-filter="grayscale">B&amp;W</button>
+          <button class="filter-btn" data-filter="enhance">Enhanced</button>
+          <button class="filter-btn" data-filter="threshold">Scan</button>
+        </div>
+      </div>
+
+      <!-- OCR / TEXT PANEL -->
+      <div id="panelOCR" class="result-panel">
+        <div class="ocr-container">
+          <!-- OCR loading state -->
+          <div id="ocrLoading" class="ocr-loading">
+            <div class="ocr-spinner"></div>
+            <p class="ocr-status-text" id="ocrStatusText">Preparing OCR engine&hellip;</p>
+            <div class="ocr-progress-bar">
+              <div id="ocrProgressFill" class="ocr-progress-fill"></div>
+            </div>
+            <span id="ocrPercent" class="ocr-percent">0%</span>
+          </div>
+
+          <!-- OCR result (hidden until done) -->
+          <div id="ocrResult" class="ocr-result hidden">
+            <div class="ocr-meta-row">
+              <span class="ocr-badge" id="ocrDocType">Auto</span>
+              <span class="ocr-confidence" id="ocrConfidence"></span>
+            </div>
+            <div id="ocrText" class="ocr-text" contenteditable="true" spellcheck="false"></div>
+          </div>
+        </div>
+
+        <div class="ocr-actions">
+          <button id="btnCopyText" class="pill-btn ghost">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copy Text
+          </button>
+          <button id="btnDownloadTxt" class="pill-btn primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Save .txt
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared bottom controls -->
+      <div class="result-controls">
+        <button id="btnResultBack" class="pill-btn ghost">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          New Scan
+        </button>
+        <button id="btnDownload" class="pill-btn primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download Image
+        </button>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <span>Created with care by <strong>William</strong></span>
+      <span class="footer-dot">&middot;</span>
+      <a href="https://williamsham90.github.io/Portfolio/" target="_blank" rel="noopener noreferrer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:3px;">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>Portfolio
+      </a>
+    </footer>
+
+  </div>
+
+  <!-- External libs: OpenCV + jscanify + Tesseract.js -->
+  <script async src="https://docs.opencv.org/4.7.0/opencv.js" id="opencvScript"></script>
+  <script src="https://cdn.jsdelivr.net/gh/ColonelParrot/jscanify@master/src/jscanify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
