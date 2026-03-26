@@ -154,7 +154,7 @@ const observer = new IntersectionObserver((entries) => {
       const raw = parseFloat(el.dataset.count);
 
       if (el.classList.contains('currency')) {
-        animateCounter(el, raw / 100, 1400, true, '$');
+        animateCounter(el, raw / 100, 1400, true, 'R');
       } else if (el.classList.contains('percent')) {
         animateCounter(el, raw, 1400, true, '', '%');
       } else {
@@ -713,11 +713,11 @@ document.getElementById('upgradeBtn')?.addEventListener('click', () => {
       <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:20px;line-height:1.6">Unlock advanced analytics, unlimited integrations, and priority support.</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;min-width:140px">
-          <div style="font-size:1.4rem;font-weight:700;color:var(--text)">$29<span style="font-size:0.8rem;font-weight:400;color:var(--text-secondary)">/mo</span></div>
+          <div style="font-size:1.4rem;font-weight:700;color:var(--text)">R29<span style="font-size:0.8rem;font-weight:400;color:var(--text-secondary)">/mo</span></div>
           <div style="font-size:0.75rem;color:var(--text-tertiary);margin-top:4px">Pro Plan</div>
         </div>
         <div style="background:linear-gradient(135deg,rgba(108,92,231,0.15),rgba(0,206,201,0.1));border:1px solid rgba(108,92,231,0.3);border-radius:12px;padding:16px 20px;min-width:140px">
-          <div style="font-size:1.4rem;font-weight:700;color:var(--text)">$79<span style="font-size:0.8rem;font-weight:400;color:var(--text-secondary)">/mo</span></div>
+          <div style="font-size:1.4rem;font-weight:700;color:var(--text)">R79<span style="font-size:0.8rem;font-weight:400;color:var(--text-secondary)">/mo</span></div>
           <div style="font-size:0.75rem;color:var(--brand);font-weight:600;margin-top:4px">Business ⭐</div>
         </div>
       </div>
@@ -731,13 +731,13 @@ document.getElementById('upgradeBtn')?.addEventListener('click', () => {
 // ── SEE ALL INTEGRATIONS ───────────────────────────
 document.getElementById('seeAllBtn')?.addEventListener('click', () => {
   const allIntegrations = [
-    { icon: 'S',  cls: 'stripe',  name: 'Stripe',     type: 'Finance',     rate: 40, profit: '$650.00', pos: true  },
-    { icon: 'Z',  cls: 'zapier',  name: 'Zapier',     type: 'CRM',         rate: 80, profit: '$720.50', pos: true  },
-    { icon: 'Sh', cls: 'shopify', name: 'Shopify',    type: 'Marketplace', rate: 20, profit: '$432.25', pos: false },
-    { icon: 'Sl', cls: 'slack',   name: 'Slack',      type: 'Comms',       rate: 65, profit: '$510.00', pos: true  },
-    { icon: 'G',  cls: 'stripe',  name: 'Google Ads', type: 'Marketing',   rate: 55, profit: '$890.00', pos: true  },
-    { icon: 'H',  cls: 'zapier',  name: 'HubSpot',    type: 'CRM',         rate: 72, profit: '$634.80', pos: true  },
-    { icon: 'M',  cls: 'shopify', name: 'Mailchimp',  type: 'Email',       rate: 33, profit: '$215.40', pos: false },
+    { icon: 'S',  cls: 'stripe',  name: 'Stripe',     type: 'Finance',     rate: 40, profit: 'R650.00', pos: true  },
+    { icon: 'Z',  cls: 'zapier',  name: 'Zapier',     type: 'CRM',         rate: 80, profit: 'R720.50', pos: true  },
+    { icon: 'Sh', cls: 'shopify', name: 'Shopify',    type: 'Marketplace', rate: 20, profit: 'R432.25', pos: false },
+    { icon: 'Sl', cls: 'slack',   name: 'Slack',      type: 'Comms',       rate: 65, profit: 'R510.00', pos: true  },
+    { icon: 'G',  cls: 'stripe',  name: 'Google Ads', type: 'Marketing',   rate: 55, profit: 'R890.00', pos: true  },
+    { icon: 'H',  cls: 'zapier',  name: 'HubSpot',    type: 'CRM',         rate: 72, profit: 'R634.80', pos: true  },
+    { icon: 'M',  cls: 'shopify', name: 'Mailchimp',  type: 'Email',       rate: 33, profit: 'R215.40', pos: false },
   ];
 
   const rows = allIntegrations.map(i => `
