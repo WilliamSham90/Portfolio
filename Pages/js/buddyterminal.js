@@ -457,14 +457,24 @@ async function handleBuddyCommand(raw) {
   const parts = raw.trim().split(/\s+/);
   const sub   = (parts[1] || "").toLowerCase();
   if (!sub || sub === "hatch") { await cmdHatch(userId); return; }
-  if (sub === "info")   { cmdInfo();          return; }
-  if (sub === "hats")   { cmdHats();          return; }
-  if (sub === "equip")  { cmdEquip(parts[2]); return; }
-  if (sub === "pat")    { cmdPat();           return; }
-  if (sub === "reroll") { await cmdReroll();  return; }
-  if (sub === "id")     { cmdId(parts[2]);    return; }
-  if (sub === "feed")   { cmdFeed();          return; }
-  if (sub === "play")   { startFeed();        return; }
+  if (sub === "info"   || sub === "status" || sub === "stats") { cmdInfo();          return; }
+  if (sub === "hats"   || sub === "hat")   { cmdHats();          return; }
+  if (sub === "equip")                     { cmdEquip(parts[2]); return; }
+  if (sub === "pat"    || sub === "pet")   { cmdPat();           return; }
+  if (sub === "reroll" || sub === "roll")  { await cmdReroll();  return; }
+  if (sub === "id")                        { cmdId(parts[2]);    return; }
+  if (sub === "feed")                      { cmdFeed();          return; }
+  if (sub === "play")                      { startFeed();        return; }
+
+  // Guard: known keywords that are NOT user IDs — show a hint instead of peeking
+  const RESERVED = ["help","commands","clear","history","stopfeed","next","pause","resume","speed"];
+  if (RESERVED.includes(sub)) {
+    printLine("  unknown buddy command: \"" + sub + "\"", "error-line");
+    printLine("  try /buddy info  |  /buddy hats  |  /buddy pat  |  /buddy feed", "muted");
+    return;
+  }
+
+  // Anything else is treated as a user ID to peek at
   await cmdHatch(parts.slice(1).join(" "), true);
 }
 
@@ -1079,7 +1089,7 @@ function cmdShowCommands() {
   const sections = [
     { heading:"  BUDDY", items:[
       ["/buddy",               "hatch your unique companion"],
-      ["/buddy info",          "full stat card"],
+      ["/buddy info",          "full stat card (also: /buddy status)"],
       ["/buddy hats",          "list all 12 hats"],
       ["/buddy equip <hat>",   "equip a hat"],
       ["/buddy pat",           "give your buddy a pat"],
