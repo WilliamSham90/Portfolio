@@ -726,3 +726,23 @@ html, body {
   text-shadow: 0 0 8px rgba(255, 209, 102, 0.3);
   animation: line-in 0.15s ease forwards;
 }
+
+/* ── Sparkle burst (pat animation) ────────────────────────── */
+.floating-sparkle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9990;
+  user-select: none;
+  animation: sparkle-burst ease-out forwards;
+  text-shadow: 0 0 8px currentColor;
+}
+@keyframes sparkle-burst {
+  0%   { opacity: 1;   transform: translate(0,       0)       scale(1.2) rotate(0deg);   }
+  40%  { opacity: 0.9; transform: translate(calc(var(--tx)*0.6), calc(var(--ty)*0.6)) scale(1.4) rotate(180deg); }
+  100% { opacity: 0;   transform: translate(var(--tx), var(--ty)) scale(0.3) rotate(360deg); }
+}
+
+/* Pat approach text — slightly softer than normal muted */
+.output-line.muted:has(~ .output-line.success) {
+  letter-spacing: 0.04em;
+}
