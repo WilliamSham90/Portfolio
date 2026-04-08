@@ -538,17 +538,202 @@ function cmdEquip(hatId) {
   setPetMood("celebrate", 2000); petSay("oh this hat slaps actually.");
 }
 
+// ── /buddy pat — full animated experience ─────────────────────
+
+// Phrase banks across the 4 phases of a pat
+const PAT_APPROACH = [
+  "you reach out a hand...",
+  "you extend one (1) pat...",
+  "a pat is incoming...",
+  "you prepare to deliver a pat...",
+  "your hand approaches...",
+  "*pat inbound*",
+  "pat delivery commencing...",
+  "initiating pat protocol...",
+  "one pat, authorized and approved...",
+  "you raise your hand slowly...",
+  "a gentle hand descends...",
+  "you offer the sacred pat...",
+  "behold: the pat.",
+  "pat loading... please wait...",
+];
+
+const PAT_SEES_HAND = [
+  "!!!",
+  "*freezes*",
+  "...is that...",
+  "*ears perk up*",
+  "*eyes widen*",
+  "...oh.",
+  "*notices hand*",
+  "*vibrating*",
+  "wait— is that for me?",
+  "*leans forward slowly*",
+  "*head tilts*",
+  "...approaching pat detected.",
+  "*holds very still*",
+  "...i see it.",
+  "*already emotional*",
+];
+
+const PAT_DURING = [
+  "*MELTS*",
+  "*completely dissolves*",
+  "ohhhh. oh yes.",
+  "*forgets all worries*",
+  "*eyes slowly close*",
+  "...yes. yes. keep going.",
+  "*makes tiny happy sounds*",
+  "this. THIS.",
+  "*enters bliss state*",
+  "i have waited for this.",
+  "*becomes very soft*",
+  "...don't stop.",
+  "perfect. absolutely perfect.",
+  "*maximum happiness achieved*",
+  "ohhhhhh my goodness.",
+  "*brain goes quiet*",
+  "...the stress. it's leaving.",
+  "*nuzzles into pat*",
+  "i am so happy right now.",
+  "*literally glowing*",
+  "you have healed me.",
+  "...everything is okay now.",
+  "*all bugs forgotten*",
+  "best day. best day ever.",
+  "*tail / gills / tentacles wiggling intensely*",
+];
+
+const PAT_AFTERGLOW = [
+  "...thank you.",
+  "*still floating*",
+  "i feel so loved.",
+  "can we do that again?",
+  "*very warm*",
+  "...i will think about that for a week.",
+  "that was everything.",
+  "*genuinely rejuvenated*",
+  "best thing that happened today. possibly ever.",
+  "*slightly dazed*",
+  "...more?",
+  "*happy sigh*",
+  "i am a new creature.",
+  "you have done a kindness.",
+  "*refuses to move in case it ends*",
+  "...rating: 10/10. no notes.",
+  "i am recharged. i can do anything now.",
+  "*still vibrating slightly*",
+  "that fixed everything. actually everything.",
+];
+
+// Sparkle particle burst — different from hearts
+function spawnSparkles(originX, originY) {
+  const syms   = ["\u2728", "\u2736", "\u2734", "\u2605", "\u2606", "\u22C6", "\u2743", "\u2747"];
+  const colors = ["#ffdd57", "#ffc433", "#ffb700", "#ffe082", "#fff176", "#dcedc8", "#b9f6ca", "#e1bee7"];
+  const count  = 14 + Math.floor(Math.random() * 6); // 14-19 sparkles
+
+  for (let i = 0; i < count; i++) {
+    const el    = document.createElement("span");
+    el.className = "floating-sparkle";
+    el.textContent = syms[Math.floor(Math.random() * syms.length)];
+
+    // Radial burst: spread in all directions, not just up
+    const angle    = (Math.random() * Math.PI * 2);
+    const distance = 40 + Math.random() * 80;
+    const tx       = Math.cos(angle) * distance;
+    const ty       = Math.sin(angle) * distance;
+    const size     = 12 + Math.floor(Math.random() * 14);
+    const duration = 1.8 + Math.random() * 1.4;
+    const delay    = i * 0.04;
+
+    el.style.cssText =
+      "left:"  + (originX + (Math.random()-0.5)*20) + "px;" +
+      "top:"   + (originY + (Math.random()-0.5)*20) + "px;" +
+      "color:" + colors[Math.floor(Math.random() * colors.length)] + ";" +
+      "font-size:" + size + "px;" +
+      "animation-name:sparkle-burst;" +
+      "animation-duration:" + duration + "s;" +
+      "animation-delay:" + delay + "s;" +
+      "animation-fill-mode:both;" +
+      "animation-timing-function:ease-out;" +
+      "--tx:" + tx.toFixed(1) + "px;" +
+      "--ty:" + ty.toFixed(1) + "px";
+
+    document.body.appendChild(el);
+    el.addEventListener("animationend", () => el.remove());
+  }
+}
+
 function cmdPat() {
-  if (!currentPet) { printLine("  nothing to pat. hatch a buddy first.", "error-line"); return; }
-  const pats = [
-    "*" + currentPet.petName + " is overjoyed*",
-    currentPet.petName + " leans into the pat.",
-    currentPet.petName + " headbutts your hand.",
-    "you patted " + currentPet.petName + ".",
-    currentPet.petName + ": \"...\" (but appreciates it)",
-  ];
-  printLine("  " + pats[Math.floor(Math.random()*pats.length)], "success");
-  setPetMood("celebrate", 3000); petSay("\u2665");
+  if (!currentPet) {
+    printLine("  nothing to pat. hatch a buddy first.", "error-line");
+    return;
+  }
+  const name = currentPet.petName;
+
+  // Phase 1 — approach (immediate)
+  const approach = pickRandom(PAT_APPROACH);
+  printLine("  " + approach, "muted");
+  setPetMood("idle", 800);
+
+  // Phase 2 — pet sees the hand (800ms)
+  setTimeout(() => {
+    petSay(pickRandom(PAT_SEES_HAND));
+    setPetMood("worry", 700); // brief anticipation
+  }, 800);
+
+  // Phase 3 — the pat lands (1600ms) — main event
+  setTimeout(() => {
+    setPetMood("celebrate", 5000);
+    petSay(pickRandom(PAT_DURING));
+
+    // Sparkle burst from the pet card
+    const sr = petSidebar ? petSidebar.getBoundingClientRect() : null;
+    const ox = sr ? sr.left + sr.width  / 2 : window.innerWidth - 100;
+    const oy = sr ? sr.top  + sr.height / 3 : 180;
+    spawnSparkles(ox, oy);
+
+    // Second wave of sparkles slightly offset
+    setTimeout(() => spawnSparkles(
+      ox + (Math.random()-0.5)*40,
+      oy + (Math.random()-0.5)*30
+    ), 220);
+
+    // Print the pat result line
+    const results = [
+      name + " is completely overwhelmed.",
+      name + " leans into it with full commitment.",
+      name + " has entered maximum bliss.",
+      name + " makes a tiny happy sound.",
+      name + " forgets all problems immediately.",
+      name + " melts a little.",
+      name + " officially has no more stress.",
+      name + " leans in. does not lean back out.",
+      name + " closes eyes. everything is perfect.",
+    ];
+    setTimeout(() => {
+      printLine("  " + pickRandom(results), "success");
+      spawnHearts(ox, oy); // hearts too, why not
+    }, 500);
+  }, 1600);
+
+  // Phase 4 — afterglow (4200ms)
+  setTimeout(() => {
+    petSay(pickRandom(PAT_AFTERGLOW));
+  }, 4200);
+
+  // Phase 5 — final quiet moment (6000ms)
+  setTimeout(() => {
+    const finals = [
+      "  (" + name + " is still thinking about the pat.)",
+      "  (" + name + " feels recharged. ready for anything.)",
+      "  (" + name + " is very soft right now.)",
+      "  (" + name + " won't forget this.)",
+      "  (" + name + " gives a small nod of appreciation.)",
+    ];
+    printLine(pickRandom(finals), "muted");
+    printLine("", "");
+  }, 6000);
 }
 
 async function cmdReroll() {
