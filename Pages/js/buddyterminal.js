@@ -2740,6 +2740,33 @@ const PET_PLAY = {
 
 };
 
+// ── Feed state variables ───────────────────────────────────────
+let feedInterval   = null;
+let feedIsPaused   = false;
+let feedDelay      = 5000;
+let feedVersionIdx = 0;
+let feedLoopCount  = 0;
+let feedTotalSteps = 0;
+
+const FEED_DELAY_NORMAL   = 8000;
+const FEED_DELAY_FAST     = 4000;
+const FEED_DELAY_SLOW     = 14000;
+const STEPS_PER_STAT_GAIN = 4;
+
+const SPECIES_STAT_AFFINITY = {
+  duck:"DEBUGGING", capybara:"SNARK",     dragon:"CHAOS",
+  ghost:"DEBUGGING",axolotl:"DEBUGGING",  chonk:"SNARK",
+  cat:"CHAOS",      dog:"CHAOS",          frog:"SNARK",
+  penguin:"DEBUGGING", bunny:"CHAOS",     hamster:"CHAOS",
+  crab:"DEBUGGING", snail:"SNARK",        octopus:"CHAOS",
+  slime:"CHAOS",    robot:"DEBUGGING",    wizard:"DEBUGGING",
+};
+
+function restartFeedTimer() {
+  if (feedInterval) clearInterval(feedInterval);
+  feedInterval = setInterval(() => { if (!feedIsPaused) feedStep(); }, feedDelay);
+}
+
 // ── Safe code section builder ─────────────────────────────────
 function appendCodeSection(labelText, lines) {
   const labelDiv  = document.createElement("div");
@@ -3151,4 +3178,3 @@ function handleFeedSubcommand(parts) {
 
 // ── Start ─────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", init);
-
