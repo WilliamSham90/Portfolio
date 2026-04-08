@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>/buddy — April Fools Pet Terminal 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- CRT scanline overlay -->
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- Particle canvas for rare hatch fireworks -->
+  <canvas id="particleCanvas" aria-hidden="true"></canvas>
+
+  <!-- ── Main terminal wrapper ────────────────────────────── -->
+  <div class="terminal-wrapper">
+
+    <!-- Header bar -->
+    <header class="terminal-header">
+      <div class="header-dots" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="header-title">// buddy.terminal — april fools 2026</span>
+      <div class="header-right">
+        <span class="header-uid">uid: <span id="userIdDisplay">--------...</span></span>
+        <a
+          href="https://williamsham90.github.io/Portfolio/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="portfolio-link"
+          aria-label="Open William's portfolio (opens in new tab)"
+        >[ portfolio ↗ ]</a>
+        <div class="header-badge">🐣 APR 1</div>
+      </div>
+    </header>
+
+    <!-- ── Body: output + sidebar ──────────────────────── -->
+    <div class="terminal-body">
+
+      <!-- Scrollable output area -->
+      <div class="output-area" id="outputArea" role="log" aria-live="polite" aria-label="Terminal output"></div>
+
+      <!-- ── Pet sidebar ──────────────────────────────── -->
+      <aside class="pet-sidebar" id="petSidebar" aria-label="Your buddy companion">
+
+        <!-- State: no buddy yet -->
+        <div class="no-buddy-wrapper" id="noBuddy">
+          <div class="no-buddy-egg" aria-label="egg">🥚</div>
+          <div class="no-buddy-text">no buddy<br>hatched yet</div>
+          <div class="no-buddy-hint">type /buddy<br>to hatch</div>
+        </div>
+
+        <!-- State: buddy hatched -->
+        <div id="petCard" style="display:none" role="region" aria-label="Your buddy">
+
+          <!-- Hat (shown only when equipped) -->
+          <div class="pet-hat-display" id="petHat" aria-hidden="true" style="display:none"></div>
+
+          <!-- ASCII art card -->
+          <div class="pet-card-inner">
+            <div class="pet-ascii-wrap" id="petAsciiWrap">
+              <div id="petAscii" aria-label="ASCII art of your buddy"></div>
+            </div>
+            <div class="pet-name-display"  id="petName"  aria-label="Buddy name"></div>
+            <div class="pet-rarity-display" id="petRarity" aria-label="Rarity"></div>
+            <div class="mini-stats" id="petStats" aria-label="Buddy stats"></div>
+          </div>
+
+          <!-- Speech bubble -->
+          <div class="pet-speech" id="petSpeech" aria-live="polite"></div>
+
+        </div>
+
+        <!-- Sidebar footer: UID display + copy -->
+        <div class="sidebar-footer">
+          <div>your id:</div>
+          <div class="uid-row">
+            <div class="uid-val" id="sidebarUid"></div>
+            <button
+              class="copy-btn"
+              id="copyUidBtn"
+              title="Copy your full user ID"
+              aria-label="Copy user ID to clipboard"
+            >&#x2398;</button>
+          </div>
+        </div>
+
+      </aside>
+      <!-- /pet-sidebar -->
+
+    </div>
+    <!-- /terminal-body -->
+
+    <!-- ── Input bar ──────────────────────────────────── -->
+    <div class="input-area">
+      <span class="prompt" aria-hidden="true">❯</span>
+      <label for="terminalInput" class="sr-only">Terminal input</label>
+      <input
+        type="text"
+        id="terminalInput"
+        class="terminal-input"
+        placeholder="type /buddy to hatch your companion..."
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Terminal input — type /buddy to get started"
+      />
+    </div>
+
+  </div>
+  <!-- /terminal-wrapper -->
+
+  <!-- Visually hidden helper for screen readers -->
+  <style>
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+  </style>
+
+  <script src="script.js"></script>
+
+  <!-- Tiny inline patch: mirror UID to sidebar & handle /buddy input glow -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Mirror UID to sidebar footer
+      const uid = localStorage.getItem("buddy_userId") || "—";
+      const sidebarUidEl = document.getElementById("sidebarUid");
+      if (sidebarUidEl) sidebarUidEl.textContent = uid.slice(0, 12) + "...";
+
+      // Glow input when typing /buddy
+      const inp = document.getElementById("terminalInput");
+      if (inp) {
+        inp.addEventListener("input", () => {
+          if (inp.value.toLowerCase().startsWith("/buddy")) {
+            inp.classList.add("buddy-glow");
+          } else {
+            inp.classList.remove("buddy-glow");
+          }
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
