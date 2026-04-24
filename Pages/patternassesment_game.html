@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pattern Assessment — Active Session</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="patternassesment_game.css">
+</head>
+<body>
+
+  <!-- Scan lines -->
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- ─── HEADER / HUD ─── -->
+  <header class="game-header">
+    <div class="hud-item">
+      <span class="hud-label">LEVEL</span>
+      <span id="hud-level" class="hud-value">01</span>
+      <span class="hud-label">/15</span>
+    </div>
+
+    <div class="hud-center">
+      <div class="hud-timer-wrap">
+        <span class="hud-label">TIME REMAINING</span>
+        <div id="hud-timer" class="hud-timer">5:00</div>
+        <div class="timer-bar-track">
+          <div id="timer-bar" class="timer-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-item hud-right">
+      <span class="hud-label">WRONG</span>
+      <span id="hud-wrong" class="hud-value hud-wrong">00</span>
+    </div>
+  </header>
+
+  <!-- ─── GAME AREA ─── -->
+  <div class="game-area">
+
+    <!-- Instruction / feedback strip -->
+    <div id="feedback-strip" class="feedback-strip">
+      <span id="feedback-text">SELECT THE ODD ONE OUT</span>
+    </div>
+
+    <!-- 8-block grid -->
+    <div id="pattern-grid" class="pattern-grid" role="grid" aria-label="Pattern selection grid">
+      <!-- 8 blocks injected by JS -->
+    </div>
+
+    <!-- Level label under grid -->
+    <div id="level-label" class="level-label">
+      <span id="level-name">LEVEL 1 — COLOUR RECOGNITION</span>
+    </div>
+
+  </div>
+
+  <!-- ─── RESULT OVERLAY ─── -->
+  <div id="result-overlay" class="result-overlay hidden" role="dialog" aria-modal="true" aria-label="Session results">
+    <div class="result-panel">
+
+      <div class="result-top-bar">SESSION COMPLETE</div>
+
+      <div id="result-headline" class="result-headline"></div>
+      <div id="result-sub" class="result-sub"></div>
+
+      <div class="result-stats">
+        <div class="rstat">
+          <div class="rstat-label">LEVEL REACHED</div>
+          <div id="rs-level" class="rstat-value accent"></div>
+        </div>
+        <div class="rstat">
+          <div class="rstat-label">CORRECT</div>
+          <div id="rs-correct" class="rstat-value"></div>
+        </div>
+        <div class="rstat">
+          <div class="rstat-label">WRONG</div>
+          <div id="rs-wrong" class="rstat-value"></div>
+        </div>
+        <div class="rstat">
+          <div class="rstat-label">AVG SPEED</div>
+          <div id="rs-speed" class="rstat-value"></div>
+        </div>
+      </div>
+
+      <div id="transfer-notice" class="transfer-notice">
+        <div class="transfer-icon">⇄</div>
+        <div class="transfer-text">
+          <strong>TRANSFERRING DATA TO PARENT WINDOW</strong>
+          <span id="transfer-status">Sending results via postMessage…</span>
+        </div>
+      </div>
+
+      <button id="btn-close" class="btn-close">
+        CLOSE WINDOW
+      </button>
+
+    </div>
+  </div>
+
+  <script src="patternassesment_game.js"></script>
+</body>
+</html>

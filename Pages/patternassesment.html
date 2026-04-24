@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pattern Assessment — Secure Window Transfer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="patternassesment.css">
+</head>
+<body>
+
+  <!-- ─── SCAN-LINE OVERLAY ─── -->
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- ─── HEADER ─── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-box">PA</span>
+        <span class="logo-text">PATTERN<br>ASSESSMENT</span>
+      </div>
+      <div class="header-meta">
+        <span class="meta-item">SECURE WINDOW TRANSFER</span>
+        <span class="meta-divider">|</span>
+        <span class="meta-item">DEMO v1.0</span>
+        <span class="meta-divider">|</span>
+        <a href="https://williamsham90.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" class="meta-portfolio-link">
+          <span class="portfolio-icon">↗</span> PORTFOLIO
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── MAIN ─── -->
+  <main class="main-content">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="section-label">HOW IT WORKS</div>
+      <h1 class="hero-title">Secure Popup<br><em>Data Transfer</em></h1>
+      <p class="hero-desc">
+        This page demonstrates secure cross-window communication using the
+        <code>window.postMessage</code> API. Clicking the button below opens an isolated
+        popup window running a live Pattern Recognition Game. Once the session ends,
+        the game transmits your results back to this page automatically — no page reload,
+        no shared storage.
+      </p>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-num">01</div>
+          <div class="info-card-title">LAUNCH</div>
+          <div class="info-card-body">Click the button to open an isolated secure popup window running the game.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-num">02</div>
+          <div class="info-card-title">PLAY</div>
+          <div class="info-card-body">Complete the pattern recognition game — 15 levels, 5 minute clock.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-num">03</div>
+          <div class="info-card-title">TRANSFER</div>
+          <div class="info-card-body">Results are sent back via <code>postMessage</code> and displayed below in real time.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Launch Section -->
+    <section class="launch-section">
+      <div class="launch-inner">
+        <div class="launch-text">
+          <div class="section-label">READY TO BEGIN</div>
+          <p>The assessment window will open at 900 × 700 px, centred on screen. Keep this tab open — results will appear here when your session ends.</p>
+        </div>
+        <div class="launch-controls">
+          <button id="btn-launch" class="btn-launch">
+            <span class="btn-icon">▶</span>
+            <span>LAUNCH ASSESSMENT</span>
+          </button>
+          <div id="status-bar" class="status-bar" aria-live="polite">
+            <span id="status-dot" class="status-dot"></span>
+            <span id="status-msg" class="status-msg">READY</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section (hidden until data arrives) -->
+    <section id="results-section" class="results-section" aria-hidden="true">
+      <div class="results-header">
+        <div class="section-label">TRANSFERRED DATA</div>
+        <h2 class="results-title">Session Results</h2>
+        <div id="r-timestamp" class="results-timestamp"></div>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-card accent">
+          <div class="result-card-label">LEVEL REACHED</div>
+          <div id="r-level" class="result-card-value">—</div>
+          <div class="result-card-sub">out of 15</div>
+        </div>
+        <div class="result-card">
+          <div class="result-card-label">WRONG ANSWERS</div>
+          <div id="r-wrong" class="result-card-value">—</div>
+          <div class="result-card-sub">incorrect selections</div>
+        </div>
+        <div class="result-card">
+          <div class="result-card-label">AVG. SPEED</div>
+          <div id="r-speed" class="result-card-value">—</div>
+          <div class="result-card-sub">per correct answer</div>
+        </div>
+        <div class="result-card">
+          <div class="result-card-label">TIME USED</div>
+          <div id="r-time" class="result-card-value">—</div>
+          <div class="result-card-sub">of 5:00 total</div>
+        </div>
+      </div>
+
+      <div class="results-footer">
+        <div id="r-status-badge" class="status-badge"></div>
+        <div class="results-raw">
+          <div class="raw-label">RAW PAYLOAD</div>
+          <pre id="r-raw" class="raw-pre"></pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="site-footer">
+    <span>PATTERN ASSESSMENT SYSTEM</span>
+    <span class="footer-sep">//</span>
+    <span>postMessage API Demo</span>
+    <span class="footer-sep">//</span>
+    <a href="https://williamsham90.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" class="footer-portfolio-link">
+      <span>↗</span> WILLIAMSHAM90 PORTFOLIO
+    </a>
+  </footer>
+
+  <script src="patternassesment.js"></script>
+</body>
+</html>
