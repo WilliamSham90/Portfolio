@@ -1,0 +1,387 @@
+/* ═══════════════════════════════════════════
+   PATTERN ASSESSMENT — GAME WINDOW STYLES
+   Industrial / Sharp — No rounded edges
+═══════════════════════════════════════════ */
+
+:root {
+  --bg:           #0A0A0A;
+  --bg-surface:   #111111;
+  --bg-elevated:  #191919;
+  --border:       #272727;
+  --border-bright:#3A3A3A;
+  --text-primary: #F0F0F0;
+  --text-secondary:#888888;
+  --text-dim:     #444444;
+  --accent:       #F5A200;
+  --accent-dim:   rgba(245,162,0,0.14);
+  --success:      #00C97B;
+  --success-dim:  rgba(0,201,123,0.12);
+  --danger:       #FF3B3B;
+  --danger-dim:   rgba(255,59,59,0.14);
+  --font-head:    'Bebas Neue', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'Roboto Mono', monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+/* ─── SCAN LINES ─── */
+.scanlines {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.07) 2px,
+    rgba(0,0,0,0.07) 4px
+  );
+}
+
+/* ─── HUD HEADER ─── */
+.game-header {
+  height: 68px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.hud-item {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex: 1;
+}
+.hud-right { justify-content: flex-end; }
+
+.hud-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+}
+.hud-value {
+  font-family: var(--font-head);
+  font-size: 36px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+.hud-wrong {
+  color: var(--danger);
+}
+
+/* Timer */
+.hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 2;
+}
+.hud-timer-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 200px;
+}
+.hud-timer {
+  font-family: var(--font-head);
+  font-size: 40px;
+  letter-spacing: 4px;
+  line-height: 1;
+  color: var(--accent);
+  transition: color 0.3s;
+}
+.hud-timer.warning { color: var(--danger); animation: pulse-timer 0.7s ease infinite; }
+@keyframes pulse-timer { 50% { opacity: 0.5; } }
+
+.timer-bar-track {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+}
+.timer-bar {
+  height: 100%;
+  background: var(--accent);
+  width: 100%;
+  transition: width 1s linear, background 0.3s;
+}
+.timer-bar.warning { background: var(--danger); }
+
+/* ─── GAME AREA ─── */
+.game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 28px 20px;
+  gap: 16px;
+  overflow: hidden;
+}
+
+/* Feedback strip */
+.feedback-strip {
+  width: 100%;
+  max-width: 640px;
+  padding: 10px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+#feedback-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.feedback-strip.correct {
+  border-color: var(--success);
+  background: var(--success-dim);
+}
+.feedback-strip.correct #feedback-text { color: var(--success); }
+.feedback-strip.wrong {
+  border-color: var(--danger);
+  background: var(--danger-dim);
+}
+.feedback-strip.wrong #feedback-text { color: var(--danger); }
+
+/* ─── PATTERN GRID ─── */
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 640px;
+}
+
+/* ─── PATTERN BLOCK ─── */
+.pattern-block {
+  aspect-ratio: 1;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.12s, transform 0.08s;
+  outline: none;
+}
+.pattern-block:hover {
+  border-color: var(--border-bright);
+  transform: scale(1.03);
+  z-index: 2;
+}
+.pattern-block:active {
+  transform: scale(0.97);
+}
+.pattern-block:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* State feedback on blocks */
+.pattern-block.flash-correct {
+  border-color: var(--success) !important;
+  animation: flash-correct 0.4s ease;
+}
+.pattern-block.flash-wrong {
+  border-color: var(--danger) !important;
+  animation: flash-wrong 0.3s ease;
+}
+@keyframes flash-correct {
+  0%   { box-shadow: 0 0 0 0 rgba(0,201,123,0.6); }
+  50%  { box-shadow: 0 0 0 8px rgba(0,201,123,0); }
+  100% { box-shadow: none; }
+}
+@keyframes flash-wrong {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-5px); }
+  75%       { transform: translateX(5px); }
+}
+
+/* Block index label (subtle, for debug — hidden in prod) */
+.block-index {
+  display: none; /* set to block for debug */
+  position: absolute;
+  bottom: 3px;
+  right: 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ─── LEVEL LABEL ─── */
+.level-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* ─── RESULT OVERLAY ─── */
+.result-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.result-overlay.hidden {
+  display: none;
+}
+
+.result-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-bright);
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  animation: panel-in 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes panel-in {
+  from { opacity: 0; transform: scale(0.94) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.result-top-bar {
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+}
+
+.result-headline {
+  font-family: var(--font-head);
+  font-size: 52px;
+  letter-spacing: 2px;
+  padding: 24px 24px 4px;
+  line-height: 1;
+}
+.result-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 300;
+  padding: 0 24px 24px;
+  line-height: 1.6;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--border);
+}
+.rstat {
+  background: var(--bg-surface);
+  padding: 18px 14px;
+  margin: 1px;
+}
+.rstat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.rstat-value {
+  font-family: var(--font-head);
+  font-size: 36px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+.rstat-value.accent { color: var(--accent); }
+
+.transfer-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+.transfer-icon {
+  font-size: 22px;
+  color: var(--accent);
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.transfer-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.transfer-text strong {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+#transfer-status {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+#transfer-status.sent {
+  color: var(--success);
+}
+
+.btn-close {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-align: center;
+}
+.btn-close:hover {
+  background: var(--border);
+  color: var(--text-primary);
+}
+.btn-close:active {
+  background: var(--border-bright);
+}
