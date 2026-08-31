@@ -21,6 +21,7 @@
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
     --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-code: 'Fira Code', 'Consolas', monospace;
+    --header-height: 76px;
 }
 
 [data-theme="light"] {
@@ -36,7 +37,7 @@
 
 /* ===== RESET & BASE ===== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; font-size: 16px; -webkit-text-size-adjust: 100%; }
+html { scroll-behavior: smooth; font-size: 16px; -webkit-text-size-adjust: 100%; scroll-padding-top: var(--header-height); }
 
 body {
     font-family: var(--font-primary);
@@ -149,10 +150,11 @@ body {
 .nav-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 1.5% 8%;
+    padding: 1rem 8%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
 }
 
 .brand-logo {
@@ -161,8 +163,10 @@ body {
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 0.2rem;
+    gap: 0.4rem;
     text-decoration: none;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .logo-bracket { color: var(--purple); }
@@ -176,22 +180,24 @@ body {
 
 .nav-menu {
     display: flex;
-    gap: 1.5rem;
+    gap: 1.25rem;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .nav-link {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
     color: var(--text-secondary);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.6rem;
     border-radius: 8px;
     transition: color var(--transition-fast);
     position: relative;
+    white-space: nowrap;
 }
 
 .nav-link:hover, .nav-link.active { color: var(--primary); }
@@ -211,6 +217,7 @@ body {
     display: flex;
     gap: 0.75rem;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .lang-toggle, .theme-toggle, .menu-toggle {
@@ -739,6 +746,7 @@ body {
 }
 
 .stat-number {
+    display: block;
     font-family: var(--font-code);
     font-size: clamp(1.8rem, 4vw, 2rem);
     font-weight: 700;
@@ -747,6 +755,7 @@ body {
 }
 
 .stat-label {
+    display: block;
     color: var(--text-secondary);
     font-size: 0.8rem;
 }
@@ -1461,7 +1470,10 @@ body {
     .badge-3 { left: -8%; }
 }
 
-@media (max-width: 768px) {
+/* Nav collapses to the hamburger menu here — before the 8 links + language/theme
+   toggles run out of horizontal room. This closes the gap (roughly 769px-1050px)
+   where the full nav used to overflow or get clipped on common laptop/tablet widths. */
+@media (max-width: 1100px) {
     .nav-menu {
         position: fixed;
         top: 0;
@@ -1484,12 +1496,15 @@ body {
         width: 100%;
         padding: 1rem;
         border-radius: 8px;
+        white-space: normal;
     }
     
     .nav-link:hover { background: var(--bg-card); }
     
     .menu-toggle { display: flex; }
-    
+}
+
+@media (max-width: 768px) {
     .hero-section { min-height: auto; padding: 6rem 5% 3rem; }
     
     .hero-container {
@@ -1541,6 +1556,7 @@ body {
 
 /* ===== RESPONSIVE - SMALL MOBILE ===== */
 @media (max-width: 480px) {
+    :root { --header-height: 64px; }
     .nav-container { padding: 0.75rem 1rem; }
     .section-container { padding: 0 1rem; }
     
