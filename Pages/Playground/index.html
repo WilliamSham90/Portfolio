@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Playground - William Sham | Full Stack Web Developer Portfolio</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+
+    <!-- Critical CSS inline, defer non-critical -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;600;700&display=swap"></noscript>
+
+    <!-- Font Awesome - load only icons we need -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
+    <!-- Global layout stylesheet (shared by every page). Lives at the site
+         root, two levels up from Pages/Playground/. -->
+    <link rel="stylesheet" href="../../index.css">
+
+    <!-- This page only needs Navbar, Playground, Games & Hosting, and
+         Footer — no Hero/About/Skills/etc, and no <link> for stylesheets it
+         doesn't use. -->
+    <link rel="stylesheet" href="../../Widgets/Navbar/navbar.css">
+    <link rel="stylesheet" href="../../Widgets/Playground/playground.css">
+    <link rel="stylesheet" href="../../Widgets/GamesHosting/gameshosting.css">
+    <link rel="stylesheet" href="../../Widgets/Footer/footer.css">
+</head>
+<body data-theme="dark" data-lang="en">
+
+    <!-- Loading Screen (part of this page's own shell, not a fetched
+         fragment, so it can cover the page the instant the HTML parses) -->
+    <div class="loader-screen" id="loader" aria-label="Loading">
+        <div class="loader-content">
+            <div class="loader-code-text">
+                <div class="code-line">const portfolio = {</div>
+                <div class="code-line">  loading: true,</div>
+                <div class="code-line">  developer: 'William Sham'</div>
+                <div class="code-line">};</div>
+            </div>
+            <div class="loader-spinner" role="status" aria-label="Loading"></div>
+            <div class="loader-progress-wrapper"><div class="loader-progress-bar"></div></div>
+            <div class="loader-percentage" id="loaderPercent">0%</div>
+        </div>
+    </div>
+
+    <!-- Every slot below is filled at runtime by playground.js, which fetches
+         the matching HTML fragment from ../../Widgets/<Section>/<section>.html
+         and injects it here, then runs that section's own init(). -->
+
+    <div id="navbar-slot"></div>
+
+    <main class="main-content" id="main-content">
+        <div id="playground-slot"></div>
+        <div id="gameshosting-slot"></div>
+    </main>
+
+    <div id="footer-slot"></div>
+
+    <!-- This page's own orchestrator script. -->
+    <script type="module" src="playground.js"></script>
+</body>
+</html>
