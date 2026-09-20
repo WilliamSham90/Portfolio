@@ -2,84 +2,33 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>William Sham - Full Stack Web Developer Portfolio</title>
+    <link rel="canonical" href="Pages/Home/">
+    <meta http-equiv="refresh" content="0; url=Pages/Home/">
+    <script>location.replace('Pages/Home/');</script>
 
-    <!-- Preload critical resources -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
-
-    <!-- DNS prefetch for external resources -->
-    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
-
-    <!-- Critical CSS inline, defer non-critical -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;600;700&display=swap"></noscript>
-
-    <!-- Font Awesome - load only icons we need -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-
-    <!-- Global layout stylesheet: variables, reset, page chrome, shared
-         components (buttons, section scaffold). Loaded first so section
-         stylesheets can rely on its custom properties and base classes. -->
-    <link rel="stylesheet" href="index.css">
-
-    <!-- Per-section stylesheets. Each file only styles the markup that lives
-         in that section's own HTML fragment (Widgets/<Section>/<section>.html).
-         Add a line here whenever a new section folder is added to a page. -->
-    <link rel="stylesheet" href="Widgets/Navbar/navbar.css">
-    <link rel="stylesheet" href="Widgets/Hero/hero.css">
-    <link rel="stylesheet" href="Widgets/About/about.css">
-    <link rel="stylesheet" href="Widgets/Skills/skills.css">
-    <link rel="stylesheet" href="Widgets/Experience/experience.css">
-    <link rel="stylesheet" href="Widgets/Projects/projects.css">
-    <link rel="stylesheet" href="Widgets/Playground/playground.css">
-    <link rel="stylesheet" href="Widgets/GamesHosting/gameshosting.css">
-    <link rel="stylesheet" href="Widgets/Contact/contact.css">
-    <link rel="stylesheet" href="Widgets/Footer/footer.css">
+    <style>
+        :root { color-scheme: dark; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        a { color: #c084fc; }
+    </style>
 </head>
-<body data-theme="dark" data-lang="en">
-
-    <!-- Loading Screen (part of the shell, not a fetched fragment, so it can
-         cover the page the instant the HTML parses) -->
-    <div class="loader-screen" id="loader" aria-label="Loading">
-        <div class="loader-content">
-            <div class="loader-code-text">
-                <div class="code-line">const portfolio = {</div>
-                <div class="code-line">  loading: true,</div>
-                <div class="code-line">  developer: 'William Sham'</div>
-                <div class="code-line">};</div>
-            </div>
-            <div class="loader-spinner" role="status" aria-label="Loading"></div>
-            <div class="loader-progress-wrapper"><div class="loader-progress-bar"></div></div>
-            <div class="loader-percentage" id="loaderPercent">0%</div>
-        </div>
-    </div>
-
-    <!-- Every slot below is filled at runtime by index.js, which fetches the
-         matching HTML fragment from Widgets/<Section>/<section>.html and
-         injects it here, then runs that section's own init() if it has one. -->
-
-    <div id="navbar-slot"></div>
-
-    <main class="main-content" id="main-content">
-        <div id="hero-slot"></div>
-        <div id="about-slot"></div>
-        <div id="skills-slot"></div>
-        <div id="experience-slot"></div>
-        <div id="projects-slot"></div>
-        <div id="playground-slot"></div>
-        <div id="gameshosting-slot"></div>
-        <div id="contact-slot"></div>
-    </main>
-
-    <div id="footer-slot"></div>
-
-    <!-- Layout/orchestrator script: fetches + mounts every section above. -->
-    <script type="module" src="index.js"></script>
+<body>
+    <noscript>
+        <p>JavaScript is disabled — <a href="Pages/Home/">continue to William Sham's portfolio</a>.</p>
+    </noscript>
+    <p>Redirecting to <a href="Pages/Home/">William Sham's portfolio</a>&hellip;</p>
 </body>
 </html>
