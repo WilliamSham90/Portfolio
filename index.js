@@ -402,11 +402,11 @@
     ["CSS Filter Showcase","Filterlab.html",["CSS","Filters","Interactive"],"Every CSS filter function — visualised. Click any card to copy the code.","Elke CSS-filterfunksie — gevisualiseer. Klik enige kaart om die kode te kopieer."],
     ["Particle Generator Showcase","ParticleGen.html",["Particle","Themes","Interactive"],"Create your own particles and copy them for your project.","Skep jou eie deeltjies en kopieer dit vir jou projek."],
     ["Text Motion Showcase","TextMotion.html",["Text","CSS","Animation"],"Hover cards to preview · click copy to grab the CSS and JS.","Beweeg kaarte om 'n voorskou te kry · klik op kopieer om CSS + JS te kry."],
-    ["Document Scanner","document_scanner.html",["Camera","Text","Auto"],"Scan and flatten documents or images, and even convert them to text for readability.","Kan dokumente/beelde skandeer en platmaak en selfs na teks omskakel vir leesbaarheid."],
     ["Demo Dashboard","demodash.html",["HTML","Visual","Dashboard"],"Just for show: a fun and modern-looking dashboard.","Net vir vertoon: 'n prettige en modern-uitziende dashboard."]
   ];
 
   const GAMES = [
+    ["2048","2048-master/index.html",["Puzzle","Classic","GitHub"],"The original sliding tile puzzle — join the numbers to reach 2048. Sourced from gabrielecirulli's open-source repo on GitHub.","Die oorspronklike skuif-teël-legkaart — voeg die getalle saam om by 2048 uit te kom. Kom van gabrielecirulli se oopbron-bewaarplek op GitHub."],
     ["Minesweeper","minesweeper.html",["Puzzle","Classic","JavaScript"],"Classic minesweeper game with multiple difficulty levels.","Klassieke mynveer-speletjie met verskeie moeilikheidsgrade."],
     ["Platformer","platformer.html",["Action","Platform","Canvas"],"Side-scrolling platformer with challenging obstacles.","Sy-rollende platform met uitdagende hindernisse."],
     ["Pong","pong.html",["Arcade","Classic","Multiplayer"],"The classic arcade game — play against AI or a friend.","Die klassieke arcade-speletjie — speel teen KI of 'n vriend."],
@@ -882,28 +882,6 @@
   }
 
   /* =================================================================
-     BAND CTA — ambient drifting glow blobs, one per accent colour
-     ================================================================= */
-  function initBandFx(){
-    if (!GS || reduced) return;
-    $$(".band-fx").forEach(host => {
-      for (let i = 0; i < 3; i++){
-        const blob = document.createElement("span");
-        const size = gsap.utils.random(140, 220);
-        blob.style.width = blob.style.height = size + "px";
-        blob.style.left = gsap.utils.random(-10, 80) + "%";
-        blob.style.top = gsap.utils.random(-30, 70) + "%";
-        host.appendChild(blob);
-        gsap.to(blob, {
-          x: gsap.utils.random(-50, 50), y: gsap.utils.random(-35, 35),
-          duration: gsap.utils.random(7, 11), ease: "sine.inOut",
-          yoyo: true, repeat: -1, delay: gsap.utils.random(0, 2)
-        });
-      }
-    });
-  }
-
-  /* =================================================================
      DRAWER
      ================================================================= */
   const drawer = $("#drawer"), scrim = $("#scrim");
@@ -975,7 +953,6 @@
   initShapeFx($("#contact-fx"), $("#page-contact"));
   initShapeFx($("#skills-fx"), $("#skills-tinted"));
   initShapeFx($("#work-fx"), $("#work-live"));
-  initBandFx();
 
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (GS) ScrollTrigger.refresh(); });
   addEventListener("load", () => { sizeDoodle(); initEmbeds(); if (GS) ScrollTrigger.refresh(); });

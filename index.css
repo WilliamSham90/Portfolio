@@ -514,29 +514,25 @@ button{ font: inherit; color: inherit; }
 .col h3{ font-size: clamp(1.15rem,1.05rem + .5vw,1.4rem); margin-block: 14px 10px; }
 .col p{ color: var(--ink-soft); font-size: .92rem; }
 
-/* One CTA card design, a different accent per page (set via --accent
-   inline on each .band) — band-fx behind the text is a few soft,
-   slowly-drifting colour blobs (initBandFx in index.js), screen-blended
-   so they glow rather than muddy the dark background. */
+/* CTA card design, a different accent per page (set via --accent inline
+   on each .band). Background is the hero's own pale-wash formula —
+   var(--accent) mixed lightly into --paper — so each page's band reads
+   as a continuation of its hero rather than an unrelated dark block.
+   The thick border + hard, unblurred offset shadow is a deliberate
+   comic-panel/sticker treatment, corner-anchored bottom right, so the
+   card reads as one big button. */
 .band{
-  position: relative; overflow: hidden;
-  background: var(--invert-bg); color: var(--invert-fg); border-radius: var(--r-lg);
+  position: relative; border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--accent, var(--pink)) 16%, var(--paper));
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  box-shadow: clamp(8px, 1.6vw, 14px) clamp(8px, 1.6vw, 14px) 0 0 var(--accent, var(--pink));
   padding: clamp(34px, 5.5vw, 64px);
   display: grid; grid-template-columns: 1fr auto; gap: 28px 44px; align-items: end;
+  transition: background-color .5s ease;
 }
-/* .band > .band-fx (not .band-fx alone) so this beats the equal-
-   specificity .band > * below regardless of source order — that rule
-   was otherwise silently collapsing this to position:relative and
-   zero height, clipping every blob out via overflow:hidden. */
-.band > .band-fx{ position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.band-fx span{
-  position: absolute; border-radius: 50%; background: var(--accent, var(--pink));
-  opacity: .55; filter: blur(46px); mix-blend-mode: screen; will-change: transform;
-}
-.band > *{ position: relative; z-index: 1; }
 .band h2{ font-size: clamp(2rem,1.5rem + 2.4vw,3.3rem); max-width: 16ch; }
-.band p{ color: color-mix(in srgb, var(--invert-fg) 62%, transparent); margin-top: 14px; max-width: 42ch; }
-.band .btn{ background: var(--invert-fg); color: var(--invert-bg); border-color: var(--invert-fg); transition: background .2s, color .2s, border-color .2s, transform .25s; }
+.band p{ color: var(--ink-soft); margin-top: 14px; max-width: 42ch; }
 .band .btn:hover{ background: var(--accent, var(--pink)); color: var(--on-accent); border-color: var(--accent, var(--pink)); }
 
 /* ===============================================================
