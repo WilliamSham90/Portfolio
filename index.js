@@ -96,7 +96,7 @@
     "band.playText":"As jy enige van hulle behoorlik gebou wil hê, of 'n vreemder idee het, luister ek.",
     "contact.eyebrow":"Kontak","contact.title":"Kom ons kyk of dit 'n pas is",
     "contact.status":"Oop vir vryskutwerk","contact.direct":"Direkte lyne",
-    "contact.email":"E-pos","contact.phone":"Telefoon","contact.loc":"Ligging",
+    "contact.email":"E-pos","contact.loc":"Ligging",
     "contact.locVal":"Krugersdorp, Gauteng, Suid-Afrika","contact.tz":"Tydsone","contact.faq":"Voordat jy skryf",
     "form.name":"Jou naam","form.email":"E-pos","form.subject":"Onderwerp",
     "form.msg":"Wat probeer jy bou?","form.send":"Stuur boodskap →",
@@ -383,7 +383,8 @@
     ["Victron Products","shop","Victron.png","https://victronproducts.co.za/",["WordPress","E-commerce"],"Victron energy products e-commerce","Victron energie produkte e-handel"],
     ["COD BO3 Crash Bandicoot","game","Crash%20bandicoot.png","https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",["Radiant","Game Dev"],"Custom zombie map on Steam Workshop","Pasgemaakte zombie kaart op Steam Workshop"],
     ["Forgotten Room 115","game","forgotten%20room%20115.png","https://steamcommunity.com/sharedfiles/filedetails/?id=3326520485",["Radiant","3D Modeling"],"Custom COD BO3 zombie map with unique mechanics","Pasgemaakte COD BO3 zombie kaart met unieke meganika"],
-    ["COD BO3 Mod Tools Super","game","discorcod.png","#",["Mods","3D Models","Scripts"],"Custom COD BO3 zombie mods, scripts and 3D models","Pasgemaakte COD BO3 zombie Mods, Skrifte, 3D modelle"]
+    ["COD BO3 Mod Tools Super","game","discorcod.png","#",["Mods","3D Models","Scripts"],"Custom COD BO3 zombie mods, scripts and 3D models","Pasgemaakte COD BO3 zombie Mods, Skrifte, 3D modelle"],
+    ["Zoom DJs","corp","Zoomdj.png","https://www.zoomdjs.co.za/",["WordPress","Bookings"],"Website for a local DJ","Webwerf vir 'n plaaslike DJ"]
   ];
 
   const PROJECTS = RAW.map((p, i) => ({ i, t:p[0], cat:p[1], img:p[2], url:p[3], tech:p[4], en:p[5], af:p[6] }));
@@ -834,7 +835,13 @@
      drag — coarse pointers are excluded since there's no hover there.
      Shared by the contact page background and the Skills section.
      ================================================================= */
-  function initShapeFx(host, page){
+  /* fullBleed: host already spans the full viewport width (.fx-bleed in
+     index.css), so listening on `page` — still only as wide as the
+     1280px .shell — would miss pointer moves out in the margins. Listen
+     on the document instead and gate bursts by the host's own vertical
+     bounds, which still track the section correctly since only its
+     width broke out of the shell, not its height. */
+  function initShapeFx(host, page, fullBleed){
     if (!host || !page || !GS || reduced || coarse) return;
 
     const SHAPES = ["fx-circle", "fx-square", "fx-triangle", "fx-diamond"];
@@ -872,8 +879,12 @@
         .to(el, { y: "+=" + gsap.utils.random(40, 80), opacity: 0, duration: .7, ease: "power1.in" }, .15);
     }
 
-    page.addEventListener("pointermove", e => {
+    (fullBleed ? document : page).addEventListener("pointermove", e => {
       if (e.pointerType !== "mouse") return;
+      if (fullBleed){
+        const b = host.getBoundingClientRect();
+        if (e.clientY < b.top || e.clientY > b.bottom) return;
+      }
       if (isInteractive(e.target)) return;
       if (Math.hypot(e.clientX - lastX, e.clientY - lastY) < 26) return;
       lastX = e.clientX; lastY = e.clientY;
@@ -952,7 +963,9 @@
   startFooterBounce();
   initShapeFx($("#contact-fx"), $("#page-contact"));
   initShapeFx($("#skills-fx"), $("#skills-tinted"));
-  initShapeFx($("#work-fx"), $("#work-live"));
+  initShapeFx($("#work-fx"), $("#work-live"), true);
+  initShapeFx($("#proj-live-fx"), $("#proj-live"), true);
+  $$(".band-fx").forEach(fx => initShapeFx(fx, fx.closest(".band")));
 
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (GS) ScrollTrigger.refresh(); });
   addEventListener("load", () => { sizeDoodle(); initEmbeds(); if (GS) ScrollTrigger.refresh(); });

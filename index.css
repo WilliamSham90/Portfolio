@@ -366,11 +366,19 @@ button{ font: inherit; color: inherit; }
    PROJECT ROWS
    =============================================================== */
 .rows{ display: grid; }
+/* margin/padding-inline cancel out to keep the content columns exactly
+   where they were, but the row's own box — and so its hover background
+   and hairlines — now spans edge to edge of the shell instead of
+   stopping at the gutter. */
 .row{
   display: grid; grid-template-columns: 62px minmax(0,1fr) minmax(0,1fr);
   gap: clamp(22px, 4vw, 56px); align-items: center;
+  margin-inline: calc(-1 * var(--gut)); padding-inline: var(--gut);
+  border-radius: var(--r);
   padding-block: clamp(30px, 4.4vw, 54px); border-top: 1px solid var(--hair);
+  transition: background-color .25s ease;
 }
+.row:hover{ background: color-mix(in srgb, var(--accent, var(--pink)) 8%, transparent); }
 .rows .row:last-child{ border-bottom: 1px solid var(--hair); }
 .row:nth-child(even) .row-media{ order: 3; }
 .row-num{ font-family: "JetBrains Mono", monospace; font-size: .78rem; color: var(--ink-faint); align-self: start; padding-top: 6px; font-variant-numeric: tabular-nums; }
@@ -520,7 +528,9 @@ button{ font: inherit; color: inherit; }
    as a continuation of its hero rather than an unrelated dark block.
    The thick border + hard, unblurred offset shadow is a deliberate
    comic-panel/sticker treatment, corner-anchored bottom right, so the
-   card reads as one big button. */
+   card reads as one big button. .band-fx reuses the contact page's
+   hover shape-scatter (initShapeFx in index.js), scoped to each card
+   so it only bursts while the pointer is over that card. */
 .band{
   position: relative; border-radius: var(--r-lg);
   background: color-mix(in srgb, var(--accent, var(--pink)) 16%, var(--paper));
@@ -531,6 +541,10 @@ button{ font: inherit; color: inherit; }
   display: grid; grid-template-columns: 1fr auto; gap: 28px 44px; align-items: end;
   transition: background-color .5s ease;
 }
+/* .band > .band-fx (not .band-fx alone) beats the equal-specificity
+   .band > * below regardless of source order. */
+.band > .band-fx{ position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.band > *{ position: relative; z-index: 1; }
 .band h2{ font-size: clamp(2rem,1.5rem + 2.4vw,3.3rem); max-width: 16ch; }
 .band p{ color: var(--ink-soft); margin-top: 14px; max-width: 42ch; }
 .band .btn:hover{ background: var(--accent, var(--pink)); color: var(--on-accent); border-color: var(--accent, var(--pink)); }
@@ -556,10 +570,22 @@ button{ font: inherit; color: inherit; }
 #skills-tinted{ position: relative; }
 #skills-tinted > .shell{ position: relative; z-index: 1; }
 #skills-fx{ position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-/* "Work that went live" — third host for the same hover shape-scatter. */
+/* "Work that went live" (home) and the Projects page's featured rows —
+   two more hosts for the same hover shape-scatter, both full-bleed:
+   .fx-bleed breaks the host out of the 1280px .shell so the confetti
+   (and the pointermove that drives it, see initShapeFx's fullBleed
+   mode) reaches the true edges of the viewport instead of stopping at
+   the content column. top/bottom stay tied to the row list's own
+   height; only the width escapes the shell. */
 #work-live{ position: relative; }
 #work-live > .sec{ position: relative; z-index: 1; }
-#work-fx{ position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+#proj-live{ position: relative; }
+#proj-live > .sec{ position: relative; z-index: 1; }
+.fx-bleed{
+  position: absolute; top: 0; bottom: 0;
+  left: 50%; width: 100vw; margin-left: -50vw;
+  z-index: 0; overflow: hidden; pointer-events: none;
+}
 .skills-groups{ display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(28px,5vw,52px) clamp(28px,5vw,64px); }
 .skillgroup{ min-width: 0; }
 .skillgroup > .label{ margin-bottom: 16px; display: flex; }
