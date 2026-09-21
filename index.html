@@ -1,34 +1,474 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>William Sham - Full Stack Web Developer Portfolio</title>
-    <link rel="canonical" href="Pages/Home/">
-    <meta http-equiv="refresh" content="0; url=Pages/Home/">
-    <script>location.replace('Pages/Home/');</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>William Sham — Full Stack Web Developer</title>
+<meta name="description" content="Full-stack web developer in Krugersdorp, South Africa. Thirty-five live sites including Nissan South Africa, Angola and Uganda, Chery, the Goscor group and MyBuildings.">
+<meta name="author" content="William Sham">
+<meta name="theme-color" content="#F5F3EE">
 
-    <style>
-        :root { color-scheme: dark; }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0f172a;
-            color: #f1f5f9;
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-            text-align: center;
-            padding: 1.5rem;
-        }
-        a { color: #c084fc; }
-    </style>
+<meta property="og:type" content="website">
+<meta property="og:title" content="William Sham — Full Stack Web Developer">
+<meta property="og:description" content="Thirty-five live sites, eight experiments and seven games. WordPress, Laravel, Umbraco, Azure and a fair amount of Radiant.">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;800&display=swap">
+<link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <noscript>
-        <p>JavaScript is disabled — <a href="Pages/Home/">continue to William Sham's portfolio</a>.</p>
-    </noscript>
-    <p>Redirecting to <a href="Pages/Home/">William Sham's portfolio</a>&hellip;</p>
+
+<div id="progress" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="shell topbar-in">
+    <a class="brand" href="#portfolio"><span class="brand-dot" aria-hidden="true"></span>WILLIAM&nbsp;SHAM</a>
+    <nav class="nav" id="nav" aria-label="Primary">
+      <a href="#portfolio" data-route="portfolio" data-i18n="nav.portfolio">Portfolio</a>
+      <a href="#about"     data-route="about"     data-i18n="nav.about">About</a>
+      <a href="#projects"  data-route="projects"  data-i18n="nav.projects">Projects</a>
+      <a href="#play"      data-route="play"      data-i18n="nav.play">Playground</a>
+      <a href="#contact"   data-route="contact"   data-i18n="nav.contact">Contact</a>
+    </nav>
+    <div class="tools">
+      <button class="ghost" id="lang" type="button" aria-label="Switch language">EN</button>
+      <button class="ghost burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<div id="scrim"></div>
+<aside id="drawer" aria-label="Menu" aria-hidden="true">
+  <div class="drawer-top">
+    <span class="label" data-i18n="drawer.title">Menu</span>
+    <button class="ghost" id="close-drawer" type="button" aria-label="Close menu">✕</button>
+  </div>
+  <a href="#portfolio" data-route="portfolio"><i aria-hidden="true">01</i><span data-i18n="nav.portfolio">Portfolio</span></a>
+  <a href="#about"     data-route="about"><i aria-hidden="true">02</i><span data-i18n="nav.about">About</span></a>
+  <a href="#projects"  data-route="projects"><i aria-hidden="true">03</i><span data-i18n="nav.projects">Projects</span></a>
+  <a href="#play"      data-route="play"><i aria-hidden="true">04</i><span data-i18n="nav.play">Playground</span></a>
+  <a href="#contact"   data-route="contact"><i aria-hidden="true">05</i><span data-i18n="nav.contact">Contact</span></a>
+  <div class="drawer-foot">
+    <a href="mailto:williamsham90@gmail.com">williamsham90@gmail.com</a>
+    <a href="tel:+27817238996">+27 81 723 8996</a>
+    <a href="https://github.com/WilliamSham90" target="_blank" rel="noopener">github.com/WilliamSham90</a>
+    <a href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener">codepen.io/WilliamSham90</a>
+  </div>
+</aside>
+
+<main id="main">
+
+  <!-- ========================== PORTFOLIO ========================= -->
+  <section class="page" id="page-portfolio">
+
+    <div class="shell hero block">
+      <canvas id="doodle" aria-label="Decorative drawing area — drag to draw"></canvas>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <span class="status" data-anim="fade"><span class="dot" aria-hidden="true"></span><span data-i18n="hero.status">Open to freelance work</span></span>
+          <h1 data-split>William Sham</h1>
+          <p class="hero-sub" data-split data-i18n="hero.sub">Full-stack developer. I build fast, careful websites — schema to last pixel.</p>
+          <div class="hero-cta" data-anim="fade">
+            <a class="btn btn-accent" href="#projects" data-i18n="cta.work">See the work</a>
+            <a class="btn btn-line" href="#contact" data-i18n="cta.touch">Get in touch</a>
+          </div>
+          <div class="socials" data-anim="fade">
+            <a class="soc" href="https://github.com/WilliamSham90" target="_blank" rel="noopener">GitHub ↗</a>
+            <a class="soc" href="https://www.linkedin.com/in/william-sham-0a1a12211/" target="_blank" rel="noopener">LinkedIn ↗</a>
+            <a class="soc" href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener">CodePen ↗</a>
+            <a class="soc" href="https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216" target="_blank" rel="noopener">Steam ↗</a>
+          </div>
+          <div class="doodle-bar" data-anim="fade">
+            <span data-i18n="doodle.hint">Drag anywhere back here to draw</span>
+            <span class="swatches" id="swatches"></span>
+            <button class="ghost" id="doodle-clear" type="button" data-i18n="doodle.clear">Clear</button>
+            <button class="ghost" id="doodle-touch" type="button" hidden data-i18n="doodle.touch">Draw mode: off</button>
+          </div>
+        </div>
+
+        <div data-anim="portrait" class="portrait-wrap">
+          <div class="portrait" id="portrait" title="Click to change the background colour">
+            <span class="portrait-hint" data-i18n="portrait.hint">click to change background</span>
+            <div class="portrait-tag"><span class="dot" aria-hidden="true"></span><span data-i18n="hero.tag">Senior Web Developer · LKDA, Pretoria</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shell block">
+      <div class="stats">
+        <div class="stat"><b data-count="4">4</b><span data-i18n="stat.years">Years shipping for the web</span></div>
+        <div class="stat"><b data-count="50" data-suffix="+">50+</b><span data-i18n="stat.projects">Projects completed</span></div>
+        <div class="stat"><b data-count="35">35</b><span data-i18n="stat.live">Live sites in this portfolio</span></div>
+        <div class="stat"><b data-count="30" data-suffix="+">30+</b><span data-i18n="stat.tech">Technologies in rotation</span></div>
+      </div>
+    </div>
+
+    <div class="marquee">
+      <div class="marquee-track" id="marquee" aria-hidden="true"></div>
+    </div>
+
+    <div class="shell block" id="work-live">
+      <div id="work-fx" aria-hidden="true"></div>
+      <section class="sec">
+        <div class="sec-head">
+          <div>
+            <span class="label"><b>[01]</b> <span data-i18n="home.workEyebrow">Selected work</span></span>
+            <h2 data-split data-i18n="home.workTitle">Work that went live</h2>
+          </div>
+          <a class="arrow-link" href="#projects"><span data-i18n="cta.allProjects">All 35 projects</span><span>→</span></a>
+        </div>
+        <div class="rows" id="featured-rows"></div>
+      </section>
+    </div>
+
+    <div class="tinted">
+      <div class="shell">
+        <section class="sec">
+          <p class="statement" data-statement data-i18n="home.statement">I take products from a half-drawn idea on a call to something live, fast and maintainable — typed APIs, sensible databases, and interfaces people actually enjoy using.</p>
+        </section>
+        <section class="sec">
+          <div class="sec-head">
+            <div>
+              <span class="label"><b>[02]</b> <span data-i18n="home.processEyebrow">How I work</span></span>
+              <h2 data-split data-i18n="home.processTitle">Short, boring, reliable</h2>
+            </div>
+          </div>
+          <div class="cols3">
+            <div class="col" style="--accent: var(--pink)" data-anim="up">
+              <span class="col-n" data-i18n="step.1n">01 / SCOPE</span>
+              <h3 data-i18n="step.1t">Understand before building</h3>
+              <p data-i18n="step.1p">Questions first, then a clickable sketch and a written scope. You approve the shape of the thing before anyone writes a migration.</p>
+            </div>
+            <div class="col" style="--accent: var(--mint)" data-anim="up">
+              <span class="col-n" data-i18n="step.2n">02 / BUILD</span>
+              <h3 data-i18n="step.2t">Ship in slices</h3>
+              <p data-i18n="step.2p">Two-week slices, each one deployable. You get a staging link early and never wonder what I've been doing.</p>
+            </div>
+            <div class="col" style="--accent: var(--blue)" data-anim="up">
+              <span class="col-n" data-i18n="step.3n">03 / HAND OVER</span>
+              <h3 data-i18n="step.3t">Leave it runnable</h3>
+              <p data-i18n="step.3p">Tests, a README that works on a fresh laptop, CI that deploys on merge, and a walkthrough for whoever inherits it.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="shell block">
+      <section class="sec">
+        <div class="sec-head">
+          <div>
+            <span class="label"><b>[03]</b> <span data-i18n="live.eyebrow">Live preview</span></span>
+            <h2 data-split data-i18n="live.title">Williams OS, running right here</h2>
+          </div>
+          <a class="arrow-link" href="https://williamsham90.github.io/Portfolio-2/" target="_blank" rel="noopener"><span data-i18n="live.open">Open full size</span><span>↗</span></a>
+        </div>
+        <div class="embed-intro" style="--accent: var(--mint)">
+          <p class="prose" data-i18n="live.copy">Williams OS, running live in the frame below. It is the real site, so it lays itself out to whatever width it is given — wide on a desktop, and its own mobile layout when you open this page on a phone.</p>
+          <div class="embed-meta">
+            <span data-i18n="live.p1">Loads automatically as you scroll to it</span>
+            <span data-i18n="live.p2">Sandboxed</span>
+            <span data-i18n="live.p3">Responsive, not scaled</span>
+          </div>
+        </div>
+        <div class="embed-host" data-embed="https://williamsham90.github.io/Portfolio-2/" data-label="Williams OS"></div>
+      </section>
+    </div>
+
+    <div class="shell block">
+      <div class="band" style="--accent: var(--pink)">
+        <div class="band-fx" aria-hidden="true"></div>
+        <div>
+          <h2 data-split data-i18n="band.homeTitle">Got something half-built, or not yet started?</h2>
+          <p data-i18n="band.homeText">I take on freelance work alongside my day job at LKDA. Tell me what you're trying to make.</p>
+        </div>
+        <a class="btn" href="#contact" data-i18n="cta.startChat">Start a conversation →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ ABOUT =========================== -->
+  <section class="page" id="page-about" hidden>
+    <div class="shell block">
+      <section class="sec">
+        <div class="sec-head">
+          <div>
+            <span class="label"><b>[01]</b> <span data-i18n="about.eyebrow">About</span></span>
+            <h2 data-split data-i18n="about.title">Creativity and code, in that order</h2>
+          </div>
+        </div>
+        <div class="about-grid">
+          <div style="display:flex; flex-direction:column; gap:20px">
+            <p class="prose" data-anim="up" data-i18n="about.p1">Hi, I'm William — a passionate full-stack developer who thrives at the intersection of creativity and code. With experience spanning multiple industries, I've learned that the best solutions come from understanding both the technical requirements and the human experience.</p>
+            <p class="prose" data-anim="up" data-i18n="about.p2">My journey in tech has equipped me with a versatile skill set: from crafting pixel-perfect frontends with modern JavaScript frameworks to designing robust backend systems. When I'm not coding, you'll find me exploring 3D modeling, game development, or diving into the latest tech trends.</p>
+            <p class="prose" data-anim="up" data-i18n="about.p3">I'm based in Krugersdorp, Gauteng, and currently Senior Web Developer at LKDA in Pretoria.</p>
+            <div style="margin-top:14px" data-anim="up">
+              <span class="label" data-i18n="about.toolbox">The toolbox</span>
+              <div class="cloud" id="cloud" style="margin-top:14px"></div>
+            </div>
+          </div>
+          <pre class="codeblock" data-anim="up"><span class="k">const</span> <span class="p">developer</span> = {
+  <span class="p">name</span>: <span class="s">'William Sham'</span>,
+  <span class="p">role</span>: <span class="s">'Full Stack Developer'</span>,
+  <span class="p">location</span>: <span class="s">'Krugersdorp, South Africa'</span>,
+  <span class="p">company</span>: <span class="s">'LKDA — Pretoria'</span>,
+  <span class="p">skills</span>: [
+    <span class="s">'JavaScript'</span>, <span class="s">'React'</span>, <span class="s">'Vue.js'</span>,
+    <span class="s">'PHP'</span>, <span class="s">'C#'</span>, <span class="s">'ASP.NET'</span>, <span class="s">'Blazor Hybrid'</span>,
+    <span class="s">'Java'</span>, <span class="s">'C++'</span>, <span class="s">'SQL'</span>, <span class="s">'Microsoft Azure'</span>,
+    <span class="s">'Azure DevOps'</span>, <span class="s">'Git'</span>, <span class="s">'Unreal Engine 4'</span>,
+    <span class="s">'Unity'</span>, <span class="s">'Radiant'</span>, <span class="s">'WordPress'</span>, <span class="s">'Shopify'</span>,
+    <span class="s">'Laravel'</span>, <span class="s">'Perfex CRM'</span>, <span class="s">'Umbraco'</span>,
+    <span class="s">'Photoshop'</span>, <span class="s">'Figma'</span>, <span class="s">'Blender'</span>, <span class="s">'Maya'</span>,
+    <span class="s">'SEO'</span>, <span class="s">'Search Console'</span>, <span class="s">'Spline'</span>
+  ],
+  <span class="p">passion</span>: [
+    <span class="s">'Websites'</span>, <span class="s">'Digital Art'</span>, <span class="s">'3D Models'</span>,
+    <span class="s">'Game Design'</span>, <span class="s">'Creating Solutions'</span>
+  ]
+};</pre>
+        </div>
+      </section>
+    </div>
+
+    <div class="tinted" id="skills-tinted">
+      <div id="skills-fx" aria-hidden="true"></div>
+      <div class="shell">
+        <section class="sec">
+          <div class="sec-head">
+            <div>
+              <span class="label"><b>[02]</b> <span data-i18n="skills.eyebrow">Skills</span></span>
+              <h2 data-split data-i18n="skills.title">What I reach for</h2>
+            </div>
+          </div>
+          <div class="skills-groups" id="skills"></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="shell block">
+      <section class="sec">
+        <div class="sec-head">
+          <div>
+            <span class="label"><b>[03]</b> <span data-i18n="exp.eyebrow">Experience</span></span>
+            <h2 data-split data-i18n="exp.title">Where I've been</h2>
+          </div>
+          <a class="arrow-link" href="mailto:williamsham90@gmail.com?subject=CV%20request"><span data-i18n="cta.cv">Ask for my CV</span><span>→</span></a>
+        </div>
+        <div class="tl"><span class="tl-line" aria-hidden="true"></span><div id="timeline"></div></div>
+      </section>
+    </div>
+
+    <div class="shell block">
+      <div class="band" style="--accent: var(--blue)">
+        <div class="band-fx" aria-hidden="true"></div>
+        <div>
+          <h2 data-split data-i18n="band.aboutTitle">Want the detail behind any of this?</h2>
+          <p data-i18n="band.aboutText">Architecture, trade-offs and the parts that went sideways — happy to walk you through it.</p>
+        </div>
+        <a class="btn" href="#contact" data-i18n="cta.ask">Ask me →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== PROJECTS ========================== -->
+  <section class="page" id="page-projects" hidden>
+    <div class="shell block">
+      <section class="sec">
+        <div class="sec-head">
+          <div>
+            <span class="label"><b>[01]</b> <span data-i18n="proj.eyebrow">Projects · 2021—2026</span></span>
+            <h2 data-split data-i18n="proj.title">Thirty-five sites, live right now</h2>
+          </div>
+          <p class="lead" data-i18n="proj.sub">Corporate platforms, multi-market automotive sites, e-commerce stores, Laravel systems and game mods.</p>
+        </div>
+        <div class="rows" id="featured-rows-2"></div>
+      </section>
+    </div>
+
+    <div class="tinted">
+      <div class="shell">
+        <section class="sec">
+          <div class="subhead">
+            <h3 data-i18n="proj.all">Everything else</h3>
+            <span class="label" id="proj-count"></span>
+          </div>
+          <div class="filters" id="filters" role="group" aria-label="Filter projects"></div>
+          <div class="cards" id="all-cards"></div>
+          <p id="no-results" class="prose" hidden style="padding-top:22px" data-i18n="proj.none">Nothing in that category — try another filter.</p>
+        </section>
+      </div>
+    </div>
+
+    <div class="shell block">
+      <div class="band" style="--accent: var(--mint)">
+        <div class="band-fx" aria-hidden="true"></div>
+        <div>
+          <h2 data-split data-i18n="band.projTitle">Three Nissan markets and counting</h2>
+          <p data-i18n="band.projText">Corporate WordPress at scale, Laravel platforms, Perfex CRM modules and a fair amount of Radiant. Yours could be next.</p>
+        </div>
+        <a class="btn" href="#contact" data-i18n="cta.hire">Hire me →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= PLAYGROUND ========================= -->
+  <section class="page" id="page-play" hidden>
+    <div class="shell block">
+      <section class="sec">
+        <div class="sec-head">
+          <div>
+            <span class="label"><b>[01]</b> <span data-i18n="play.eyebrow">Playground</span></span>
+            <h2 data-split data-i18n="play.title">Things I built on a Sunday</h2>
+          </div>
+          <p class="lead" data-i18n="play.intro">Experiments, widgets and games, all self-contained and running on their own pages.</p>
+        </div>
+        <div class="subhead" style="margin-top:calc(var(--v) * 1.4)">
+          <h3 data-i18n="live.title2">Williams OS</h3>
+          <span class="label" data-i18n="live.eyebrow">Live preview</span>
+        </div>
+        <div class="embed-intro" style="--accent: var(--blue)">
+          <p class="prose" data-i18n="live.copy2">Williams OS, running live in the frame below at whatever width it is given. Open it full size for the real thing.</p>
+        </div>
+        <div class="embed-host" data-embed="https://williamsham90.github.io/Portfolio-2/" data-label="Williams OS"></div>
+      </section>
+
+      <section class="sec">
+        <div class="subhead">
+          <h3 data-i18n="play.pages">Pages</h3>
+          <span class="label">08</span>
+        </div>
+        <div class="cards" id="pages-grid"></div>
+      </section>
+    </div>
+
+    <div class="tinted-2">
+      <div class="shell">
+        <section class="sec">
+          <div class="subhead">
+            <h3 data-i18n="play.games">Games</h3>
+            <span class="label">07</span>
+          </div>
+          <div class="cards" id="games-grid"></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="shell block">
+      <div class="band" style="--accent: var(--yellow)">
+        <div class="band-fx" aria-hidden="true"></div>
+        <div>
+          <h2 data-split data-i18n="band.playTitle">Most of these started as a bug</h2>
+          <p data-i18n="band.playText">If you want any of them built properly, or you have a stranger idea, I'm listening.</p>
+        </div>
+        <a class="btn" href="#contact" data-i18n="cta.idea">Tell me the idea →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== CONTACT =========================== -->
+  <section class="page" id="page-contact" hidden>
+    <div id="contact-fx" aria-hidden="true"></div>
+    <div class="shell block">
+      <section class="sec">
+        <div class="sec-head">
+          <div>
+            <span class="label"><b>[01]</b> <span data-i18n="contact.eyebrow">Contact</span></span>
+            <h2 data-split data-i18n="contact.title">Let's work out if this is a fit</h2>
+          </div>
+          <span class="status"><span class="dot" aria-hidden="true"></span><span data-i18n="contact.status">Open to freelance work</span></span>
+        </div>
+
+        <div class="contact-grid">
+          <div id="form-card">
+            <form id="contact-form" action="https://formsubmit.co/williamsham90@gmail.com" method="POST" novalidate>
+              <input type="hidden" name="_subject" value="New Portfolio Contact Message">
+              <input type="hidden" name="_captcha" value="false">
+              <div class="two">
+                <div class="field">
+                  <label for="c-name" data-i18n="form.name">Your name</label>
+                  <input type="text" id="c-name" name="name" autocomplete="name" placeholder="Thandi Nkosi">
+                  <span class="err" id="e-name"></span>
+                </div>
+                <div class="field">
+                  <label for="c-email" data-i18n="form.email">Email</label>
+                  <input type="email" id="c-email" name="email" autocomplete="email" placeholder="you@company.com">
+                  <span class="err" id="e-email"></span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="c-subject" data-i18n="form.subject">Subject</label>
+                <input type="text" id="c-subject" name="subject" placeholder="New website for…">
+              </div>
+              <div class="field">
+                <label for="c-msg" data-i18n="form.msg">What are you trying to build?</label>
+                <textarea id="c-msg" name="message" placeholder="A sentence or ten. Deadlines, constraints and existing code are all useful."></textarea>
+                <span class="err" id="e-msg"></span>
+              </div>
+              <button class="btn btn-accent" type="submit" data-i18n="form.send">Send message →</button>
+              <p class="mono" style="margin-top:16px; color:var(--ink-faint)" data-i18n="form.note">Posts to your FormSubmit endpoint once this is on your own host.</p>
+            </form>
+          </div>
+
+          <div>
+            <span class="label" data-i18n="contact.direct">Direct lines</span>
+            <div class="lines" style="margin-top:14px">
+              <div class="line"><dt data-i18n="contact.email">Email</dt><dd><a href="mailto:williamsham90@gmail.com">williamsham90@gmail.com</a></dd></div>
+              <div class="line"><dt data-i18n="contact.phone">Phone</dt><dd><a href="tel:+27817238996">+27 81 723 8996</a></dd></div>
+              <div class="line"><dt data-i18n="contact.loc">Location</dt><dd data-i18n="contact.locVal">Krugersdorp, Gauteng, South Africa</dd></div>
+              <div class="line"><dt>GitHub</dt><dd><a href="https://github.com/WilliamSham90" target="_blank" rel="noopener">github.com/WilliamSham90</a></dd></div>
+              <div class="line"><dt>CodePen</dt><dd><a href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener">codepen.io/WilliamSham90</a></dd></div>
+              <div class="line"><dt data-i18n="contact.tz">Time zone</dt><dd>SAST · UTC+2</dd></div>
+            </div>
+
+            <span class="label" style="display:block; margin-top:40px" data-i18n="contact.faq">Before you write</span>
+            <div style="margin-top:8px">
+              <details>
+                <summary data-i18n="faq.q1">Are you available right now?</summary>
+                <p data-i18n="faq.a1">I'm full-time at LKDA, so freelance work happens evenings and weekends. That means I take on fewer projects but finish the ones I start.</p>
+              </details>
+              <details>
+                <summary data-i18n="faq.q2">What do you work on most?</summary>
+                <p data-i18n="faq.a2">WordPress and Laravel builds, Umbraco and Perfex CRM work, Azure hosting and performance rescues. Anything from a landing page to a multi-market corporate platform.</p>
+              </details>
+              <details>
+                <summary data-i18n="faq.q3">Do you do 3D and game work too?</summary>
+                <p data-i18n="faq.a3">Yes — Blender, Maya, Unreal and Radiant. I've shipped custom Call of Duty zombie maps and mod tools to the Steam Workshop.</p>
+              </details>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <svg class="footer-wave" viewBox="0 0 1200 30" preserveAspectRatio="none" aria-hidden="true">
+    <path id="footer-wave-path" d="M0,30 C150,30 150,30 300,30 C450,30 450,30 600,30 C750,30 750,30 900,30 C1050,30 1050,30 1200,30 L1200,30 L0,30 Z"></path>
+  </svg>
+  <div class="shell foot">
+    <span>© 2026 WILLIAM SHAM</span>
+    <nav aria-label="Footer">
+      <a href="#portfolio" data-i18n="nav.portfolio">Portfolio</a>
+      <a href="#about" data-i18n="nav.about">About</a>
+      <a href="#projects" data-i18n="nav.projects">Projects</a>
+      <a href="#play" data-i18n="nav.play">Playground</a>
+      <a href="#contact" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <span data-i18n="foot.built">Built by hand · GSAP</span>
+  </div>
+</footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<button id="to-top" class="ghost" type="button" aria-label="Back to top">↑</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="index.js"></script>
 </body>
 </html>
