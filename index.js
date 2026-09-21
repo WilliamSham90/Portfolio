@@ -30,15 +30,15 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" })[c]);
 
   /* An iframe fires `load` even when the embed was refused, leaving a blank
-     frame on top of the fallback. A genuinely cross-origin document is not
-     readable, so that unreadability is the proof the embed really landed. */
+     frame on top of the fallback — but every source this site embeds
+     (Portfolio-2, the Codelab/Games pages) is our own and never sends a
+     blocking X-Frame-Options/CSP, so load firing is proof enough. A
+     same-origin-unreadable check was tried here instead, but GitHub
+     Pages serves Portfolio-2 and this site from the same origin
+     (different paths, same williamsham90.github.io host) — so that
+     check never saw "unreadable" and the frame stayed invisible. */
   function revealWhenEmbedded(frame){
-    frame.addEventListener("load", () => {
-      let embedded = true;
-      try { embedded = frame.contentDocument === null; }
-      catch (e) { embedded = true; }          /* throwing means cross-origin */
-      if (embedded) frame.classList.add("ready");
-    }, { once: true });
+    frame.addEventListener("load", () => frame.classList.add("ready"), { once: true });
   }
 
   /* =================================================================
