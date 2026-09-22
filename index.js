@@ -59,7 +59,7 @@
     "stat.live":"Lewendige werwe in hierdie portefeulje","stat.tech":"Tegnologieë in omloop",
     "home.workEyebrow":"Uitgesoekte werk","home.workTitle":"Werk wat lewendig gegaan het",
     "home.statement":"Ek neem produkte van 'n halfgetekende idee op 'n oproep tot iets lewendig, vinnig en onderhoubaar — getikte API's, sinvolle databasisse, en koppelvlakke wat mense werklik geniet om te gebruik.",
-    "home.processEyebrow":"Hoe ek werk","home.processTitle":"Kort, vervelig, betroubaar",
+    "home.processEyebrow":"Hoe ek werk","home.processTitle":"Vervelige proses. Groot webwerf.",
     "step.1n":"01 / OMVANG","step.1t":"Verstaan voordat jy bou",
     "step.1p":"Eers vrae, dan 'n klikbare skets en 'n geskrewe omvang. Jy keur die vorm van die ding goed voordat enigiemand 'n migrasie skryf.",
     "step.2n":"02 / BOU","step.2t":"Lewer in snye",
