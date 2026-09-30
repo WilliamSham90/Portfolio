@@ -1,4 +1,22 @@
 /* ---------------------------------------------------------------
+   Fonts — self-hosted variable woff2 (OFL), Latin subset from Google
+   Fonts: covers English and Afrikaans (ê ë ï ô é). Same origin as the
+   page, so no extra DNS/TLS round trips before first paint.
+   --------------------------------------------------------------- */
+@font-face{
+  font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 400 800; font-display: swap;
+  src: url("Fonts/bricolage-grotesque.woff2") format("woff2");
+}
+@font-face{
+  font-family: "Manrope"; font-style: normal; font-weight: 400 800; font-display: swap;
+  src: url("Fonts/manrope.woff2") format("woff2");
+}
+@font-face{
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url("Fonts/jetbrains-mono.woff2") format("woff2");
+}
+
+/* ---------------------------------------------------------------
    Base reset. [hidden] must win over .page{display:flex} — the
    single-page router relies on it to swap routes.
    --------------------------------------------------------------- */
@@ -24,11 +42,11 @@ img{ max-width: 100%; }
 
   --ink:       #13111A;
   --ink-soft:  #4D4860;
-  --ink-faint: #8B8599;
+  --ink-faint: #615C72; /* lightest grey that still passes 4.5:1 (WCAG AA) on every background here */
   --hair:      rgba(19,17,26,.14);
   --hair-soft: rgba(19,17,26,.07);
 
-  --pink:   #E8266F;
+  --pink:   #E0206A; /* a touch deeper than #E8266F so white button text passes 4.5:1 */
   --blue:   #2B4BFF;
   --yellow: #E09200;
   --mint:   #00967F;
@@ -134,7 +152,7 @@ button{ font: inherit; color: inherit; }
 .brand{
   display: inline-flex; align-items: center; gap: 11px; text-decoration: none;
   margin-right: auto; font-family: "JetBrains Mono", monospace;
-  font-weight: 700; font-size: .86rem;
+  font-weight: 700; font-size: .86rem; padding-block: 10px;
 }
 .brand-dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--pink); flex: none; }
 
@@ -215,9 +233,11 @@ button{ font: inherit; color: inherit; }
 .btn-accent{ background: var(--pink); border-color: var(--pink); color: var(--on-accent); }
 .btn-sm{ padding: 10px 18px; font-size: .84rem; min-height: 40px; }
 
+/* padding + equal negative margin: a ~44px tap target, same layout */
 .arrow-link{
   display: inline-flex; align-items: center; gap: 9px; text-decoration: none;
   font-weight: 600; font-size: .92rem; color: var(--ink);
+  padding-block: 10px; margin-block: -10px;
 }
 .arrow-link span:last-child{ transition: transform .3s cubic-bezier(.22,1,.36,1); }
 .arrow-link:hover span:last-child{ transform: translateX(5px); }
@@ -265,7 +285,7 @@ button{ font: inherit; color: inherit; }
 .hero-grid .hero-copy > h1,
 .hero-grid .hero-copy > .hero-sub{ pointer-events: none; user-select: none; }
 
-.hero h1{ font-size: clamp(2.6rem, 1.5rem + 5.2vw, 5.6rem); font-variation-settings: "wdth" 96, "wght" 800; margin-block: 20px 0; }
+.hero h1{ font-size: clamp(2.6rem, 1.5rem + 5.2vw, 5.6rem); margin-block: 20px 0; }
 .hero-sub{
   font-family: "Bricolage Grotesque", sans-serif; font-weight: 400;
   font-size: clamp(1.5rem, 1.25rem + 1.2vw, 2.2rem); line-height: 1.16; letter-spacing: -.02em;
@@ -400,7 +420,13 @@ button{ font: inherit; color: inherit; }
   position: relative; aspect-ratio: 16/10; max-width: 100%; overflow: hidden;
   border-radius: var(--r); border: 1px solid var(--hair); background: var(--card);
 }
-.shot .art{ position: absolute; inset: 0; width: 100%; height: 118%; margin-top: -9%; will-change: transform; }
+.shot .art{ position: absolute; inset: 0; width: 100%; height: 118%; margin-top: -9%; }
+/* only the featured rows parallax their art — a layer per card was waste */
+.row-media .art{ will-change: transform; }
+/* once the real image or frame is showing, drop the pulsing placeholder
+   under it — its infinite animation otherwise keeps repainting unseen */
+.shot:has(> .ready) .art,
+.embed-stage:has(> iframe.ready) .embed-fallback{ display: none; }
 .shot .art svg{ width: 100%; height: 100%; display: block; }
 .shot img, .shot iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
 .shot img{ object-fit: cover; object-position: top center; }
@@ -552,16 +578,97 @@ button{ font: inherit; color: inherit; }
 /* ===============================================================
    ABOUT
    =============================================================== */
-.about-grid{ display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(28px,5vw,64px); align-items: start; }
+.about-grid{ display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,.9fr); gap: clamp(36px,6vw,80px); align-items: center; }
+.about-copy{ display: flex; flex-direction: column; gap: 20px; }
+.about-copy .codeblock{ margin-top: 8px; }
 .codeblock{
   border: 1px solid var(--hair); border-radius: var(--r); background: var(--card); padding: 26px;
   font-family: "JetBrains Mono", monospace; font-size: .76rem; line-height: 1.8;
   overflow-x: auto; white-space: pre; margin: 0; tab-size: 2;
-  position: sticky; top: 100px;
 }
 .codeblock .k{ color: var(--pink); }
 .codeblock .p{ color: var(--blue); }
 .codeblock .s{ color: var(--mint); }
+
+/* Riso stand-in for a photo that hasn't been added yet: two ink
+   circles overprinted (multiply) under a dot screen, in the tile's own
+   --accent/--accent-2. The <img> sits on top and removes itself on
+   error, so dropping the real file into Images/ is all it takes. */
+.ph{
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(circle closest-side at 44% 42%, var(--accent, var(--pink)) 0 78%, transparent calc(78% + 1px)),
+    radial-gradient(circle closest-side at 58% 62%, var(--accent-2, var(--yellow)) 0 58%, transparent calc(58% + 1px)),
+    color-mix(in srgb, var(--accent, var(--pink)) 12%, var(--card));
+  background-blend-mode: multiply;
+}
+.ph::before{
+  content:""; position: absolute; inset: 0;
+  background: radial-gradient(var(--ink) 1.3px, transparent 1.6px) 0 0 / 9px 9px;
+  opacity: .14;
+}
+.ph img{ position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Photo stack — three instant-photo cards; positions are keyed off
+   data-pos (0 = front) so the shuffle in index.js only swaps numbers.
+   The outgoing card gets .toss: thrown right, then tucked in behind. */
+.stack-wrap{ display: grid; justify-items: center; gap: 30px; }
+.stack{ position: relative; width: min(74%, 360px); aspect-ratio: 4/5; cursor: pointer; margin-top: 12px; }
+.snap{
+  position: absolute; inset: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 12px 12px 14px; background: var(--card);
+  border: 1px solid var(--hair); border-radius: var(--r);
+  box-shadow: 0 22px 40px -28px rgba(19,17,26,.5);
+  transition: transform .6s cubic-bezier(.22,1,.36,1);
+  user-select: none;
+}
+.snap .ph{ flex: 1; border-radius: 8px; }
+.snap .ph img{ object-position: center 25%; }
+.snap figcaption{
+  font-family: "Bricolage Grotesque", sans-serif; font-weight: 700;
+  font-size: 1.05rem; letter-spacing: -.02em; line-height: 1.2; padding-inline: 4px;
+  transition: opacity .3s;
+}
+.snap:not([data-pos="0"]) figcaption{ opacity: 0; }
+.snap[data-pos="0"]{ z-index: 3; transform: rotate(-3deg); }
+.snap[data-pos="1"]{ z-index: 2; transform: translate(9%, -4%) rotate(5deg); }
+.snap[data-pos="2"]{ z-index: 1; transform: translate(-8%, 3%) rotate(-9deg); }
+@media (hover: hover){
+  .stack:hover .snap[data-pos="0"]{ transform: translateY(-2%) rotate(-1deg); }
+  .stack:hover .snap[data-pos="1"]{ transform: translate(15%, -6%) rotate(9deg); }
+  .stack:hover .snap[data-pos="2"]{ transform: translate(-14%, 4%) rotate(-13deg); }
+}
+/* transitions outrank animations in the cascade, so switch it off
+   while the keyframe owns the transform */
+.snap.toss{ transition: none; animation: toss .75s cubic-bezier(.22,1,.36,1); }
+@keyframes toss{
+  0%  { transform: rotate(-3deg); z-index: 3; }
+  40% { transform: translate(72%, -8%) rotate(16deg); z-index: 3; }
+  41% { z-index: 0; }
+  100%{ transform: translate(-8%, 3%) rotate(-9deg); z-index: 0; }
+}
+
+/* After hours — a 2/1, 1/2 bento of photo tiles. Hover borrows the
+   .band's comic-panel treatment: ink border and a hard accent shadow. */
+.gallery{ display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: clamp(16px, 2vw, 24px); }
+.tile{
+  position: relative; display: flex; flex-direction: column; min-width: 0;
+  background: var(--card); border: 1px solid var(--hair); border-radius: var(--r-lg); overflow: hidden;
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s, border-color .3s;
+}
+.tile:nth-child(4n+1), .tile:nth-child(4n){ grid-column: span 2; }
+.tile:hover{ transform: translate(-4px, -4px) rotate(-.5deg); border-color: var(--ink); box-shadow: 8px 8px 0 0 var(--accent, var(--pink)); }
+.tile:nth-child(even):hover{ transform: translate(-4px, -4px) rotate(.5deg); }
+.tile .ph{ height: clamp(200px, 22vw, 290px); border-bottom: 1px solid var(--hair); }
+.tile .ph img{ transition: transform .6s cubic-bezier(.22,1,.36,1); }
+.tile:hover .ph img{ transform: scale(1.05); }
+.tile-cap{ padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; flex: 1; }
+.tile-cap h3{ font-size: clamp(1.15rem,1.05rem + .5vw,1.4rem); }
+.tile-cap p{ color: var(--ink-soft); font-size: .9rem; max-width: 48ch; }
+.tile-link{ margin-top: auto; padding-top: 4px; }
+/* stretched link: the whole tile is the click target */
+.tile-link::after{ content:""; position: absolute; inset: 0; border-radius: inherit; }
 
 /* Skills — a wrap of pill badges per category rather than flat progress
    bars, each with a 5-dot level meter instead of a raw percentage.
@@ -630,17 +737,9 @@ button{ font: inherit; color: inherit; }
 .job h3{ font-size: clamp(1.15rem,1.05rem + .5vw,1.4rem); margin-block: 10px 4px; }
 .job .where{ font-size: .9rem; color: var(--ink-soft); font-weight: 600; }
 .job p{ color: var(--ink-soft); font-size: .92rem; margin-block: 14px; max-width: 58ch; }
-.wins{ list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 8px; }
+.wins{ list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 .wins li{ font-size: .91rem; position: relative; padding-left: 22px; color: var(--ink-soft); }
 .wins li::before{ content:"→"; position: absolute; left: 0; color: var(--accent, var(--pink)); }
-
-.cloud{ display: flex; flex-wrap: wrap; gap: 7px; }
-.cloud span{
-  font-family: "JetBrains Mono", monospace; font-size: .75rem; padding: 7px 13px;
-  border-radius: 999px; border: 1px solid var(--hair); background: var(--card); color: var(--ink-soft);
-  transition: border-color .2s, color .2s, transform .2s;
-}
-.cloud span:hover{ border-color: var(--pink); color: var(--pink); transform: translateY(-2px); }
 
 /* ===============================================================
    CONTACT
@@ -658,8 +757,12 @@ button{ font: inherit; color: inherit; }
 .contact-grid{ display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,.9fr); gap: clamp(28px,5vw,64px); align-items: start; }
 .field{ display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
 .field label{ font-family: "JetBrains Mono", monospace; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); }
-.field .err{ font-size: .78rem; color: var(--pink); min-height: 1em; }
-.two{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field .err{ font-size: .78rem; color: var(--pink); }
+/* empty slots took space (and a flex gap), so fields with an error slot
+   sat further apart than ones without */
+.field .err:empty{ display: none; }
+/* no row gap: when stacked on phones the fields' own margin spaces them */
+.two{ display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 select, input[type="text"], input[type="email"], textarea{
   font: inherit; font-size: .93rem; width: 100%; padding: 13px 14px; border-radius: var(--r);
   border: 1px solid var(--hair); background: var(--card); color: var(--ink);
@@ -691,7 +794,7 @@ details p{ color: var(--ink-soft); font-size: .9rem; padding-bottom: 16px; max-w
 footer{ position: relative; background: var(--shell); padding-block: 40px; }
 .foot{ display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; font-family: "JetBrains Mono", monospace; font-size: .74rem; color: var(--ink-faint); }
 .foot nav{ display: flex; gap: 18px; flex-wrap: wrap; }
-.foot a{ text-decoration: none; }
+.foot a{ text-decoration: none; padding-block: 10px; margin-block: -10px; }
 .foot a:hover{ color: var(--pink); }
 
 /* Replaces the old static border-top — the stroke reads as that same
@@ -723,7 +826,7 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
 #to-top.show{ transform: translateY(0); opacity: 1; pointer-events: auto; }
 
 .w{ display: inline-block; overflow: hidden; vertical-align: top; }
-.w > span{ display: inline-block; will-change: transform; }
+.w > span{ display: inline-block; }
 
 /* ===============================================================
    RESPONSIVE
@@ -734,9 +837,9 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
   .hero-grid{ grid-template-columns: 1fr; align-items: start; }
   .portrait-wrap{ max-width: 300px; }
   .portrait{ aspect-ratio: 1; }
-  .about-grid{ grid-template-columns: 1fr; }
-  .skills-groups{ grid-template-columns: 1fr; }
-  .codeblock{ position: static; }
+  /* minmax(0,…) not 1fr: a bare 1fr won't shrink below its content, so
+     the code block's long lines pushed the page sideways on small phones */
+  .about-grid, .skills-groups{ grid-template-columns: minmax(0,1fr); }
   .contact-grid{ grid-template-columns: 1fr; }
   .row{ grid-template-columns: 44px minmax(0,1fr); }
   .row-media{ grid-column: 2; }
@@ -753,6 +856,8 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
   .col{ padding: 24px 0; border-right: 0; border-top: 1px solid var(--hair-soft); }
   .col:not(:first-child){ padding-left: 0; }
   .sec-head{ grid-template-columns: 1fr; align-items: start; }
+  .gallery{ grid-template-columns: 1fr; }
+  .tile:nth-child(n){ grid-column: auto; }
 }
 @media (max-width: 560px){
   .two{ grid-template-columns: 1fr; }

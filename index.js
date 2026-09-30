@@ -45,68 +45,73 @@
      LANGUAGE
      ================================================================= */
   const AF = {
-    "nav.portfolio":"Portefeulje","nav.about":"Oor My","nav.projects":"Projekte","nav.play":"Speelgrond","nav.contact":"Kontak",
+    "nav.portfolio":"Portefeulje","nav.about":"Oor my","nav.projects":"Projekte","nav.play":"Speelgrond","nav.contact":"Kontak",
     "drawer.title":"Kieslys",
-    "hero.status":"Oop vir vryskutwerk",
-    "hero.sub":"Full-stack ontwikkelaar. Ek bou vinnige, versigtige webwerwe — skema tot laaste pixel.",
-    "hero.tag":"Senior Webontwikkelaar · LKDA, Pretoria",
-    "doodle.hint":"Sleep hier agter om te teken","doodle.clear":"Vee uit","doodle.touch":"Tekenmodus: af",
-    "portrait.hint":"klik om agtergrond te verander",
-    "cta.work":"Sien die werk","cta.touch":"Kom ons gesels","cta.allProjects":"Al 35 projekte",
-    "cta.startChat":"Begin 'n gesprek →","cta.cv":"Vra vir my CV","cta.ask":"Vra my →",
-    "cta.hire":"Huur my →","cta.idea":"Vertel my die idee →",
-    "stat.years":"Jaar wat ek vir die web bou","stat.projects":"Projekte voltooi",
-    "stat.live":"Lewendige werwe in hierdie portefeulje","stat.tech":"Tegnologieë in omloop",
-    "home.workEyebrow":"Uitgesoekte werk","home.workTitle":"Werk wat lewendig gegaan het",
-    "home.statement":"Ek neem produkte van 'n halfgetekende idee op 'n oproep tot iets lewendig, vinnig en onderhoubaar — getikte API's, sinvolle databasisse, en koppelvlakke wat mense werklik geniet om te gebruik.",
-    "home.processEyebrow":"Hoe ek werk","home.processTitle":"Vervelige proses. Groot webwerf.",
-    "step.1n":"01 / OMVANG","step.1t":"Verstaan voordat jy bou",
-    "step.1p":"Eers vrae, dan 'n klikbare skets en 'n geskrewe omvang. Jy keur die vorm van die ding goed voordat enigiemand 'n migrasie skryf.",
-    "step.2n":"02 / BOU","step.2t":"Lewer in snye",
-    "step.2p":"Twee weke per sny, elkeen ontplooibaar. Jy kry vroeg 'n staging-skakel en wonder nooit waarmee ek besig was nie.",
-    "step.3n":"03 / OORHANDIG","step.3t":"Los dit werkend",
-    "step.3p":"Toetse, 'n README wat op 'n nuwe skootrekenaar werk, CI wat by samesmelting ontplooi, en 'n deurloop vir wie ook al dit erf.",
-    "band.homeTitle":"Iets halfgebou, of nog nie begin nie?",
-    "band.homeText":"Ek neem vryskutwerk aan naas my dagtaak by LKDA. Vertel my wat jy probeer maak.",
-    "live.eyebrow":"Lewendige voorskou","live.title":"Williams OS, lewendig hier onder","live.title2":"Williams OS",
-    "live.open":"Maak volgrootte oop",
-    "live.copy":"Williams OS, wat lewendig in die raam hieronder loop. Dit is die werklike werf, dus pas dit homself aan by watter breedte dit ook al kry — wyd op 'n rekenaar, en sy eie mobiele uitleg wanneer jy hierdie bladsy op 'n foon oopmaak.",
-    "live.copy2":"Williams OS, wat lewendig in die raam hieronder loop teen watter breedte dit ook al kry. Maak dit volgrootte oop vir die regte ding.",
-    "live.p1":"Laai outomaties wanneer jy daarby scroll",
-    "live.p2":"Sandboxed",
+    "hero.status":"Beskikbaar vir vryskutwerk",
+    "hero.sub":"Full-stack-ontwikkelaar. Ek bou vinnige, stewige webwerwe, van die databasis tot die laaste piksel.",
+    "hero.tag":"Senior webontwikkelaar · LKDA, Pretoria",
+    "doodle.hint":"Klik en sleep enige plek hier om te teken","doodle.clear":"Vee uit","doodle.touch":"Tekenmodus: af",
+    "portrait.hint":"klik om die agtergrond te verander",
+    "cta.work":"Kyk na my werk","cta.touch":"Kom ons gesels","cta.allProjects":"Al 35 projekte",
+    "cta.startChat":"Begin 'n gesprek →","cta.cv":"Vra my CV aan","cta.ask":"Vra my →",
+    "cta.hire":"Werk saam met my →","cta.idea":"Vertel my van jou idee →",
+    "stat.years":"Jaar ervaring in webontwikkeling","stat.projects":"Voltooide projekte",
+    "stat.live":"Werwe tans aanlyn","stat.tech":"Tegnologieë wat ek gereeld gebruik",
+    "home.workEyebrow":"Uitgesoekte werk","home.workTitle":"Werk wat nou aanlyn is",
+    "home.statement":"Ek vat 'n idee wat halfpad op 'n oproep geskets is en maak daarvan iets wat aanlyn, vinnig en maklik is om te onderhou — getipeerde API's, sinvolle databasisse en koppelvlakke wat mense regtig graag gebruik.",
+    "home.processEyebrow":"Hoe ek werk","home.processTitle":"Vervelige proses. Uitstekende webwerf.",
+    "step.1n":"01 / OMVANG","step.1t":"Eers verstaan, dan bou",
+    "step.1p":"Eers vrae, dan 'n klikbare skets en 'n geskrewe omvang. Jy keur die plan goed voordat ek 'n enkele reël kode skryf.",
+    "step.2n":"02 / BOU","step.2t":"Lewer stuk vir stuk",
+    "step.2p":"Elke twee weke is daar iets wat werk. Jy kry vroeg 'n toetsskakel en hoef nooit te wonder waarmee ek besig is nie.",
+    "step.3n":"03 / OORHANDIG","step.3t":"Los dit netjies",
+    "step.3p":"Toetse, 'n README wat op 'n splinternuwe skootrekenaar werk, CI wat met elke merge ontplooi, en 'n deurloop vir wie dit ook al oorneem.",
+    "band.homeTitle":"Iets halfklaar, of nog nie eens begin nie?",
+    "band.homeText":"Ek doen vryskutwerk naas my dagwerk by LKDA. Vertel my wat jy wil bou.",
+    "live.eyebrow":"Regstreekse voorskou","live.title":"Williams OS, reg hier voor jou","live.title2":"Williams OS",
+    "live.open":"Maak volskerm oop",
+    "live.copy":"Dis die regte werf, nie 'n skermskoot nie. Dit pas by enige breedte aan, so jy sien die rekenaaruitleg hier en die selfoonuitleg op 'n foon.",
+    "live.copy2":"Die regte werf, regstreeks in die raam hieronder. Maak dit volskerm oop vir die volle ervaring.",
+    "live.p1":"Laai outomaties wanneer jy daarheen blaai",
+    "live.p2":"Veilig geïsoleer",
     "live.p3":"Responsief, nie geskaal nie",
-    "about.eyebrow":"Oor My","about.title":"Kreatiwiteit en kode, in daardie volgorde",
-    "about.p1":"Hallo, ek is William — 'n passievolle full-stack ontwikkelaar wat floreer by die kruispunt van kreatiwiteit en kode. Met ervaring oor verskeie industrieë het ek geleer dat die beste oplossings kom van die verstaan van beide die tegniese vereistes en die menslike ervaring.",
-    "about.p2":"My reis in tegnologie het my toegerus met 'n veelsydige vaardigheidstel: van die skep van pixel-perfekte frontends met moderne JavaScript-raamwerke tot die ontwerp van robuuste backend-stelsels. Wanneer ek nie kodeer nie, sal jy my vind wat 3D-modellering en spelontwikkeling verken.",
-    "about.p3":"Ek is in Krugersdorp, Gauteng, en tans Senior Webontwikkelaar by LKDA in Pretoria.",
-    "about.toolbox":"Die gereedskapkis",
-    "skills.eyebrow":"Vaardighede","skills.title":"Waarvoor ek gryp",
-    "exp.eyebrow":"Ervaring","exp.title":"Waar ek was",
-    "band.aboutTitle":"Wil jy die detail agter enige hiervan hê?",
-    "band.aboutText":"Argitektuur, afwegings en die dele wat skeefgeloop het — ek loop dit graag met jou deur.",
-    "proj.eyebrow":"Projekte · 2021—2026","proj.title":"Vyf-en-dertig werwe, nou lewendig",
-    "proj.sub":"Korporatiewe platforms, multi-mark motorwerwe, e-handelswinkels, Laravel-stelsels en speletjie-mods.",
-    "proj.all":"Alles anders","proj.none":"Niks in daardie kategorie nie — probeer 'n ander filter.",
-    "band.projTitle":"Drie Nissan-markte en tel nog",
-    "band.projText":"Korporatiewe WordPress op skaal, Laravel-platforms, Perfex CRM-modules en heelwat Radiant. Joune kan volgende wees.",
+    "about.eyebrow":"Oor my","about.title":"Bedags kode, saans zombiekaarte",
+    "about.p1":"Ek is William, 'n full-stack-ontwikkelaar van Krugersdorp. Ek bou webwerwe wat vinnig laai, lekker lees en maklik is om te onderhou.",
+    "about.p2":"Bedags is ek 'n senior webontwikkelaar by LKDA in Pretoria. Saans bou ek gewoonlik steeds iets — net met meer zombies.",
+    "about.cJob":"'Senior webontwikkelaar @ LKDA'","about.cEn":"'Engels'",
+    "about.cP1":"'webwerwe'","about.cP2":"'digitale kuns'","about.cP3":"'3D-modelle'","about.cP4":"'speletjie-ontwerp'",
+    "about.snap1":"Hallo, dis ek","about.snap2":"Waar die werk gebeur","about.snap3":"Naweekmodus",
+    "about.shuffle":"Skommel die foto's",
+    "skills.eyebrow":"Vaardighede","skills.title":"Waarmee ek werk",
+    "exp.eyebrow":"Ervaring","exp.title":"Waar ek al gewerk het",
+    "after.eyebrow":"Ná werk","after.title":"Wat ek vir die pret maak",
+    "band.aboutTitle":"Wil jy die storie agter enige hiervan hoor?",
+    "band.aboutText":"Argitektuur, kompromieë en die dele wat skeefgeloop het — ek vertel jou graag daarvan.",
+    "proj.eyebrow":"Projekte · 2021—2026","proj.title":"Vyf-en-dertig werwe, almal nou aanlyn",
+    "proj.sub":"Korporatiewe platforms, motorwerwe vir verskeie markte, aanlyn winkels, Laravel-stelsels en speletjiemods.",
+    "proj.all":"Die res","proj.none":"Niks in dié kategorie nie — probeer 'n ander filter.",
+    "band.projTitle":"Drie Nissan-markte, en nog meer op pad",
+    "band.projText":"Korporatiewe WordPress op groot skaal, Laravel-platforms, Perfex CRM-modules en heelwat Radiant. Joune kan die volgende een wees.",
     "play.eyebrow":"Speelgrond","play.title":"Dinge wat ek op 'n Sondag gebou het",
-    "play.intro":"Eksperimente, widgets en speletjies, almal selfstandig en loop op hul eie bladsye.",
+    "play.intro":"Eksperimente, widgets en speletjies, elkeen selfstandig op sy eie bladsy.",
     "play.pages":"Bladsye","play.games":"Speletjies",
     "band.playTitle":"Die meeste hiervan het as 'n fout begin",
-    "band.playText":"As jy enige van hulle behoorlik gebou wil hê, of 'n vreemder idee het, luister ek.",
-    "contact.eyebrow":"Kontak","contact.title":"Kom ons kyk of dit 'n pas is",
-    "contact.status":"Oop vir vryskutwerk","contact.direct":"Direkte lyne",
+    "band.playText":"As jy een hiervan behoorlik gebou wil hê, of 'n nog vreemder idee het, luister ek graag.",
+    "contact.eyebrow":"Kontak","contact.title":"Kom ons kyk of ons 'n goeie pas is",
+    "contact.status":"Beskikbaar vir vryskutwerk","contact.direct":"Direkte kontak",
     "contact.email":"E-pos","contact.loc":"Ligging",
     "contact.locVal":"Krugersdorp, Gauteng, Suid-Afrika","contact.tz":"Tydsone","contact.faq":"Voordat jy skryf",
     "form.name":"Jou naam","form.email":"E-pos","form.subject":"Onderwerp",
-    "form.msg":"Wat probeer jy bou?","form.send":"Stuur boodskap →",
-    "form.note":"Stuur na jou FormSubmit-eindpunt sodra dit op jou eie gasheer is.",
+    "form.msg":"Wat wil jy bou?","form.send":"Stuur boodskap →",
+    "form.note":"Ek antwoord gewoonlik binne een werksdag.",
+    "form.phEmail":"jy@maatskappy.co.za","form.phSubject":"Nuwe webwerf vir…",
+    "form.phMsg":"Een sin of tien. Sperdatums, beperkings en enige bestaande kode help alles.",
     "faq.q1":"Is jy nou beskikbaar?",
-    "faq.a1":"Ek is voltyds by LKDA, so vryskutwerk gebeur saans en naweke. Dit beteken ek neem minder projekte aan maar voltooi dié wat ek begin.",
+    "faq.a1":"Ek werk voltyds by LKDA, so vryskutwerk doen ek saans en oor naweke. Ek neem dus minder projekte aan, maar ek maak klaar wat ek begin.",
     "faq.q2":"Waaraan werk jy die meeste?",
-    "faq.a2":"WordPress- en Laravel-bouwerk, Umbraco en Perfex CRM, Azure-hosting en werkverrigting-reddings. Enigiets van 'n landingsblad tot 'n multi-mark korporatiewe platform.",
+    "faq.a2":"WordPress- en Laravel-werwe, Umbraco en Perfex CRM, Azure-hosting en stadige werwe vinniger maak. Enigiets van 'n enkele landingsbladsy tot 'n korporatiewe platform vir verskeie markte.",
     "faq.q3":"Doen jy ook 3D- en speletjiewerk?",
-    "faq.a3":"Ja — Blender, Maya, Unreal en Radiant. Ek het pasgemaakte Call of Duty zombie-kaarte en mod-gereedskap na die Steam Workshop gestuur.",
+    "faq.a3":"Ja — Blender, Maya, Unreal en Radiant. Ek het al pasgemaakte Call of Duty-zombiekaarte en mod-gereedskap op die Steam Workshop gepubliseer.",
     "foot.built":"Met die hand gebou · GSAP"
   };
 
@@ -119,8 +124,14 @@
       el.textContent = (LANG === "af" && AF[el.dataset.i18n]) ? AF[el.dataset.i18n] : el.dataset.en;
       delete el.dataset.raw;
     });
+    $$("[data-i18n-ph]").forEach(el => {
+      if (el.dataset.enPh === undefined) el.dataset.enPh = el.placeholder;
+      el.placeholder = T(el.dataset.i18nPh, el.dataset.enPh);
+    });
     $("#lang").textContent = LANG === "af" ? "AF" : "EN";
+    $("#lang").setAttribute("aria-label", LANG === "af" ? "AF, verander na Engels" : "EN, switch to Afrikaans");
     document.documentElement.lang = LANG;
+    setTitle();
     renderAll();
     /* strings inside JS-built markup are repainted by hand, because they
        are created after this pass has already walked the document */
@@ -185,7 +196,7 @@
         '<path d="M200 350 l0 150" stroke="var(--card)" stroke-width="3" opacity=".5"/></g>' +
       '<rect width="400" height="500" fill="url(#pDots)"/></svg>' +
       '<img class="photo" src="' + IMG_BASE + 'williampp.jpg" alt="William Sham" ' +
-      'loading="eager" decoding="async" onerror="this.remove()">';
+      'fetchpriority="high" onerror="this.remove()">';
   }
 
   const portrait = $("#portrait");
@@ -282,7 +293,8 @@
     tb.addEventListener("click", () => {
       touchDraw = !touchDraw;
       doodle.style.touchAction = touchDraw ? "none" : "pan-y";
-      tb.textContent = (LANG === "af" ? "Tekenmodus: " : "Draw mode: ") + (touchDraw ? "on" : "off");
+      tb.textContent = LANG === "af" ? "Tekenmodus: " + (touchDraw ? "aan" : "af")
+                                     : "Draw mode: " + (touchDraw ? "on" : "off");
     });
   }
   addEventListener("resize", sizeDoodle);
@@ -348,43 +360,45 @@
     game:  { en:"Games & mods",  af:"Speletjies & mods" }
   };
 
+  /* Order here is the order of the "Everything else" grid on the
+     Projects page (featured ones are pulled out and shown above it). */
   const RAW = [
-    ["LKDA — Strategic Creative Advertising","lara","Lkda.png","https://www.lkda.co.za/",["Laravel","Umbraco","CMS"],"Creative advertising agency website","Kreatiewe advertensie-agentskap webwerf"],
-    ["ATP","corp","ATPsite.png","https://amplifytradepartners.co.za/",["WordPress","PHP","SEO"],"Amplify Trade Partners website","Amplify Trade Partners webwerf"],
-    ["3D Lazer Monkey","corp","3D%20lasermonkey.png","https://3dlasermonkey.co.za/",["WordPress","3D"],"3D printing and laser cutting services","3D-druk en lasersnydienste"],
-    ["Nissan South Africa","auto","NissanSA.png","https://www.nissan.co.za/",["WordPress","PHP","SEO"],"Official Nissan South Africa website","Amptelike Nissan Suid-Afrika webwerf"],
-    ["Nissan Angola","auto","NissanAngola.png","https://www.nissan.co.ao/",["WordPress","PHP"],"Official Nissan Angola website","Amptelike Nissan Angola webwerf"],
-    ["Nissan Uganda","auto","NissanUganda.png","https://www.nissan.co.ug/",["WordPress","PHP"],"Official Nissan Uganda website","Amptelike Nissan Uganda webwerf"],
-    ["Chery South Africa","auto","cherry%20South%20africa.png","https://www.chery.co.za/",["WordPress","PHP"],"Official Chery South Africa website","Amptelike Chery Suid-Afrika webwerf"],
-    ["Afrit","corp","afrit.png","https://afrit.co.za/",["WordPress","PHP"],"Trailer manufacturing company website","Sleepwa-vervaardigingsmaatskappy webwerf"],
-    ["Safal Steel","corp","Safalsteel.png","https://www.safalsteel.com/",["WordPress","PHP"],"Steel manufacturing company website","Staalvervaardigingsmaatskappy webwerf"],
-    ["Mega Master SA","shop","Megamaster.png","https://megamaster.co.za/",["WordPress","E-commerce"],"BBQ and outdoor products e-commerce","Braai en buite-produkte e-handel"],
-    ["First 4 Men","corp","First4Men.png","https://first4men.co.za/",["WordPress","PHP"],"Men's health and wellness website","Mans gesondheid en welstand webwerf"],
-    ["Gridcontrol","energy","Gridcontroll.png","https://www.gridcontrol.co.za/",["WordPress","PHP"],"Power solutions company website","Kragoplossings maatskappy webwerf"],
-    ["Blueasset Group","corp","Blueasset.png","https://blueassetgroup.com/za",["WordPress","PHP"],"Asset management company website","Batebestuur maatskappy webwerf"],
-    ["Pinaroch","lara","Pinaroch.png","https://pinaroch.co.za/",["Laravel","PHP","Middleware"],"Construction company website","Konstruksiemaatskappy webwerf"],
-    ["MyBuildings Africa","lara","My%20buildings%20africa.png","https://mybuildingsafrica.com/",["Laravel","CMS"],"Property management platform","Eiendomsbestuur platform"],
-    ["myBuildings EMEA","lara","My%20buildings%20emea.png","https://mybuildingsemea.com/",["Laravel","CMS"],"Property management platform, EMEA","Eiendomsbestuur platform EMEA"],
-    ["Goscor Group","corp","Goscor%20group.png","https://goscor.co.za/",["WordPress","Multi-site"],"Industrial equipment group website","Industriële toerusting groep webwerf"],
-    ["Goscor Earth Moving","corp","Goscor%20earth%20moving.png","https://www.goscorearthmoving.co.za/",["WordPress","PHP"],"Earth moving equipment website","Grondverskuiwingstoerusting webwerf"],
-    ["Goscor Lift Trucks","corp","Goscor%20lift%20trucks.png","https://goscorlifttrucks.co.za/",["WordPress","PHP"],"Forklift solutions website","Vurkhyser oplossings webwerf"],
-    ["Goscor Compressed Air","corp","Goscor%20compressed%20air.png","https://www.goscorcompressedair.co.za/",["WordPress","PHP"],"Compressed air solutions website","Saamgeperste lug oplossings webwerf"],
-    ["Goscor Cleaning","corp","Goscor%20cleaning.png","https://goscorcleaning.co.za/",["WordPress","PHP"],"Industrial cleaning equipment website","Industriële skoonmaaktoerusting webwerf"],
-    ["CTU Training","corp","CTU%20training.png","https://ctutraining.ac.za/",["WordPress","Education"],"IT training institution website","IT-opleidingsinstelling webwerf"],
-    ["HEX","corp","Hex.png","https://hexintegratedsolutions.com/",["WordPress","PHP"],"Integrated solutions company website","Geïntegreerde oplossings maatskappy webwerf"],
-    ["Real Box","corp","Realbox.png","https://realbox.co.za/",["WordPress","PHP"],"Container solutions website","Houer oplossings webwerf"],
-    ["Commercial PV","energy","CommercialPV.png","https://commercialpv.co.za/",["WordPress","Solar"],"Commercial solar solutions website","Kommersiële sonkrag oplossings webwerf"],
-    ["Battery Distributors","shop","batterydis.png","https://batterydistributors.co.za/",["WordPress","E-commerce"],"Battery products e-commerce store","Battery produkte e-handel winkel"],
-    ["Rectifier","energy","rectifier.png","https://rectifier.co.za/",["WordPress","PHP"],"Power electronics company website","Krag-elektronika maatskappy webwerf"],
-    ["Go4Green","energy","go4green.png","https://go4greenenergy.co.za/",["WordPress","Green Energy"],"Green energy solutions website","Groen energie oplossings webwerf"],
-    ["Current Automation","shop","Current%20automation.png","https://currentautomation.ca/",["WordPress","E-commerce"],"Industrial automation e-commerce","Industriële outomatisering e-handel"],
-    ["CA's Meanwell","shop","CA%20meanwell.png","https://meanwell.co.za/",["WordPress","E-commerce"],"Power supply products e-commerce","Kragtoevoer produkte e-handel"],
-    ["Solar-Solution","energy","Solar%20solutions.png","https://solar-solution.co.za/",["WordPress","Solar"],"Solar energy solutions website","Sonkrag oplossings webwerf"],
-    ["Victron Products","shop","Victron.png","https://victronproducts.co.za/",["WordPress","E-commerce"],"Victron energy products e-commerce","Victron energie produkte e-handel"],
-    ["COD BO3 Crash Bandicoot","game","Crash%20bandicoot.png","https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",["Radiant","Game Dev"],"Custom zombie map on Steam Workshop","Pasgemaakte zombie kaart op Steam Workshop"],
-    ["Forgotten Room 115","game","forgotten%20room%20115.png","https://steamcommunity.com/sharedfiles/filedetails/?id=3326520485",["Radiant","3D Modeling"],"Custom COD BO3 zombie map with unique mechanics","Pasgemaakte COD BO3 zombie kaart met unieke meganika"],
-    ["COD BO3 Mod Tools Super","game","discorcod.png","#",["Mods","3D Models","Scripts"],"Custom COD BO3 zombie mods, scripts and 3D models","Pasgemaakte COD BO3 zombie Mods, Skrifte, 3D modelle"],
-    ["Zoom DJs","corp","Zoomdj.png","https://www.zoomdjs.co.za/",["WordPress","Bookings"],"Website for a local DJ","Webwerf vir 'n plaaslike DJ"]
+    ["Zoom DJs","corp","Zoomdj.webp","https://www.zoomdjs.co.za/",["WordPress","Bookings"],"Website for a local DJ","Webwerf vir 'n plaaslike DJ"],
+    ["LKDA — Strategic Creative Advertising","lara","Lkda.webp","https://www.lkda.co.za/",["Laravel","Umbraco","CMS"],"Creative advertising agency website","Webwerf vir 'n kreatiewe advertensie-agentskap"],
+    ["ATP","corp","ATPsite.webp","https://amplifytradepartners.co.za/",["WordPress","PHP","SEO"],"Amplify Trade Partners website","Webwerf vir Amplify Trade Partners"],
+    ["3D Lazer Monkey","corp","3D%20lasermonkey.webp","https://3dlasermonkey.co.za/",["WordPress","3D"],"3D printing and laser cutting services","3D-druk en lasersnydienste"],
+    ["Nissan South Africa","auto","NissanSA.webp","https://www.nissan.co.za/",["WordPress","PHP","SEO"],"Official Nissan South Africa website","Nissan Suid-Afrika se amptelike webwerf"],
+    ["Nissan Angola","auto","NissanAngola.webp","https://www.nissan.co.ao/",["WordPress","PHP"],"Official Nissan Angola website","Nissan Angola se amptelike webwerf"],
+    ["Nissan Uganda","auto","NissanUganda.webp","https://www.nissan.co.ug/",["WordPress","PHP"],"Official Nissan Uganda website","Nissan Uganda se amptelike webwerf"],
+    ["Chery South Africa","auto","cherry%20South%20africa.webp","https://www.chery.co.za/",["WordPress","PHP"],"Official Chery South Africa website","Chery Suid-Afrika se amptelike webwerf"],
+    ["Afrit","corp","afrit.webp","https://afrit.co.za/",["WordPress","PHP"],"Trailer manufacturer's website","Webwerf vir 'n sleepwavervaardiger"],
+    ["Safal Steel","corp","Safalsteel.webp","https://www.safalsteel.com/",["WordPress","PHP"],"Steel manufacturer's website","Webwerf vir 'n staalvervaardiger"],
+    ["Mega Master SA","shop","Megamaster.webp","https://megamaster.co.za/",["WordPress","E-commerce"],"Online store for BBQ and outdoor gear","Aanlyn winkel vir braai- en buitetoerusting"],
+    ["First 4 Men","corp","First4Men.webp","https://first4men.co.za/",["WordPress","PHP"],"Men's health and wellness website","Webwerf oor mansgesondheid en -welstand"],
+    ["Gridcontrol","energy","Gridcontroll.webp","https://www.gridcontrol.co.za/",["WordPress","PHP"],"Power solutions company website","Webwerf vir 'n kragoplossingsmaatskappy"],
+    ["Blueasset Group","corp","Blueasset.webp","https://blueassetgroup.com/za",["WordPress","PHP"],"Asset management company website","Webwerf vir 'n batebestuursmaatskappy"],
+    ["Pinaroch","lara","Pinaroch.webp","https://pinaroch.co.za/",["Laravel","PHP","Middleware"],"Construction company website","Webwerf vir 'n konstruksiemaatskappy"],
+    ["MyBuildings Africa","lara","My%20buildings%20africa.webp","https://mybuildingsafrica.com/",["Laravel","CMS"],"Property management platform","Eiendomsbestuursplatform"],
+    ["myBuildings EMEA","lara","My%20buildings%20emea.webp","https://mybuildingsemea.com/",["Laravel","CMS"],"Property management platform for EMEA","Eiendomsbestuursplatform vir EMEA"],
+    ["Goscor Group","corp","Goscor%20group.webp","https://goscor.co.za/",["WordPress","Multi-site"],"Industrial equipment group website","Webwerf vir 'n groep in industriële toerusting"],
+    ["Goscor Earth Moving","corp","Goscor%20earth%20moving.webp","https://www.goscorearthmoving.co.za/",["WordPress","PHP"],"Earth-moving equipment website","Webwerf vir grondverskuiwingstoerusting"],
+    ["Goscor Lift Trucks","corp","Goscor%20lift%20trucks.webp","https://goscorlifttrucks.co.za/",["WordPress","PHP"],"Forklift solutions website","Webwerf vir vurkhyseroplossings"],
+    ["Goscor Compressed Air","corp","Goscor%20compressed%20air.webp","https://www.goscorcompressedair.co.za/",["WordPress","PHP"],"Compressed air solutions website","Webwerf vir perslugoplossings"],
+    ["Goscor Cleaning","corp","Goscor%20cleaning.webp","https://goscorcleaning.co.za/",["WordPress","PHP"],"Industrial cleaning equipment website","Webwerf vir industriële skoonmaaktoerusting"],
+    ["CTU Training","corp","CTU%20training.webp","https://ctutraining.ac.za/",["WordPress","Education"],"IT training institution website","Webwerf vir 'n IT-opleidingsinstelling"],
+    ["HEX","corp","Hex.webp","https://hexintegratedsolutions.com/",["WordPress","PHP"],"Integrated solutions company website","Webwerf vir 'n maatskappy in geïntegreerde oplossings"],
+    ["Real Box","corp","Realbox.webp","https://realbox.co.za/",["WordPress","PHP"],"Container solutions website","Webwerf vir houeroplossings"],
+    ["Commercial PV","energy","CommercialPV.webp","https://commercialpv.co.za/",["WordPress","Solar"],"Commercial solar solutions website","Webwerf vir kommersiële sonkragoplossings"],
+    ["Battery Distributors","shop","batterydis.webp","https://batterydistributors.co.za/",["WordPress","E-commerce"],"Online store for batteries","Aanlyn winkel vir batterye"],
+    ["Rectifier","energy","rectifier.webp","https://rectifier.co.za/",["WordPress","PHP"],"Power electronics company website","Webwerf vir 'n kragelektronikamaatskappy"],
+    ["Go4Green","energy","go4green.webp","https://go4greenenergy.co.za/",["WordPress","Green Energy"],"Green energy solutions website","Webwerf vir groenenergie-oplossings"],
+    ["Current Automation","shop","Current%20automation.webp","https://currentautomation.ca/",["WordPress","E-commerce"],"Online store for industrial automation","Aanlyn winkel vir industriële outomatisering"],
+    ["CA's Meanwell","shop","CA%20meanwell.webp","https://meanwell.co.za/",["WordPress","E-commerce"],"Online store for power supplies","Aanlyn winkel vir kragbronne"],
+    ["Solar-Solution","energy","Solar%20solutions.webp","https://solar-solution.co.za/",["WordPress","Solar"],"Solar energy solutions website","Webwerf vir sonkragoplossings"],
+    ["Victron Products","shop","Victron.webp","https://victronproducts.co.za/",["WordPress","E-commerce"],"Online store for Victron energy products","Aanlyn winkel vir Victron-energieprodukte"],
+    ["COD BO3 Crash Bandicoot","game","Crash%20bandicoot.webp","https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",["Radiant","Game Dev"],"Custom zombie map on the Steam Workshop","Pasgemaakte zombiekaart op die Steam Workshop"],
+    ["Forgotten Room 115","game","forgotten%20room%20115.webp","https://steamcommunity.com/sharedfiles/filedetails/?id=3326520485",["Radiant","3D Modeling"],"Custom COD BO3 zombie map with its own mechanics","Pasgemaakte COD BO3-zombiekaart met sy eie meganika"],
+    ["COD BO3 Mod Tools Super","game","discorcod.webp","#",["Mods","3D Models","Scripts"],"Custom COD BO3 zombie mods, scripts and 3D models","Pasgemaakte COD BO3-zombiemods, skripte en 3D-modelle"]
   ];
 
   const PROJECTS = RAW.map((p, i) => ({ i, t:p[0], cat:p[1], img:p[2], url:p[3], tech:p[4], en:p[5], af:p[6] }));
@@ -393,34 +407,34 @@
     { key:"Mega Master SA", note:{ en:"BBQ & outdoor products, built on WordPress", af:"Braai- en buiteprodukte, gebou op WordPress" } },
     { key:"3D Lazer Monkey", note:{ en:"3D printing and laser cutting, start to finish", af:"3D-druk en lasersny, van begin tot einde" } },
     { key:"Current Automation", metric:{ n:1500, unit:"+", en:"products loaded into the store", af:"produkte in die winkel gelaai" } },
-    { key:"Afrit", note:{ en:"Trailer manufacturer's full corporate site", af:"Sleepwa-vervaardiger se volledige korporatiewe werf" } }
+    { key:"Afrit", note:{ en:"Trailer manufacturer's full corporate site", af:"Die volledige korporatiewe werf van 'n sleepwavervaardiger" } }
   ];
 
   const PAGES = [
-    ["buddy terminal","buddyterminal.html",["Tamagotchi","commands","Interactive"],"Hatch your own pet, interact and see how it creates code and so much more.","Hou jou eie troeteldier, interaksie en kyk hoe dit kode skep en soveel meer."],
-    ["Hacklab","Hacklab.html",["HackLab","Hacking","Beginners"],"Learn to hack web apps through 10 fun mini challenges built for beginners.","Leer om webapps te hack deur 10 pret mini-uitdagings vir beginners."],
-    ["Pattern Assessment","patternassesment.html",["Secure","Patterns","Live"],"A secure way to pass data between windows using only HTML and JavaScript.","'n Veilige manier om data tussen vensters oor te dra deur slegs HTML en JavaScript te gebruik."],
-    ["CSS Filter Showcase","Filterlab.html",["CSS","Filters","Interactive"],"Every CSS filter function — visualised. Click any card to copy the code.","Elke CSS-filterfunksie — gevisualiseer. Klik enige kaart om die kode te kopieer."],
-    ["Particle Generator Showcase","ParticleGen.html",["Particle","Themes","Interactive"],"Create your own particles and copy them for your project.","Skep jou eie deeltjies en kopieer dit vir jou projek."],
-    ["Text Motion Showcase","TextMotion.html",["Text","CSS","Animation"],"Hover cards to preview · click copy to grab the CSS and JS.","Beweeg kaarte om 'n voorskou te kry · klik op kopieer om CSS + JS te kry."],
-    ["Demo Dashboard","demodash.html",["HTML","Visual","Dashboard"],"Just for show: a fun and modern-looking dashboard.","Net vir vertoon: 'n prettige en modern-uitziende dashboard."]
+    ["buddy terminal","buddyterminal.html",["Tamagotchi","commands","Interactive"],"Hatch your own pet, play with it and watch it write code — and plenty more.","Broei jou eie troeteldier uit, speel daarmee en kyk hoe dit kode skryf — en nog baie meer."],
+    ["Hacklab","Hacklab.html",["HackLab","Hacking","Beginners"],"Learn to hack web apps through ten fun mini challenges for beginners.","Leer om webtoepassings te hack met tien prettige mini-uitdagings vir beginners."],
+    ["Pattern Assessment","patternassesment.html",["Secure","Patterns","Live"],"A secure way to pass data between windows using only HTML and JavaScript.","'n Veilige manier om data tussen vensters oor te dra met net HTML en JavaScript."],
+    ["CSS Filter Showcase","Filterlab.html",["CSS","Filters","Interactive"],"Every CSS filter function, visualised. Click any card to copy the code.","Elke CSS-filterfunksie, visueel gewys. Klik op enige kaart om die kode te kopieer."],
+    ["Particle Generator Showcase","ParticleGen.html",["Particle","Themes","Interactive"],"Design your own particle effects and copy them into your project.","Ontwerp jou eie deeltjie-effekte en kopieer dit na jou projek."],
+    ["Text Motion Showcase","TextMotion.html",["Text","CSS","Animation"],"Hover a card to preview it · click copy to grab the CSS and JS.","Beweeg oor 'n kaart vir 'n voorskou · klik op kopieer vir die CSS en JS."],
+    ["Demo Dashboard","demodash.html",["HTML","Visual","Dashboard"],"Just for show: a fun, modern-looking dashboard.","Net vir die pret: 'n moderne, speelse paneelbord."]
   ];
 
   const GAMES = [
-    ["2048","2048-master/index.html",["Puzzle","Classic","GitHub"],"The original sliding tile puzzle — join the numbers to reach 2048. Sourced from gabrielecirulli's open-source repo on GitHub.","Die oorspronklike skuif-teël-legkaart — voeg die getalle saam om by 2048 uit te kom. Kom van gabrielecirulli se oopbron-bewaarplek op GitHub."],
-    ["Minesweeper","minesweeper.html",["Puzzle","Classic","JavaScript"],"Classic minesweeper game with multiple difficulty levels.","Klassieke mynveer-speletjie met verskeie moeilikheidsgrade."],
-    ["Platformer","platformer.html",["Action","Platform","Canvas"],"Side-scrolling platformer with challenging obstacles.","Sy-rollende platform met uitdagende hindernisse."],
-    ["Pong","pong.html",["Arcade","Classic","Multiplayer"],"The classic arcade game — play against AI or a friend.","Die klassieke arcade-speletjie — speel teen KI of 'n vriend."],
-    ["Snake Game","snake_game.html",["Arcade","Classic","JavaScript"],"Guide the snake to eat and grow without hitting walls.","Lei die slang om te eet en te groei sonder om mure te tref."],
-    ["Tower Blocks","tower_blocks.html",["Puzzle","Stacking","Skill"],"Stack blocks as high as you can — precision required.","Stapel blokke so hoog as moontlik — presisie vereis."],
-    ["Word Guess","word_guess.html",["Word","Puzzle","Brain"],"Guess the hidden word before running out of attempts.","Raai die verborge woord voordat pogings opraak."],
-    ["Slots","slots.html",["Luck","Skill","Fun"],"Play a custom slot machine created by me.","Speel 'n unieke slotmasjien speletjie gemaak deur my."]
+    ["2048","2048-master/index.html",["Puzzle","Classic","GitHub"],"The original sliding tile puzzle — merge the numbers until you reach 2048. From gabrielecirulli's open-source repo on GitHub.","Die oorspronklike skuifteël-legkaart — voeg die getalle saam tot jy 2048 bereik. Van gabrielecirulli se oopbronprojek op GitHub."],
+    ["Minesweeper","minesweeper.html",["Puzzle","Classic","JavaScript"],"Classic Minesweeper with several difficulty levels.","Die klassieke Minesweeper met verskeie moeilikheidsvlakke."],
+    ["Platformer","platformer.html",["Action","Platform","Canvas"],"A side-scrolling platformer with tricky obstacles.","'n Sy-rollende platformspeletjie met uitdagende hindernisse."],
+    ["Pong","pong.html",["Arcade","Classic","Multiplayer"],"The classic arcade game — play against the computer or a friend.","Die klassieke arcade-speletjie — speel teen die rekenaar of 'n vriend."],
+    ["Snake Game","snake_game.html",["Arcade","Classic","JavaScript"],"Guide the snake to eat and grow without hitting the walls.","Lei die slang om te eet en te groei sonder om teen die mure vas te loop."],
+    ["Tower Blocks","tower_blocks.html",["Puzzle","Stacking","Skill"],"Stack the blocks as high as you can — precision required.","Stapel die blokke so hoog as wat jy kan — dit vra presisie."],
+    ["Word Guess","word_guess.html",["Word","Puzzle","Brain"],"Guess the hidden word before you run out of tries.","Raai die versteekte woord voordat jou kanse opraak."],
+    ["Slots","slots.html",["Luck","Skill","Fun"],"A slot machine I made myself. Give it a spin.","'n Slotmasjien wat ek self gemaak het. Gee dit 'n draai."]
   ];
 
   const SKILLS = [
-    { cat:{ en:"Frontend", af:"Voorkant" }, accent:"var(--pink)", items:[
+    { cat:{ en:"Frontend", af:"Frontend" }, accent:"var(--pink)", items:[
       ["JavaScript",90],["HTML / CSS",95],["React.js",85],["WordPress / Shopify",90]] },
-    { cat:{ en:"Backend", af:"Agterkant" }, accent:"var(--blue)", items:[
+    { cat:{ en:"Backend", af:"Backend" }, accent:"var(--blue)", items:[
       ["PHP / Laravel",90],["Umbraco CMS",85],["SQL / Databases",85],["C# / ASP.NET",80],
       ["ASP.NET Hybrid & Windows Apps",80],["Java / C++",75]] },
     { cat:{ en:"Cloud & DevOps", af:"Wolk & DevOps" }, accent:"var(--mint)", items:[
@@ -430,40 +444,53 @@
   ];
 
   const JOBS = [
-    { when:{ en:"Sept 2024 — Present", af:"Sept 2024 — Huidig" }, now:true, accent:"var(--pink)",
-      role:{ en:"Senior Web Developer", af:"Senior Web Ontwikkelaar" },
+    { when:{ en:"Sept 2024 — Present", af:"Sept. 2024 — Nou" }, now:true, accent:"var(--pink)",
+      role:{ en:"Senior Web Developer", af:"Senior webontwikkelaar" },
       where:"LKDA — Strategic Creative Advertising, Pretoria",
-      d:{ en:"Lead full-stack website development and maintenance, server infrastructure management, and UI/UX development.",
-          af:"Lei full-stack webwerfontwikkeling en -instandhouding, bedienerinfrastruktuurbestuur, en UI/UX-ontwikkeling." },
-      wins:{ en:["Led transformation of LKDA's global digital library application",
-                 "Optimized the Nissan SA website, reducing load time by 5 seconds",
-                 "Created a multi-database connector plugin"],
-             af:["Gelei transformasie van LKDA se wêreldwye digitale biblioteektoepassing",
-                 "Nissan SA-webwerf geoptimaliseer, laaityd met 5 sekondes verminder",
-                 "Multi-databasis-koppelaar-inprop geskep"] },
-      tech:["PHP","Laravel","JavaScript","WordPress","Shopify","Azure"] },
-    { when:{ en:"Mar 2023 — Aug 2024", af:"Mrt 2023 — Aug 2024" }, accent:"var(--blue)",
-      role:{ en:"Web Developer", af:"Web Ontwikkelaar" },
+      d:{ en:"Full-stack builds and maintenance, server infrastructure and UI/UX.",
+          af:"Full-stack-ontwikkeling en -onderhoud, bedienerinfrastruktuur en UI/UX." },
+      wins:{ en:["Led the rebuild of LKDA's global digital library app",
+                 "Made the Nissan SA website load 5 seconds faster",
+                 "Built a plugin that connects to multiple databases"],
+             af:["Die herbou van LKDA se wêreldwye digitale biblioteek-app gelei",
+                 "Nissan SA se webwerf 5 sekondes vinniger laat laai",
+                 "'n Inprop gebou wat aan verskeie databasisse koppel"] } },
+    { when:{ en:"Mar 2023 — Aug 2024", af:"Mrt. 2023 — Aug. 2024" }, accent:"var(--blue)",
+      role:{ en:"Web Developer", af:"Webontwikkelaar" },
       where:"Silverstone Group, Centurion",
-      d:{ en:"Full-stack web development, Perfex CRM modules, business solutions development, and e-commerce platform creation.",
-          af:"Full-stack webontwikkeling, Perfex CRM-modules, besigheidsoplossings-ontwikkeling, en e-handelsplatform-skepping." },
+      d:{ en:"Full-stack web work, Perfex CRM modules, business tools and online stores.",
+          af:"Full-stack-webwerk, Perfex CRM-modules, besigheidstoepassings en aanlyn winkels." },
       wins:{ en:["Developed 15+ custom Perfex CRM modules","Built a WhatsApp chatbot integration"],
-             af:["15+ pasgemaakte Perfex CRM-modules ontwikkel","WhatsApp-kletsbotintegrasie gebou"] },
-      tech:["PHP","JavaScript","Perfex CRM","MySQL"] },
+             af:["Meer as 15 pasgemaakte Perfex CRM-modules ontwikkel","'n WhatsApp-kletsbot geïntegreer"] } },
     { when:{ en:"2021 — 2022", af:"2021 — 2022" }, accent:"var(--mint)",
-      role:{ en:"Freelance Developer", af:"Vryskut Ontwikkelaar" },
-      where:{ en:"Self-Employed", af:"Selfstandig" },
-      d:{ en:"Built custom websites and web applications for various clients. Focused on WordPress development, custom themes, and e-commerce solutions.",
-          af:"Pasgemaakte webwerwe en webtoepassings vir verskeie kliënte gebou. Gefokus op WordPress-ontwikkeling, pasgemaakte temas, en e-handelsoplossings." },
-      wins:{ en:[], af:[] },
-      tech:["WordPress","WooCommerce","PHP","JavaScript"] }
+      role:{ en:"Freelance Developer", af:"Vryskutontwikkelaar" },
+      where:{ en:"Self-employed", af:"Selfstandig" },
+      d:{ en:"Custom websites and web apps for a range of clients, mostly WordPress, custom themes and online stores.",
+          af:"Pasgemaakte webwerwe en webtoepassings vir verskeie kliënte, meestal WordPress, eie temas en aanlyn winkels." },
+      wins:{ en:[], af:[] } }
+  ];
+
+  /* About page, "After hours". Each img is a stand-in: until the file
+     exists in Images/, the tile shows a riso placeholder instead. */
+  const AFTER = [
+    { img:"about-maps.jpg", url:"https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",
+      en:["Zombie maps","Crash Bandicoot and Forgotten Room 115, two custom Call of Duty maps on the Steam Workshop."],
+      af:["Zombiekaarte","Crash Bandicoot en Forgotten Room 115, twee pasgemaakte Call of Duty-kaarte op die Steam Workshop."] },
+    { img:"about-3d.jpg",
+      en:["3D models","Blender and Maya, for maps, mods and the odd experiment."],
+      af:["3D-modelle","Blender en Maya, vir kaarte, mods en af en toe 'n eksperiment."] },
+    { img:"about-art.jpg",
+      en:["Digital art","Textures, sketches and anything else that needs drawing."],
+      af:["Digitale kuns","Teksture, sketse en enigiets anders wat geteken moet word."] },
+    { img:"about-mods.jpg",
+      en:["Mod tools","Scripts, models and a Discord server for fellow Black Ops III modders."],
+      af:["Mod-gereedskap","Skripte, modelle en 'n Discord-bediener vir ander Black Ops III-modders."] }
   ];
 
   const STACK = ["JavaScript","React","Vue.js","PHP","Laravel","C#","ASP.NET","Blazor Hybrid","Java","C++","SQL",
     "Microsoft Azure","Azure DevOps","Git","Unreal Engine 4","Unity","Radiant","WordPress","Shopify","Wix","Webflow",
     "Perfex CRM","Umbraco","Photoshop","Figma","Blender","Maya","SEO","Search Console","Canva","Spline"];
   $("#marquee").innerHTML = STACK.concat(STACK).map(s => "<span>" + s + "</span>").join("");
-  $("#cloud").innerHTML = STACK.map(s => "<span>" + esc(s) + "</span>").join("");
 
   /* =================================================================
      RENDERERS
@@ -471,7 +498,8 @@
   function shotHTML(imgFile, parallax){
     return '<div class="shot">' +
       '<div class="art"' + (parallax ? '' : ' style="height:100%;margin-top:0"') + '>' + loadingArt(400, 250) + '</div>' +
-      (imgFile ? '<img src="' + IMG_BASE + imgFile + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : '') +
+      (imgFile ? '<img src="' + IMG_BASE + imgFile + '" alt="" loading="lazy" decoding="async" ' +
+        'onload="this.classList.add(\'ready\')" onerror="this.remove()">' : '') +
       '</div>';
   }
 
@@ -496,7 +524,7 @@
         '<p>' + esc(p[LANG]) + '</p>' + hi +
         '<div class="tags">' + p.tech.map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>' +
         '<a class="arrow-link" href="' + esc(p.url) + '" target="_blank" rel="noopener">' +
-        '<span>' + (LANG === "af" ? "Besoek werf" : "Visit site") + '</span><span>↗</span></a>' +
+        '<span>' + (LANG === "af" ? "Besoek die werf" : "Visit site") + '</span><span>↗</span></a>' +
       '</div></article>';
   }
 
@@ -512,7 +540,7 @@
         '<div class="tags">' + p.tech.map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>' +
         (live
           ? '<a class="arrow-link" href="' + esc(p.url) + '" target="_blank" rel="noopener"><span>' +
-            (LANG === "af" ? "Besoek werf" : "Visit site") + '</span><span>↗</span></a>'
+            (LANG === "af" ? "Besoek die werf" : "Visit site") + '</span><span>↗</span></a>'
           : '<span class="label">' + (LANG === "af" ? "Privaat skakel" : "Private link") + '</span>') +
       '</div></article>';
   }
@@ -538,14 +566,24 @@
   let frameObserver = null;
   function lazyFrames(){
     if (frameObserver) frameObserver.disconnect();
+    /* Previews load as they near the viewport and are unloaded again once
+       scrolled away. They're same-origin, so the browser doesn't throttle
+       them off-screen: without this, every game and demo scrolled past
+       (three.js, tsParticles, canvas loops) keeps running in the background. */
     frameObserver = new IntersectionObserver(entries => {
       entries.forEach(en => {
-        if (!en.isIntersecting) return;
-        const f = en.target, src = f.dataset.src;
-        if (src && !f.src){ revealWhenEmbedded(f); f.src = src; }
-        frameObserver.unobserve(f);
+        const f = en.target;
+        if (en.isIntersecting && !f.dataset.live){
+          f.dataset.live = "1";
+          f.addEventListener("load", () => f.classList.toggle("ready", !!f.dataset.live), { once: true });
+          f.src = f.dataset.src;
+        } else if (!en.isIntersecting && f.dataset.live){
+          delete f.dataset.live;
+          f.classList.remove("ready");
+          f.src = "about:blank";
+        }
       });
-    }, { rootMargin: "150px 0px", threshold: .05 });
+    }, { rootMargin: "150px 0px" });
     $$(".shot iframe[data-src]").forEach(f => frameObserver.observe(f));
   }
 
@@ -566,9 +604,9 @@
         esc(CATS[c][LANG]) + '</button>').join("");
 
     $("#pages-grid").innerHTML = PAGES.map((p, i) =>
-      liveCardHTML(p, i, PAGE_BASE, "Page", LANG === "af" ? "Bekyk bladsy" : "View page")).join("");
+      liveCardHTML(p, i, PAGE_BASE, LANG === "af" ? "Bladsy" : "Page", LANG === "af" ? "Bekyk die bladsy" : "View page")).join("");
     $("#games-grid").innerHTML = GAMES.map((g, i) =>
-      liveCardHTML(g, i + 9, GAME_BASE, "Game", LANG === "af" ? "Speel speletjie" : "Play game")).join("");
+      liveCardHTML(g, i + 9, GAME_BASE, LANG === "af" ? "Speletjie" : "Game", LANG === "af" ? "Speel nou" : "Play game")).join("");
 
     $("#skills").innerHTML = SKILLS.map(g =>
       '<div class="skillgroup" style="--accent: ' + g.accent + '">' +
@@ -576,7 +614,7 @@
       '<div class="skill-chips">' + g.items.map(it => {
         const level = Math.round(it[1] / 20);
         const dots = Array.from({ length: 5 }, (_, i) => '<i class="' + (i < level ? "on" : "") + '"></i>').join("");
-        return '<span class="skill-chip"><b>' + esc(it[0]) + '</b><span class="skill-lvl">' + dots + '</span></span>';
+        return '<span class="skill-chip"><b>' + esc(it[0]) + '</b><span class="skill-lvl" role="img" aria-label="' + level + '/5">' + dots + '</span></span>';
       }).join("") + '</div>' +
       '</div>').join("");
 
@@ -585,13 +623,22 @@
       const wins = j.wins[LANG];
       return '<article class="job" style="--accent: ' + j.accent + '" data-anim="up">' +
         '<div class="job-top"><span class="job-when">' + esc(j.when[LANG]) + '</span>' +
-        (j.now ? '<span class="now">' + (LANG === "af" ? "Huidig" : "Current") + '</span>' : '') + '</div>' +
+        (j.now ? '<span class="now">' + (LANG === "af" ? "Huidige pos" : "Current") + '</span>' : '') + '</div>' +
         '<h3>' + esc(j.role[LANG]) + '</h3>' +
         '<div class="where">' + esc(where) + '</div>' +
         '<p>' + esc(j.d[LANG]) + '</p>' +
         (wins.length ? '<ul class="wins">' + wins.map(w => '<li>' + esc(w) + '</li>').join("") + '</ul>' : '') +
-        '<div class="tags">' + j.tech.map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>' +
         '</article>';
+    }).join("");
+
+    $("#after").innerHTML = AFTER.map((a, i) => {
+      const t = a[LANG];
+      return '<article class="tile" style="--accent: ' + ACCENTS[i % 4] + '; --accent-2: ' + ACCENTS[(i + 1) % 4] + '" data-anim="up">' +
+        '<div class="ph"><img src="' + IMG_BASE + a.img + '" alt="" loading="lazy" decoding="async" onerror="this.remove()"></div>' +
+        '<div class="tile-cap"><h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>' +
+        (a.url ? '<a class="arrow-link tile-link" href="' + esc(a.url) + '" target="_blank" rel="noopener"><span>' +
+          (LANG === "af" ? "Op Steam" : "On Steam") + '</span><span>↗</span></a>' : '') +
+        '</div></article>';
     }).join("");
 
     lazyFrames();
@@ -655,7 +702,9 @@
       });
 
       $$('[data-anim="up"]', scope).forEach(el => {
-        gsap.from(el, { y: 32, opacity: 0, duration: .75, ease: EASE,
+        /* clearProps hands transform back to CSS, so :hover lifts
+           (cards, tiles) aren't overridden by a leftover inline style */
+        gsap.from(el, { y: 32, opacity: 0, duration: .75, ease: EASE, clearProps: "transform",
           scrollTrigger: { trigger: el, start: "top 92%", once: true } });
       });
 
@@ -699,7 +748,7 @@
            fine, transform never resolved), so spell out both ends. */
         gsap.fromTo(skillChips,
           { scale: .4, opacity: 0, rotate: () => gsap.utils.random(-8, 8) },
-          { scale: 1, opacity: 1, rotate: 0, duration: .6, ease: "back.out(2.2)",
+          { scale: 1, opacity: 1, rotate: 0, duration: .6, ease: "back.out(2.2)", clearProps: "transform",
             stagger: { each: .025, from: "random" },
             scrollTrigger: { trigger: "#skills", start: "top 85%", once: true } });
       }
@@ -796,15 +845,15 @@
     $("#e-name").textContent = ""; $("#e-email").textContent = ""; $("#e-msg").textContent = "";
     if (!name.value.trim()){ $("#e-name").textContent = LANG === "af" ? "Sê my wat om jou te noem." : "Tell me what to call you."; ok = false; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())){
-      $("#e-email").textContent = LANG === "af" ? "Daardie adres lyk nie reg nie." : "That address doesn't look right."; ok = false;
+      $("#e-email").textContent = LANG === "af" ? "Dié e-posadres lyk nie reg nie." : "That address doesn't look right."; ok = false;
     }
     if (msg.value.trim().length < 12){
       $("#e-msg").textContent = LANG === "af" ? "'n Paar woorde meer sal help." : "A few more words would help."; ok = false;
     }
-    if (!ok){ toast(LANG === "af" ? "Drie velde kort aandag" : "Three fields need a look"); return; }
+    if (!ok){ toast(LANG === "af" ? "Kyk asseblief weer na die vorm" : "Please check the form"); return; }
 
     const btn = form.querySelector('button[type="submit"]');
-    btn.textContent = LANG === "af" ? "Stuur…" : "Sending…";
+    btn.textContent = LANG === "af" ? "Stuur tans…" : "Sending…";
     btn.disabled = true;
 
     let delivered = false;
@@ -814,15 +863,24 @@
     } catch (err){ delivered = false; }
 
     const first = esc(name.value.trim().split(" ")[0]);
+    const af = LANG === "af";
+    /* on failure the form is gone, so hand the visitor's text to their
+       mail client rather than losing it */
+    const mail = "mailto:williamsham90@gmail.com?subject=" + encodeURIComponent($("#c-subject").value.trim() || "Portfolio") +
+      "&body=" + encodeURIComponent(msg.value.trim());
     $("#form-card").innerHTML =
-      '<div class="sent"><div class="sent-mark" aria-hidden="true">✓</div>' +
-      '<h3 style="font-size:clamp(1.5rem,1.25rem + 1.2vw,2.2rem)">' + (LANG === "af" ? "Dankie, " : "Thanks, ") + first + '</h3>' +
+      '<div class="sent"><div class="sent-mark" aria-hidden="true"' + (delivered ? '>✓' : ' style="border-color:var(--pink);color:var(--pink)">!') + '</div>' +
+      '<h3 style="font-size:clamp(1.5rem,1.25rem + 1.2vw,2.2rem)">' +
+        (delivered ? (af ? "Dankie, " : "Thanks, ") : (af ? "Jammer, " : "Sorry, ")) + first + '</h3>' +
       '<p class="prose">' + (delivered
-        ? (LANG === "af" ? "Jou boodskap is gestuur — ek antwoord gewoonlik binne een werksdag."
-                         : "Your message is on its way. I usually reply within one working day.")
-        : (LANG === "af" ? "Die vorm kon nie die eindpunt van hierdie voorskou af bereik nie — dit sal werk sodra die werf op jou eie gasheer loop."
-                         : "The form couldn't reach the endpoint from this preview sandbox — it will post normally once the site is on your own host.")) +
-      '</p><a class="btn btn-line btn-sm" href="#portfolio">' + (LANG === "af" ? "Terug na tuis" : "Back to the start") + '</a></div>';
+        ? (af ? "Jou boodskap is gestuur. Ek antwoord gewoonlik binne een werksdag."
+              : "Your message is on its way. I usually reply within one working day.")
+        : (af ? "Dit het nie deurgegaan nie, maar jou boodskap is nie verlore nie. Stuur dit eerder per e-pos."
+              : "That didn't go through, but your message isn't lost. Send it by email instead.")) + '</p>' +
+      (delivered
+        ? '<a class="btn btn-line btn-sm" href="#portfolio">' + (af ? "Terug na die begin" : "Back to the start") + '</a>'
+        : '<a class="btn btn-accent btn-sm" href="' + esc(mail) + '">' + (af ? "Stuur per e-pos →" : "Send by email →") + '</a>') +
+      '</div>';
     if (GS && !reduced) gsap.from("#form-card .sent > *", { y: 20, opacity: 0, duration: .6, stagger: .08, ease: "power3.out" });
   });
 
@@ -899,7 +957,12 @@
   function setDrawer(open){
     drawer.classList.toggle("open", open);
     scrim.classList.toggle("open", open);
-    drawer.setAttribute("aria-hidden", String(!open));
+    /* inert, not aria-hidden: the closed drawer is only slid off-screen,
+       so without it Tab still walked into its links */
+    const hadFocus = drawer.contains(document.activeElement);
+    drawer.inert = !open;
+    if (open) $("#close-drawer").focus();
+    else if (hadFocus) $("#burger").focus();
     $("#burger").setAttribute("aria-expanded", String(open));
     document.body.style.overflow = open ? "hidden" : "";
     if (open && GS && !reduced) gsap.from("#drawer a[data-route]", { x: 26, opacity: 0, duration: .5, stagger: .05, ease: "power3.out", delay: .12 });
@@ -909,6 +972,26 @@
   scrim.addEventListener("click", () => setDrawer(false));
   drawer.addEventListener("click", e => { if (e.target.closest("a[data-route]")) setDrawer(false); });
   addEventListener("keydown", e => { if (e.key === "Escape") setDrawer(false); });
+
+  /* =================================================================
+     ABOUT — PHOTO STACK
+     Positions live in CSS (data-pos 0 = front). A shuffle tosses the
+     front photo out and tucks it in at the back; .toss runs that
+     keyframe and is dropped once it ends.
+     ================================================================= */
+  const snaps = $$("#stack .snap");
+  function shuffleStack(){
+    snaps.forEach(s => {
+      const pos = (Number(s.dataset.pos) + snaps.length - 1) % snaps.length;
+      if (pos === snaps.length - 1){
+        s.classList.add("toss");
+        s.addEventListener("animationend", () => s.classList.remove("toss"), { once: true });
+      }
+      s.dataset.pos = pos;
+    });
+  }
+  $("#stack").addEventListener("click", shuffleStack);
+  $("#shuffle").addEventListener("click", shuffleStack);
 
   /* =================================================================
      BACK TO TOP
@@ -926,10 +1009,12 @@
      ================================================================= */
   const ROUTES = ["portfolio","about","projects","play","contact"];
   const TITLES = {
-    portfolio:"William Sham Portfolio", about:"About · William Sham",
-    projects:"Projects · William Sham", play:"Playground · William Sham", contact:"Contact · William Sham"
+    portfolio:["William Sham Portfolio","William Sham se portefeulje"], about:["About · William Sham","Oor my · William Sham"],
+    projects:["Projects · William Sham","Projekte · William Sham"], play:["Playground · William Sham","Speelgrond · William Sham"],
+    contact:["Contact · William Sham","Kontak · William Sham"]
   };
   let current = "portfolio";
+  function setTitle(){ document.title = TITLES[current][LANG === "af" ? 1 : 0]; }
 
   function applyRoute(route){
     current = route;
@@ -938,7 +1023,7 @@
       if (a.dataset.route === route) a.setAttribute("aria-current", "page");
       else a.removeAttribute("aria-current");
     });
-    document.title = TITLES[route];
+    setTitle();
     if (route === "portfolio") requestAnimationFrame(sizeDoodle);
     lazyFrames();
     initEmbeds();

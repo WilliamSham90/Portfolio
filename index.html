@@ -10,13 +10,18 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="William Sham — Full Stack Web Developer">
-<meta property="og:description" content="Thirty-five live sites, eight experiments and seven games. WordPress, Laravel, Umbraco, Azure and a fair amount of Radiant.">
+<meta property="og:description" content="Thirty-five live sites, seven experiments and eight games. WordPress, Laravel, Umbraco, Azure and a fair amount of Radiant.">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;800&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='%23E0206A'/%3E%3C/svg%3E">
+
+<!-- fonts are self-hosted (see @font-face in index.css); preload the two
+     the first screen needs so text doesn't reflow when they arrive -->
+<link rel="preload" href="Fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="Fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="index.css">
+<!-- hero photo is the LCP element but is inserted by index.js, so let the browser fetch it now -->
+<link rel="preload" as="image" href="Images/williampp.jpg" fetchpriority="high">
 </head>
 <body>
 
@@ -33,14 +38,14 @@
       <a href="#contact"   data-route="contact"   data-i18n="nav.contact">Contact</a>
     </nav>
     <div class="tools">
-      <button class="ghost" id="lang" type="button" aria-label="Switch language">EN</button>
+      <button class="ghost" id="lang" type="button" aria-label="EN, switch to Afrikaans">EN</button>
       <button class="ghost burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
     </div>
   </div>
 </header>
 
 <div id="scrim"></div>
-<aside id="drawer" aria-label="Menu" aria-hidden="true">
+<aside id="drawer" aria-label="Menu" inert>
   <div class="drawer-top">
     <span class="label" data-i18n="drawer.title">Menu</span>
     <button class="ghost" id="close-drawer" type="button" aria-label="Close menu">✕</button>
@@ -68,7 +73,7 @@
         <div class="hero-copy">
           <span class="status" data-anim="fade"><span class="dot" aria-hidden="true"></span><span data-i18n="hero.status">Open to freelance work</span></span>
           <h1 data-split>William Sham</h1>
-          <p class="hero-sub" data-split data-i18n="hero.sub">Full-stack developer. I build fast, careful websites — schema to last pixel.</p>
+          <p class="hero-sub" data-split data-i18n="hero.sub">Full-stack developer. I build fast, solid websites, from the database to the last pixel.</p>
           <div class="hero-cta" data-anim="fade">
             <a class="btn btn-accent" href="#projects" data-i18n="cta.work">See the work</a>
             <a class="btn btn-line" href="#contact" data-i18n="cta.touch">Get in touch</a>
@@ -80,7 +85,7 @@
             <a class="soc" href="https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216" target="_blank" rel="noopener">Steam ↗</a>
           </div>
           <div class="doodle-bar" data-anim="fade">
-            <span data-i18n="doodle.hint">Drag anywhere back here to draw</span>
+            <span data-i18n="doodle.hint">Click and drag anywhere in here to draw</span>
             <span class="swatches" id="swatches"></span>
             <button class="ghost" id="doodle-clear" type="button" data-i18n="doodle.clear">Clear</button>
             <button class="ghost" id="doodle-touch" type="button" hidden data-i18n="doodle.touch">Draw mode: off</button>
@@ -166,7 +171,7 @@
           <a class="arrow-link" href="https://williamsham90.github.io/Portfolio-2/" target="_blank" rel="noopener"><span data-i18n="live.open">Open full size</span><span>↗</span></a>
         </div>
         <div class="embed-intro" style="--accent: var(--mint)">
-          <p class="prose" data-i18n="live.copy">Williams OS, running live in the frame below. It is the real site, so it lays itself out to whatever width it is given — wide on a desktop, and its own mobile layout when you open this page on a phone.</p>
+          <p class="prose" data-i18n="live.copy">This is the real site, not a screenshot. It adapts to whatever width it gets, so you see the desktop layout here and the mobile layout on a phone.</p>
           <div class="embed-meta">
             <span data-i18n="live.p1">Loads automatically as you scroll to it</span>
             <span data-i18n="live.p2">Sandboxed</span>
@@ -189,46 +194,53 @@
     </div>
   </section>
 
-  <!-- ============================ ABOUT =========================== -->
+  <!-- ============================ ABOUT ===========================
+       Stand-in images: drop these files into Images/ and they replace
+       the riso placeholders on their own — nothing else to change.
+         Photo stack:  about-desk.jpg, about-weekend.jpg
+         After hours:  about-maps.jpg, about-3d.jpg, about-art.jpg, about-mods.jpg
+  -->
   <section class="page" id="page-about" hidden>
     <div class="shell block">
       <section class="sec">
         <div class="sec-head">
           <div>
             <span class="label"><b>[01]</b> <span data-i18n="about.eyebrow">About</span></span>
-            <h2 data-split data-i18n="about.title">Creativity and code, in that order</h2>
+            <h2 data-split data-i18n="about.title">Code by day, zombie maps by night</h2>
           </div>
         </div>
         <div class="about-grid">
-          <div style="display:flex; flex-direction:column; gap:20px">
-            <p class="prose" data-anim="up" data-i18n="about.p1">Hi, I'm William — a passionate full-stack developer who thrives at the intersection of creativity and code. With experience spanning multiple industries, I've learned that the best solutions come from understanding both the technical requirements and the human experience.</p>
-            <p class="prose" data-anim="up" data-i18n="about.p2">My journey in tech has equipped me with a versatile skill set: from crafting pixel-perfect frontends with modern JavaScript frameworks to designing robust backend systems. When I'm not coding, you'll find me exploring 3D modeling, game development, or diving into the latest tech trends.</p>
-            <p class="prose" data-anim="up" data-i18n="about.p3">I'm based in Krugersdorp, Gauteng, and currently Senior Web Developer at LKDA in Pretoria.</p>
-            <div style="margin-top:14px" data-anim="up">
-              <span class="label" data-i18n="about.toolbox">The toolbox</span>
-              <div class="cloud" id="cloud" style="margin-top:14px"></div>
-            </div>
-          </div>
-          <pre class="codeblock" data-anim="up"><span class="k">const</span> <span class="p">developer</span> = {
-  <span class="p">name</span>: <span class="s">'William Sham'</span>,
-  <span class="p">role</span>: <span class="s">'Full Stack Developer'</span>,
-  <span class="p">location</span>: <span class="s">'Krugersdorp, South Africa'</span>,
-  <span class="p">company</span>: <span class="s">'LKDA — Pretoria'</span>,
-  <span class="p">skills</span>: [
-    <span class="s">'JavaScript'</span>, <span class="s">'React'</span>, <span class="s">'Vue.js'</span>,
-    <span class="s">'PHP'</span>, <span class="s">'C#'</span>, <span class="s">'ASP.NET'</span>, <span class="s">'Blazor Hybrid'</span>,
-    <span class="s">'Java'</span>, <span class="s">'C++'</span>, <span class="s">'SQL'</span>, <span class="s">'Microsoft Azure'</span>,
-    <span class="s">'Azure DevOps'</span>, <span class="s">'Git'</span>, <span class="s">'Unreal Engine 4'</span>,
-    <span class="s">'Unity'</span>, <span class="s">'Radiant'</span>, <span class="s">'WordPress'</span>, <span class="s">'Shopify'</span>,
-    <span class="s">'Laravel'</span>, <span class="s">'Perfex CRM'</span>, <span class="s">'Umbraco'</span>,
-    <span class="s">'Photoshop'</span>, <span class="s">'Figma'</span>, <span class="s">'Blender'</span>, <span class="s">'Maya'</span>,
-    <span class="s">'SEO'</span>, <span class="s">'Search Console'</span>, <span class="s">'Spline'</span>
-  ],
-  <span class="p">passion</span>: [
-    <span class="s">'Websites'</span>, <span class="s">'Digital Art'</span>, <span class="s">'3D Models'</span>,
-    <span class="s">'Game Design'</span>, <span class="s">'Creating Solutions'</span>
+          <div class="about-copy">
+            <p class="lead" data-anim="up" data-i18n="about.p1">I'm William, a full-stack developer from Krugersdorp. I build websites that load fast, read well and are easy to look after.</p>
+            <p class="prose" data-anim="up" data-i18n="about.p2">By day I'm a senior web developer at LKDA in Pretoria. By night I'm usually still building something, just with more zombies.</p>
+            <pre class="codeblock" data-anim="up"><span class="k">const</span> <span class="p">william</span> = {
+  <span class="p">home</span>:     <span class="s">'Krugersdorp, Gauteng'</span>,
+  <span class="p">dayJob</span>:   <span class="s" data-i18n="about.cJob">'Senior Web Developer @ LKDA'</span>,
+  <span class="p">speaks</span>:   [<span class="s" data-i18n="about.cEn">'English'</span>, <span class="s">'Afrikaans'</span>],
+  <span class="p">passions</span>: [
+    <span class="s" data-i18n="about.cP1">'websites'</span>, <span class="s" data-i18n="about.cP2">'digital art'</span>,
+    <span class="s" data-i18n="about.cP3">'3D models'</span>, <span class="s" data-i18n="about.cP4">'game design'</span>
   ]
 };</pre>
+          </div>
+
+          <div class="stack-wrap" data-anim="up">
+            <div class="stack" id="stack">
+              <figure class="snap" data-pos="0" style="--accent: var(--pink); --accent-2: var(--yellow)">
+                <div class="ph"><img src="Images/williampp.jpg" alt="William Sham" loading="lazy" decoding="async" onerror="this.remove()"></div>
+                <figcaption data-i18n="about.snap1">Hi, that's me</figcaption>
+              </figure>
+              <figure class="snap" data-pos="1" style="--accent: var(--blue); --accent-2: var(--yellow)">
+                <div class="ph"><img src="Images/about-desk.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"></div>
+                <figcaption data-i18n="about.snap2">Where the work happens</figcaption>
+              </figure>
+              <figure class="snap" data-pos="2" style="--accent: var(--mint); --accent-2: var(--pink)">
+                <div class="ph"><img src="Images/about-weekend.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"></div>
+                <figcaption data-i18n="about.snap3">Weekend mode</figcaption>
+              </figure>
+            </div>
+            <button class="ghost" id="shuffle" type="button"><span aria-hidden="true">↻</span><span data-i18n="about.shuffle">Shuffle the photos</span></button>
+          </div>
         </div>
       </section>
     </div>
@@ -261,11 +273,25 @@
       </section>
     </div>
 
+    <div class="tinted-2">
+      <div class="shell">
+        <section class="sec">
+          <div class="sec-head">
+            <div>
+              <span class="label"><b>[04]</b> <span data-i18n="after.eyebrow">After hours</span></span>
+              <h2 data-split data-i18n="after.title">What I make for fun</h2>
+            </div>
+          </div>
+          <div class="gallery" id="after"></div>
+        </section>
+      </div>
+    </div>
+
     <div class="shell block">
       <div class="band" style="--accent: var(--blue)">
         <div class="band-fx" aria-hidden="true"></div>
         <div>
-          <h2 data-split data-i18n="band.aboutTitle">Want the detail behind any of this?</h2>
+          <h2 data-split data-i18n="band.aboutTitle">Want the story behind any of this?</h2>
           <p data-i18n="band.aboutText">Architecture, trade-offs and the parts that went sideways — happy to walk you through it.</p>
         </div>
         <a class="btn" href="#contact" data-i18n="cta.ask">Ask me →</a>
@@ -331,7 +357,7 @@
           <span class="label" data-i18n="live.eyebrow">Live preview</span>
         </div>
         <div class="embed-intro" style="--accent: var(--blue)">
-          <p class="prose" data-i18n="live.copy2">Williams OS, running live in the frame below at whatever width it is given. Open it full size for the real thing.</p>
+          <p class="prose" data-i18n="live.copy2">The real site, running live in the frame below. Open it full size for the proper experience.</p>
         </div>
         <div class="embed-host" data-embed="https://williamsham90.github.io/Portfolio-2/" data-label="Williams OS"></div>
       </section>
@@ -339,7 +365,7 @@
       <section class="sec">
         <div class="subhead">
           <h3 data-i18n="play.pages">Pages</h3>
-          <span class="label">08</span>
+          <span class="label">07</span>
         </div>
         <div class="cards" id="pages-grid"></div>
       </section>
@@ -350,7 +376,7 @@
         <section class="sec">
           <div class="subhead">
             <h3 data-i18n="play.games">Games</h3>
-            <span class="label">07</span>
+            <span class="label">08</span>
           </div>
           <div class="cards" id="games-grid"></div>
         </section>
@@ -364,7 +390,7 @@
           <h2 data-split data-i18n="band.playTitle">Most of these started as a bug</h2>
           <p data-i18n="band.playText">If you want any of them built properly, or you have a stranger idea, I'm listening.</p>
         </div>
-        <a class="btn" href="#contact" data-i18n="cta.idea">Tell me the idea →</a>
+        <a class="btn" href="#contact" data-i18n="cta.idea">Tell me your idea →</a>
       </div>
     </div>
   </section>
@@ -390,26 +416,26 @@
               <div class="two">
                 <div class="field">
                   <label for="c-name" data-i18n="form.name">Your name</label>
-                  <input type="text" id="c-name" name="name" autocomplete="name" placeholder="Thandi Nkosi">
+                  <input type="text" id="c-name" name="name" autocomplete="name" placeholder="William Sham">
                   <span class="err" id="e-name"></span>
                 </div>
                 <div class="field">
                   <label for="c-email" data-i18n="form.email">Email</label>
-                  <input type="email" id="c-email" name="email" autocomplete="email" placeholder="you@company.com">
+                  <input type="email" id="c-email" name="email" autocomplete="email" placeholder="you@company.com" data-i18n-ph="form.phEmail">
                   <span class="err" id="e-email"></span>
                 </div>
               </div>
               <div class="field">
                 <label for="c-subject" data-i18n="form.subject">Subject</label>
-                <input type="text" id="c-subject" name="subject" placeholder="New website for…">
+                <input type="text" id="c-subject" name="subject" placeholder="New website for…" data-i18n-ph="form.phSubject">
               </div>
               <div class="field">
                 <label for="c-msg" data-i18n="form.msg">What are you trying to build?</label>
-                <textarea id="c-msg" name="message" placeholder="A sentence or ten. Deadlines, constraints and existing code are all useful."></textarea>
+                <textarea id="c-msg" name="message" placeholder="A sentence or ten. Deadlines, limits and any existing code all help." data-i18n-ph="form.phMsg"></textarea>
                 <span class="err" id="e-msg"></span>
               </div>
               <button class="btn btn-accent" type="submit" data-i18n="form.send">Send message →</button>
-              <p class="mono" style="margin-top:16px; color:var(--ink-faint)" data-i18n="form.note">Posts to your FormSubmit endpoint once this is on your own host.</p>
+              <p class="mono" style="margin-top:16px; color:var(--ink-faint)" data-i18n="form.note">I usually reply within one working day.</p>
             </form>
           </div>
 
@@ -466,8 +492,8 @@
 <div id="toast" role="status" aria-live="polite"></div>
 <button id="to-top" class="ghost" type="button" aria-label="Back to top">↑</button>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="Vendor/gsap.min.js"></script>
+<script src="Vendor/ScrollTrigger.min.js"></script>
 <script src="index.js"></script>
 </body>
 </html>
