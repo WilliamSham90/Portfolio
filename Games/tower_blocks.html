@@ -2,43 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Tower Blocks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tower Blocks · William Sham</title>
+    <meta name="description" content="Stack the sliding blocks as high as you can. Perfect drops keep the block full size.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E🧱%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/tower_blocks.css">
 </head>
 <body>
+    <a class="back-btn" href="../index.html#play">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Back</span>
+    </a>
+
     <div id="container">
-        <div id="game"></div>
-        <div id="score">0</div>
-        <div id="instructions">Tap or press spacebar to place the block</div>
-        
-        <!-- Back Button -->
-        <button class="back-btn" onclick="window.location.href='https://williamsham90.github.io/Portfolio/'" aria-label="Go back to portfolio">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            <span>Back</span>
-        </button>
-        
-        <div class="game-over">
-            <h2>Game Over</h2>
-            <p>You did great, you're the best.</p>
-            <p>Tap or press spacebar to start again</p>
+        <div id="game" aria-label="Tower Blocks"></div>
+        <div id="score" aria-live="polite">0</div>
+        <div id="perfect" aria-hidden="true"></div>
+        <div id="instructions">Tap or press Space to drop the block</div>
+
+        <div class="game-over" role="status">
+            <h2>Game over</h2>
+            <p id="final-text"></p>
+            <p>Tap or press Space to play again</p>
         </div>
         <div class="game-ready">
-            <div id="start-button">Start</div>
-            <div></div>
+            <button id="start-button" type="button">Start</button>
+            <p class="best" id="best-text"></p>
         </div>
     </div>
-    
-    <!-- Three.js -->
+
+    <!-- three.js r83 (the API this game is written against) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.min.js"></script>
-    <!-- GSAP TweenMax -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
-    <!-- Game Script -->
+    <!-- GSAP 3, shared with the portfolio (already cached from the main site) -->
+    <script src="../Vendor/gsap.min.js"></script>
     <script src="js/tower_blocks.js"></script>
 </body>
 </html>

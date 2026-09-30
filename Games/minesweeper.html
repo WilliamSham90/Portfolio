@@ -2,49 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Minesweeper</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Minesweeper · William Sham</title>
+    <meta name="description" content="Classic Minesweeper with three difficulty levels, chording and best times.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E💣%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="css/minesweeper.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="game-container">
-        <!-- Back Button -->
-        <button class="back-btn" onclick="window.location.href='https://williamsham90.github.io/Portfolio/'" aria-label="Go back to portfolio">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            <span>Back</span>
-        </button>
-        
-        <div class="action-selector">
-            <button class="mode-btn active" id="modeMine" aria-label="Mine mode" title="Reveal cells">⛏</button>
-            <button class="mode-btn" id="modeFlag" aria-label="Flag mode" title="Place flags">🚩</button>
-        </div>
-        
-        <div class="grid" id="grid"></div>
-        
-        <div class="infos">
-            <div class="counter" id="counter">
-                <span class="face" id="face">🤔</span>
-                <span class="mine-count" id="mineCount">10</span>
+    <a class="back-btn" href="../index.html#play">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Back</span>
+    </a>
+
+    <main class="game-container">
+        <div class="toolbar">
+            <div class="levels" role="group" aria-label="Difficulty">
+                <button class="level-btn" type="button" data-level="easy" aria-pressed="true">Easy</button>
+                <button class="level-btn" type="button" data-level="medium" aria-pressed="false">Medium</button>
+                <button class="level-btn" type="button" data-level="hard" aria-pressed="false">Hard</button>
             </div>
-            <button class="restart-btn" id="restartBtn" aria-label="Restart game">🔄</button>
-            <div class="timer" id="timer">
-                <span class="digits" id="timerDisplay">00:00</span>
+            <div class="action-selector" role="group" aria-label="What a tap does">
+                <button class="mode-btn" type="button" id="modeMine" aria-pressed="true" aria-label="Tap reveals" title="Tap reveals">⛏</button>
+                <button class="mode-btn" type="button" id="modeFlag" aria-pressed="false" aria-label="Tap flags" title="Tap flags (F)">🚩</button>
             </div>
         </div>
-        
-        <div class="overlay" id="overlay">
-            <div class="overlay-content">
-                <div class="overlay-message" id="overlayMessage"></div>
-                <button class="overlay-btn" id="overlayBtn">Click to play again</button>
+
+        <div class="board-frame">
+            <div class="infos">
+                <div class="led" title="Mines left"><span class="sr-only">Mines left: </span><span id="mineCount">010</span></div>
+                <button class="face" type="button" id="face" aria-label="New game (F2)">🙂</button>
+                <div class="led" title="Time"><span class="sr-only">Seconds: </span><span id="timerDisplay">000</span></div>
+            </div>
+            <div class="grid" id="grid" aria-label="Minefield. Arrow keys move, Enter reveals, F flags."></div>
+
+            <div class="overlay" id="overlay" hidden>
+                <div class="overlay-content" role="status">
+                    <p class="overlay-title" id="overlayTitle"></p>
+                    <p class="overlay-text" id="overlayText"></p>
+                    <button class="overlay-btn" type="button" id="overlayBtn">Play again</button>
+                </div>
             </div>
         </div>
-    </div>
-    
+
+        <p class="help">Tap to reveal · long-press or right-click to flag · tap a number to clear around it</p>
+    </main>
+
     <script src="js/minesweeper.js"></script>
 </body>
 </html>

@@ -1,482 +1,352 @@
 /*================================================
-  Minesweeper - JavaScript
-  Mobile-friendly version with touch support
+  Minesweeper
+  First click is always safe. Right-click / long-press flags, clicking
+  a number whose flags are all placed clears its neighbours (chording).
+  Best time per difficulty is kept in localStorage.
 ================================================*/
 
-(function() {
+(function () {
     'use strict';
 
-    // Game configuration
-    const CONFIG = {
-        rows: 9,
-        cols: 9,
-        mines: 10
+    const LEVELS = {
+        easy:   { rows: 9,  cols: 9,  mines: 10 },
+        medium: { rows: 16, cols: 16, mines: 40 },
+        hard:   { rows: 16, cols: 30, mines: 99 }
     };
+    const FACE = { idle: '🙂', press: '😮', win: '😎', dead: '😵' };
+    const LONG_PRESS_MS = 400;
 
-    // Game state
-    let gameState = {
-        board: [],
-        revealed: [],
-        flagged: [],
-        mines: [],
-        gameOver: false,
-        gameWon: false,
-        gameStarted: false,
-        flagMode: false,
-        minesRemaining: CONFIG.mines,
-        timerInterval: null,
-        seconds: 0
-    };
+    const $ = id => document.getElementById(id);
+    const grid = $('grid');
+    const face = $('face');
+    const mineCountEl = $('mineCount');
+    const timerEl = $('timerDisplay');
+    const overlay = $('overlay');
+    const modeMine = $('modeMine');
+    const modeFlag = $('modeFlag');
 
-    // DOM Elements
-    const elements = {
-        grid: document.getElementById('grid'),
-        mineCount: document.getElementById('mineCount'),
-        face: document.getElementById('face'),
-        timerDisplay: document.getElementById('timerDisplay'),
-        overlay: document.getElementById('overlay'),
-        overlayMessage: document.getElementById('overlayMessage'),
-        overlayBtn: document.getElementById('overlayBtn'),
-        modeMine: document.getElementById('modeMine'),
-        modeFlag: document.getElementById('modeFlag'),
-        restartBtn: document.getElementById('restartBtn')
-    };
-
-    // Faces for different states
-    const FACES = {
-        normal: '🤔',
-        nervous: '😓',
-        progress1: '😐',
-        progress2: '😏',
-        progress3: '🙂',
-        progress4: '😊',
-        progress5: '😃',
-        almostThere: '🤓',
-        confused: '😕',
-        annoyed: '😒',
-        angry: '😠',
-        dead: '😣',
-        win: '😎'
-    };
-
-    /*================================================
-      Initialization
-    ================================================*/
-
-    function init() {
-        createBoard();
-        bindEvents();
-        updateDisplay();
+    function store(key, value) {
+        try {
+            if (value === undefined) return localStorage.getItem(key);
+            localStorage.setItem(key, value);
+        } catch (e) { return null; }
     }
 
-    function createBoard() {
-        // Reset game state
-        gameState = {
-            board: [],
-            revealed: [],
-            flagged: [],
-            mines: [],
-            gameOver: false,
-            gameWon: false,
-            gameStarted: false,
-            flagMode: false,
-            minesRemaining: CONFIG.mines,
-            timerInterval: null,
-            seconds: 0
-        };
+    let level = LEVELS[store('ms-level')] ? store('ms-level') : 'easy';
+    let rows, cols, mines, board, revealed, flagged, cells;
+    let safeLeft, flagsPlaced, started, over, flagMode = false;
+    let startTime = 0, timerId = null, focusIndex = 0;
 
-        // Clear timer
-        if (gameState.timerInterval) {
-            clearInterval(gameState.timerInterval);
-        }
+    /*================ Board ================*/
 
-        // Initialize arrays
-        for (let i = 0; i < CONFIG.rows * CONFIG.cols; i++) {
-            gameState.board[i] = 0;
-            gameState.revealed[i] = false;
-            gameState.flagged[i] = false;
-        }
+    function newGame() {
+        const L = LEVELS[level];
+        // the wide Hard board is turned on its side for portrait screens
+        const turn = L.cols > L.rows && innerHeight > innerWidth;
+        rows = turn ? L.cols : L.rows;
+        cols = turn ? L.rows : L.cols;
+        mines = L.mines;
 
-        // Create grid HTML
-        elements.grid.innerHTML = '';
-        elements.grid.style.gridTemplateColumns = `repeat(${CONFIG.cols}, 1fr)`;
-        elements.grid.style.width = `${CONFIG.cols * 24}px`;
+        stopTimer();
+        const total = rows * cols;
+        board = new Int8Array(total);      // -1 mine, else neighbour count
+        revealed = new Uint8Array(total);
+        flagged = new Uint8Array(total);
+        safeLeft = total - mines;
+        flagsPlaced = 0;
+        started = false;
+        over = false;
+        focusIndex = 0;
 
-        for (let i = 0; i < CONFIG.rows * CONFIG.cols; i++) {
-            const cell = document.createElement('div');
+        grid.style.setProperty('--cols', cols);
+        grid.style.setProperty('--rows', rows);
+        const frag = document.createDocumentFragment();
+        cells = [];
+        for (let i = 0; i < total; i++) {
+            const cell = document.createElement('button');
+            cell.type = 'button';
             cell.className = 'cell';
-            cell.dataset.index = i;
-            
-            const content = document.createElement('span');
-            content.className = 'cell-content';
-            cell.appendChild(content);
-            
-            elements.grid.appendChild(cell);
+            cell.dataset.i = i;
+            cell.tabIndex = i === 0 ? 0 : -1;
+            cells.push(cell);
+            frag.appendChild(cell);
         }
+        grid.replaceChildren(frag);
+        cells.forEach((c, i) => label(i));
 
-        // Reset UI
-        elements.overlay.classList.remove('visible', 'victory');
-        elements.face.textContent = FACES.normal;
-        elements.mineCount.textContent = CONFIG.mines;
-        elements.timerDisplay.textContent = '00:00';
-        
-        // Reset mode buttons
-        elements.modeMine.classList.add('active');
-        elements.modeFlag.classList.remove('active');
-        gameState.flagMode = false;
+        face.textContent = FACE.idle;
+        timerEl.textContent = '000';
+        updateCounter();
+        overlay.hidden = true;
+        document.querySelectorAll('.level-btn').forEach(b =>
+            b.setAttribute('aria-pressed', String(b.dataset.level === level)));
     }
 
-    function placeMines(excludeIndex) {
-        // Place mines randomly, excluding the first clicked cell and its neighbors
-        const excludeSet = new Set([excludeIndex, ...getNeighbors(excludeIndex)]);
-        
-        let placed = 0;
-        while (placed < CONFIG.mines) {
-            const index = Math.floor(Math.random() * CONFIG.rows * CONFIG.cols);
-            if (!gameState.mines.includes(index) && !excludeSet.has(index)) {
-                gameState.mines.push(index);
-                gameState.board[index] = -1; // -1 represents a mine
-                placed++;
-            }
-        }
-
-        // Calculate neighbor counts
-        for (let i = 0; i < CONFIG.rows * CONFIG.cols; i++) {
-            if (gameState.board[i] !== -1) {
-                const neighbors = getNeighbors(i);
-                let count = 0;
-                neighbors.forEach(n => {
-                    if (gameState.board[n] === -1) count++;
-                });
-                gameState.board[i] = count;
-            }
-        }
-    }
-
-    function getNeighbors(index) {
-        const neighbors = [];
-        const row = Math.floor(index / CONFIG.cols);
-        const col = index % CONFIG.cols;
-
+    function neighbors(i) {
+        const r = Math.floor(i / cols), c = i % cols, out = [];
         for (let dr = -1; dr <= 1; dr++) {
             for (let dc = -1; dc <= 1; dc++) {
-                if (dr === 0 && dc === 0) continue;
-                const newRow = row + dr;
-                const newCol = col + dc;
-                if (newRow >= 0 && newRow < CONFIG.rows && newCol >= 0 && newCol < CONFIG.cols) {
-                    neighbors.push(newRow * CONFIG.cols + newCol);
-                }
+                const nr = r + dr, nc = c + dc;
+                if ((dr || dc) && nr >= 0 && nr < rows && nc >= 0 && nc < cols) out.push(nr * cols + nc);
             }
         }
-        return neighbors;
+        return out;
     }
 
-    /*================================================
-      Event Handling
-    ================================================*/
-
-    function bindEvents() {
-        // Grid events
-        elements.grid.addEventListener('click', handleCellClick);
-        elements.grid.addEventListener('contextmenu', handleRightClick);
-        
-        // Touch events for long press (flag on mobile)
-        let longPressTimer = null;
-        let touchStartTime = 0;
-        let touchMoved = false;
-
-        elements.grid.addEventListener('touchstart', function(e) {
-            const cell = e.target.closest('.cell');
-            if (!cell) return;
-            
-            touchStartTime = Date.now();
-            touchMoved = false;
-            
-            // Long press for flagging (if not in flag mode)
-            if (!gameState.flagMode) {
-                longPressTimer = setTimeout(function() {
-                    if (!touchMoved) {
-                        e.preventDefault();
-                        const index = parseInt(cell.dataset.index);
-                        toggleFlag(index);
-                        // Vibrate on flag if supported
-                        if (navigator.vibrate) {
-                            navigator.vibrate(50);
-                        }
-                    }
-                }, 500);
-            }
-        }, { passive: false });
-
-        elements.grid.addEventListener('touchmove', function() {
-            touchMoved = true;
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
-            }
-        });
-
-        elements.grid.addEventListener('touchend', function(e) {
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
-            }
-            
-            // Short tap - handle normally via click event
-            const touchDuration = Date.now() - touchStartTime;
-            if (touchDuration >= 500 && !touchMoved && !gameState.flagMode) {
-                e.preventDefault(); // Prevent click from firing after long press flag
-            }
-        });
-
-        // Mode buttons
-        elements.modeMine.addEventListener('click', function() {
-            gameState.flagMode = false;
-            elements.modeMine.classList.add('active');
-            elements.modeFlag.classList.remove('active');
-        });
-
-        elements.modeFlag.addEventListener('click', function() {
-            gameState.flagMode = true;
-            elements.modeFlag.classList.add('active');
-            elements.modeMine.classList.remove('active');
-        });
-
-        // Restart button
-        elements.restartBtn.addEventListener('click', createBoard);
-        elements.overlayBtn.addEventListener('click', createBoard);
-
-        // Keyboard shortcut for flag mode
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'f' || e.key === 'F') {
-                gameState.flagMode = !gameState.flagMode;
-                elements.modeMine.classList.toggle('active', !gameState.flagMode);
-                elements.modeFlag.classList.toggle('active', gameState.flagMode);
-            }
-        });
-
-        // Mouse down face change
-        elements.grid.addEventListener('mousedown', function(e) {
-            if (!gameState.gameOver && e.button === 0 && !gameState.flagMode) {
-                elements.face.textContent = FACES.nervous;
-            }
-        });
-
-        elements.grid.addEventListener('mouseup', function() {
-            if (!gameState.gameOver) {
-                updateFace();
-            }
-        });
-
-        elements.grid.addEventListener('mouseleave', function() {
-            if (!gameState.gameOver) {
-                updateFace();
-            }
-        });
-    }
-
-    function handleCellClick(e) {
-        const cell = e.target.closest('.cell');
-        if (!cell || gameState.gameOver) return;
-
-        const index = parseInt(cell.dataset.index);
-
-        if (gameState.flagMode) {
-            toggleFlag(index);
-        } else {
-            revealCell(index);
+    // Mines avoid the first click and its neighbours, so it always opens an area.
+    function placeMines(safe) {
+        const banned = new Set([safe, ...neighbors(safe)]);
+        const pool = [];
+        for (let i = 0; i < board.length; i++) if (!banned.has(i)) pool.push(i);
+        for (let m = 0; m < mines; m++) {
+            const r = m + Math.floor(Math.random() * (pool.length - m));
+            [pool[m], pool[r]] = [pool[r], pool[m]];
+            board[pool[m]] = -1;
+        }
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] !== -1) board[i] = neighbors(i).reduce((n, k) => n + (board[k] === -1), 0);
         }
     }
 
-    function handleRightClick(e) {
-        e.preventDefault();
-        const cell = e.target.closest('.cell');
-        if (!cell || gameState.gameOver) return;
+    /*================ Moves ================*/
 
-        const index = parseInt(cell.dataset.index);
-        toggleFlag(index);
-    }
-
-    /*================================================
-      Game Logic
-    ================================================*/
-
-    function revealCell(index) {
-        if (gameState.revealed[index] || gameState.flagged[index] || gameState.gameOver) {
-            return;
-        }
-
-        // First click - place mines and start timer
-        if (!gameState.gameStarted) {
-            gameState.gameStarted = true;
-            placeMines(index);
+    function reveal(i) {
+        if (over || revealed[i] || flagged[i]) return;
+        if (!started) {
+            started = true;
+            placeMines(i);
             startTimer();
         }
+        if (board[i] === -1) {
+            cells[i].classList.add('boom');
+            return lose();
+        }
+        // flood fill with a stack, not recursion
+        const stack = [i];
+        while (stack.length) {
+            const j = stack.pop();
+            if (revealed[j] || flagged[j]) continue;
+            revealed[j] = 1;
+            safeLeft--;
+            paint(j);
+            if (board[j] === 0) neighbors(j).forEach(k => { if (!revealed[k]) stack.push(k); });
+        }
+        if (safeLeft === 0) win();
+    }
 
-        gameState.revealed[index] = true;
-        const cell = elements.grid.children[index];
+    function chord(i) {
+        const around = neighbors(i);
+        if (board[i] <= 0 || around.filter(k => flagged[k]).length !== board[i]) return;
+        for (const k of around) {
+            if (!flagged[k] && !revealed[k]) reveal(k);
+            if (over) return;
+        }
+    }
+
+    function toggleFlag(i) {
+        if (over || revealed[i]) return;
+        flagged[i] ^= 1;
+        flagsPlaced += flagged[i] ? 1 : -1;
+        cells[i].classList.toggle('flagged', !!flagged[i]);
+        label(i);
+        updateCounter();
+    }
+
+    function act(i) {
+        if (revealed[i]) chord(i);
+        else if (flagMode) toggleFlag(i);
+        else reveal(i);
+    }
+
+    /*================ Painting ================*/
+
+    function paint(i) {
+        const cell = cells[i];
         cell.classList.add('revealed');
-
-        // Hit a mine
-        if (gameState.board[index] === -1) {
-            cell.classList.add('mine');
-            gameOver(false);
-            return;
+        if (board[i] > 0) {
+            cell.dataset.n = board[i];
+            cell.textContent = board[i];
         }
-
-        // Show number or reveal neighbors if empty
-        const value = gameState.board[index];
-        if (value > 0) {
-            cell.dataset.neighbors = value;
-            cell.querySelector('.cell-content').textContent = value;
-        } else {
-            // Flood fill for empty cells
-            const neighbors = getNeighbors(index);
-            neighbors.forEach(n => revealCell(n));
-        }
-
-        // Check for win
-        checkWin();
+        label(i);
     }
 
-    function toggleFlag(index) {
-        if (gameState.revealed[index] || gameState.gameOver) return;
-
-        const cell = elements.grid.children[index];
-        
-        if (gameState.flagged[index]) {
-            gameState.flagged[index] = false;
-            cell.classList.remove('flagged');
-            gameState.minesRemaining++;
-        } else {
-            gameState.flagged[index] = true;
-            cell.classList.add('flagged');
-            gameState.minesRemaining--;
-        }
-
-        updateDisplay();
-        updateFace();
-        checkWin();
+    function label(i) {
+        const pos = 'Row ' + (Math.floor(i / cols) + 1) + ', column ' + (i % cols + 1) + ': ';
+        let state = 'hidden';
+        if (flagged[i]) state = 'flagged';
+        else if (revealed[i]) state = board[i] > 0 ? board[i] + ' nearby' : 'empty';
+        cells[i].setAttribute('aria-label', pos + state);
     }
 
-    function checkWin() {
-        // Win condition: all non-mine cells revealed
-        let allRevealed = true;
-        for (let i = 0; i < CONFIG.rows * CONFIG.cols; i++) {
-            if (gameState.board[i] !== -1 && !gameState.revealed[i]) {
-                allRevealed = false;
-                break;
-            }
-        }
-
-        if (allRevealed) {
-            gameOver(true);
-        }
+    function updateCounter() {
+        const left = mines - flagsPlaced;
+        mineCountEl.textContent = (left < 0 ? '-' : '') + String(Math.abs(left)).padStart(left < 0 ? 2 : 3, '0');
     }
 
-    function gameOver(won) {
-        gameState.gameOver = true;
-        gameState.gameWon = won;
-        
-        // Stop timer
-        if (gameState.timerInterval) {
-            clearInterval(gameState.timerInterval);
-        }
+    /*================ Timer ================*/
 
-        if (won) {
-            // Flag all remaining mines
-            gameState.mines.forEach(index => {
-                if (!gameState.flagged[index]) {
-                    gameState.flagged[index] = true;
-                    elements.grid.children[index].classList.add('flagged');
-                }
-            });
-            gameState.minesRemaining = 0;
-            updateDisplay();
-            
-            elements.face.textContent = FACES.win;
-            elements.overlay.classList.add('visible', 'victory');
-            elements.overlayMessage.innerHTML = '👌👀✔💯💯💯<br>You win!';
-        } else {
-            // Reveal all mines
-            gameState.mines.forEach(index => {
-                const cell = elements.grid.children[index];
-                cell.classList.add('revealed', 'mine');
-            });
-            
-            // Show wrongly placed flags
-            for (let i = 0; i < CONFIG.rows * CONFIG.cols; i++) {
-                if (gameState.flagged[i] && !gameState.mines.includes(i)) {
-                    elements.grid.children[i].classList.add('wrong-flag');
-                }
-            }
-            
-            elements.face.textContent = FACES.dead;
-            elements.overlay.classList.add('visible');
-            elements.overlayMessage.innerHTML = 'Ooohhh 🙁<br>Game Over';
-        }
-    }
-
-    /*================================================
-      UI Updates
-    ================================================*/
-
-    function updateDisplay() {
-        elements.mineCount.textContent = Math.max(0, gameState.minesRemaining);
-    }
-
-    function updateFace() {
-        if (gameState.gameOver) return;
-        
-        const flaggedCount = gameState.flagged.filter(f => f).length;
-        const ratio = flaggedCount / CONFIG.mines;
-        
-        if (flaggedCount === 0) {
-            elements.face.textContent = FACES.normal;
-        } else if (ratio < 0.33) {
-            elements.face.textContent = FACES.progress1;
-        } else if (ratio < 0.5) {
-            elements.face.textContent = FACES.progress2;
-        } else if (ratio < 0.66) {
-            elements.face.textContent = FACES.progress3;
-        } else if (ratio < 0.75) {
-            elements.face.textContent = FACES.progress4;
-        } else if (ratio < 1) {
-            elements.face.textContent = FACES.progress5;
-        } else if (flaggedCount === CONFIG.mines - 1) {
-            elements.face.textContent = FACES.almostThere;
-        } else if (flaggedCount === CONFIG.mines) {
-            elements.face.textContent = FACES.confused;
-        } else if (flaggedCount > CONFIG.mines) {
-            elements.face.textContent = FACES.annoyed;
-        }
-    }
-
+    // Elapsed time comes from a start timestamp, so the display can't drift
+    // and a restart can never leave an old interval running.
     function startTimer() {
-        gameState.seconds = 0;
-        gameState.timerInterval = setInterval(function() {
-            gameState.seconds++;
-            const minutes = Math.floor(gameState.seconds / 60);
-            const secs = gameState.seconds % 60;
-            elements.timerDisplay.textContent = 
-                String(minutes).padStart(2, '0') + ':' + 
-                String(secs).padStart(2, '0');
-            
-            // Cap at 99:59
-            if (gameState.seconds >= 5999) {
-                clearInterval(gameState.timerInterval);
-            }
-        }, 1000);
+        startTime = performance.now();
+        timerId = setInterval(() => {
+            timerEl.textContent = String(Math.min(999, Math.floor(elapsed()))).padStart(3, '0');
+        }, 250);
+    }
+    function stopTimer() {
+        clearInterval(timerId);
+        timerId = null;
+    }
+    const elapsed = () => (performance.now() - startTime) / 1000;
+
+    /*================ End of game ================*/
+
+    function win() {
+        over = true;
+        stopTimer();
+        const time = elapsed();
+        board.forEach((v, i) => {
+            if (v === -1 && !flagged[i]) { flagged[i] = 1; cells[i].classList.add('flagged'); }
+        });
+        flagsPlaced = mines;
+        updateCounter();
+        face.textContent = FACE.win;
+
+        const key = 'ms-best-' + level;
+        const best = parseFloat(store(key));
+        const isBest = !(best <= time);
+        if (isBest) store(key, time.toFixed(1));
+        showOverlay('You cleared it! 🎉',
+            'Time: ' + time.toFixed(1) + 's' + (isBest ? ' · New best!' : ' · Best: ' + best.toFixed(1) + 's'),
+            true);
     }
 
-    /*================================================
-      Initialize on DOM Ready
-    ================================================*/
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+    function lose() {
+        over = true;
+        stopTimer();
+        board.forEach((v, i) => {
+            if (v === -1 && !flagged[i]) cells[i].classList.add('revealed', 'mine');
+            if (v !== -1 && flagged[i]) cells[i].classList.add('wrong-flag');
+        });
+        face.textContent = FACE.dead;
+        showOverlay('Boom! 💥', 'That was a mine. Have another go?', false);
     }
 
+    function showOverlay(title, text, won) {
+        $('overlayTitle').textContent = title;
+        $('overlayText').textContent = text;
+        overlay.classList.toggle('victory', won);
+        // a beat so the board can be seen before the message covers it
+        setTimeout(() => {
+            if (!over) return;
+            overlay.hidden = false;
+            $('overlayBtn').focus({ preventScroll: true });
+        }, won ? 400 : 900);
+    }
+
+    /*================ Input ================*/
+
+    function setFlagMode(on) {
+        flagMode = on;
+        modeMine.setAttribute('aria-pressed', String(!on));
+        modeFlag.setAttribute('aria-pressed', String(on));
+    }
+
+    function focusCell(j) {
+        cells[focusIndex].tabIndex = -1;
+        focusIndex = j;
+        cells[j].tabIndex = 0;
+        cells[j].focus();
+    }
+
+    const cellIndex = e => {
+        const cell = e.target.closest('.cell');
+        return cell ? Number(cell.dataset.i) : -1;
+    };
+
+    // Touch: a long press flags. The click that follows it is swallowed.
+    let pressTimer = null, suppressClick = false, lastPointer = 'mouse', pressX = 0, pressY = 0;
+
+    grid.addEventListener('pointerdown', e => {
+        lastPointer = e.pointerType;
+        suppressClick = false; // in case a long press never produced its click
+        pressX = e.clientX;
+        pressY = e.clientY;
+        const i = cellIndex(e);
+        if (i < 0 || over || e.button !== 0) return;
+        if (!revealed[i]) face.textContent = FACE.press;
+        if (e.pointerType !== 'mouse') {
+            clearTimeout(pressTimer);
+            pressTimer = setTimeout(() => {
+                suppressClick = true;
+                toggleFlag(i);
+                face.textContent = FACE.idle;
+                if (navigator.vibrate) navigator.vibrate(30);
+            }, LONG_PRESS_MS);
+        }
+    });
+
+    function endPress() {
+        clearTimeout(pressTimer);
+        if (!over) face.textContent = FACE.idle;
+    }
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(type => grid.addEventListener(type, endPress));
+    // a finger that drifts is scrolling, not long-pressing
+    grid.addEventListener('pointermove', e => {
+        if (Math.hypot(e.clientX - pressX, e.clientY - pressY) > 10) clearTimeout(pressTimer);
+    });
+
+    grid.addEventListener('click', e => {
+        if (suppressClick) { suppressClick = false; return; }
+        const i = cellIndex(e);
+        if (i >= 0 && !over) act(i);
+    });
+
+    grid.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        // on touch the long-press timer already handled it
+        const i = cellIndex(e);
+        if (i >= 0 && lastPointer === 'mouse') toggleFlag(i);
+    });
+
+    grid.addEventListener('keydown', e => {
+        const i = cellIndex(e);
+        if (i < 0) return;
+        const c = i % cols;
+        const moves = {
+            ArrowUp: i - cols,
+            ArrowDown: i + cols,
+            ArrowLeft: c > 0 ? i - 1 : -1,
+            ArrowRight: c < cols - 1 ? i + 1 : -1
+        };
+        if (e.key in moves) {
+            e.preventDefault();
+            const j = moves[e.key];
+            if (j >= 0 && j < cells.length) focusCell(j);
+        } else if (e.key === 'f' || e.key === 'F') {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleFlag(i);
+        }
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'F2') { e.preventDefault(); newGame(); }
+        else if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey) setFlagMode(!flagMode);
+    });
+
+    modeMine.addEventListener('click', () => setFlagMode(false));
+    modeFlag.addEventListener('click', () => setFlagMode(true));
+    face.addEventListener('click', newGame);
+    $('overlayBtn').addEventListener('click', () => { newGame(); cells[0].focus(); });
+
+    document.querySelector('.levels').addEventListener('click', e => {
+        const btn = e.target.closest('.level-btn');
+        if (!btn) return;
+        level = btn.dataset.level;
+        store('ms-level', level);
+        newGame();
+    });
+
+    newGame();
 })();

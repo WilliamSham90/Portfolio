@@ -3,8 +3,6 @@
   Converted from SCSS, Mobile-friendly
 ================================================*/
 
-@import url('https://fonts.googleapis.com/css?family=Comfortaa');
-
 :root {
     --color-dark: #333344;
 }
@@ -21,10 +19,11 @@ html, body {
     height: 100%;
     width: 100%;
     position: relative;
-    font-family: 'Comfortaa', cursive;
-    touch-action: manipulation;
+    font-family: 'Comfortaa', system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
+
+:focus-visible { outline: 3px solid var(--color-dark); outline-offset: 4px; }
 
 /*================================================
   Container
@@ -34,6 +33,9 @@ html, body {
     width: 100%;
     height: 100%;
     position: relative;
+    touch-action: none; /* taps drop blocks; no panning or zooming the scene */
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 /*================================================
@@ -166,6 +168,7 @@ html, body {
 }
 
 #start-button {
+    font-family: inherit;
     transition: opacity 0.5s ease, transform 0.5s ease;
     opacity: 0;
     transform: translateY(-50px);
@@ -191,6 +194,45 @@ html, body {
 #container.ready .game-ready #start-button {
     opacity: 1;
     transform: translateY(0);
+}
+
+.game-ready .best {
+    color: var(--color-dark);
+    font-size: 18px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+#container.ready .game-ready .best {
+    opacity: .75;
+}
+
+/*================================================
+  Perfect drop pop-up
+================================================*/
+
+#perfect {
+    position: absolute;
+    top: 30vh;
+    width: 100%;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-dark);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#perfect.pop {
+    animation: perfect 0.9s ease-out;
+}
+
+@keyframes perfect {
+    0% { opacity: 0; transform: translateY(10px) scale(.8); }
+    20% { opacity: 1; transform: translateY(0) scale(1.1); }
+    70% { opacity: 1; transform: translateY(-6px) scale(1); }
+    100% { opacity: 0; transform: translateY(-20px) scale(1); }
 }
 
 /*================================================
@@ -268,8 +310,10 @@ html, body {
 
 .back-btn {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    top: 12px;
+    left: 12px;
+    min-height: 44px;
+    text-decoration: none;
     z-index: 200;
     display: flex;
     align-items: center;
@@ -352,8 +396,8 @@ html, body {
     .back-btn {
         padding: 10px 16px;
         font-size: 13px;
-        bottom: 15px;
-        left: 15px;
+        top: 12px;
+        left: 12px;
     }
     
     .back-btn svg {
@@ -366,7 +410,7 @@ html, body {
     .back-btn {
         padding: 8px 14px;
         font-size: 12px;
-        bottom: 10px;
+        top: 10px;
         left: 10px;
         border-radius: 12px;
     }

@@ -1,815 +1,393 @@
 /*================================================
-  Pong Game - JavaScript
-  Mobile-friendly with touch controls
+  Pong
+  1 player: ten rounds against the computer, it speeds up every round and
+  one lost round ends the run. 2 players: first to 7 on the same screen.
+  All movement is in pixels per second, so it plays the same at 60Hz or 144Hz.
 ================================================*/
 
-(function() {
+(function () {
     'use strict';
 
-    /*================================================
-      Sound System (Web Audio API)
-    ================================================*/
-
-    const AudioSystem = {
-        context: null,
-        enabled: true,
-        
-        init: function() {
-            try {
-                this.context = new (window.AudioContext || window.webkitAudioContext)();
-            } catch (e) {
-                console.log('Web Audio API not supported');
-                this.enabled = false;
-            }
-        },
-        
-        resume: function() {
-            if (this.context && this.context.state === 'suspended') {
-                this.context.resume();
-            }
-        },
-        
-        play: function(frequency, duration, type) {
-            if (!this.enabled || !this.context) return;
-            
-            this.resume();
-            
-            const oscillator = this.context.createOscillator();
-            const gainNode = this.context.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(this.context.destination);
-            
-            oscillator.frequency.value = frequency;
-            oscillator.type = type || 'square';
-            
-            gainNode.gain.setValueAtTime(0.1, this.context.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
-            
-            oscillator.start(this.context.currentTime);
-            oscillator.stop(this.context.currentTime + duration);
-        },
-        
-        toggle: function() {
-            this.enabled = !this.enabled;
-            return this.enabled;
-        }
-    };
-
-    // Initialize audio system
-    AudioSystem.init();
-
-    // Sound effect functions
-    const beep1 = { play: () => AudioSystem.play(440, 0.1, 'square') };  // Paddle hit
-    const beep2 = { play: () => AudioSystem.play(220, 0.2, 'square') };  // Score
-    const beep3 = { play: () => AudioSystem.play(880, 0.3, 'sine') };    // Level up
-
-    /*================================================
-      Game Constants
-    ================================================*/
-
+    const W = 1800, H = 1100;                 // court size in canvas pixels
     const ROUNDS = [5, 5, 5, 4, 4, 4, 3, 3, 3, 1];
+    const VERSUS_TARGET = 7;
+    const ROUND_COLOURS = ['#1ABC9C', '#16A085', '#2ECC71', '#27AE60', '#3498DB', '#2980B9',
+        '#9B59B6', '#8E44AD', '#34495E', '#E74C3C', '#C0392B', '#D35400', '#E67E22'];
+    const START_COLOUR = '#2C3E50';
+    const PADDLE = { w: 20, h: 120, inset: 150 };
+    const BALL = { size: 20, speed: 560, maxAngle: 0.9 }; // vy up to 0.9 * vx
+    const SERVE_DELAY = 1000;
 
-    const ROUND_COLOURS = [
-        "#1ABC9C", "#16A085", "#2ECC71", "#27AE60",
-        "#3498DB", "#2980B9", "#9B59B6", "#8E44AD",
-        "#34495E", "#E74C3C", "#C0392B", "#D35400", "#E67E22"
-    ];
+    const $ = id => document.getElementById(id);
+    const canvas = $('pong-canvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    canvas.width = W;
+    canvas.height = H;
 
-    const COLOURS = {
-        DEFAULT: "#2C3E50",
-        WHITE: "#FFFFFF"
+    function store(key, value) {
+        try {
+            if (value === undefined) return localStorage.getItem(key);
+            localStorage.setItem(key, value);
+        } catch (e) { return null; }
+    }
+
+    /*================ Sound (created on the first gesture) ================*/
+
+    const Sound = {
+        ctx: null,
+        on: store('pong-sound') !== 'off',
+        beep(freq, dur, type) {
+            if (!this.on) return;
+            try {
+                this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator(), gain = this.ctx.createGain(), t = this.ctx.currentTime;
+                osc.type = type || 'square';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.08, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                osc.connect(gain).connect(this.ctx.destination);
+                osc.start(t);
+                osc.stop(t + dur);
+            } catch (e) { this.on = false; }
+        },
+        hit() { this.beep(440, .08); },
+        score() { this.beep(220, .2); },
+        level() { this.beep(880, .3, 'sine'); }
     };
 
-    const DIRECTION = {
-        IDLE: "IDLE",
-        UP: "UP",
-        DOWN: "DOWN",
-        LEFT: "LEFT",
-        RIGHT: "RIGHT"
-    };
+    /*================ State ================*/
 
-    /*================================================
-      Paddle Class
-    ================================================*/
+    let mode = 1;             // 1 = vs computer, 2 = two players
+    let state = 'menu';       // menu | serving | playing | paused | over
+    let round, colour, colours, serveAt, server, lastTime = 0, rafId = 0;
+    const left = { x: PADDLE.inset, y: H / 2 - PADDLE.h / 2, score: 0, speed: 420, target: null };
+    const right = { x: W - PADDLE.inset - PADDLE.w, y: H / 2 - PADDLE.h / 2, score: 0, speed: 300, target: null };
+    const ball = { x: W / 2, y: H / 2, vx: 0, vy: 0, speed: BALL.speed, rally: 0 };
+    const keys = new Set();
 
-    class Paddle {
-        constructor({ x, y }) {
-            this.x = x;
-            this.y = y;
-            this.width = 20;
-            this.height = 100;
-            this.score = 0;
-            this.speed = 5;
-            this.move = DIRECTION.IDLE;
-        }
-
-        addScore() {
-            this.score += 1;
-        }
-
-        getScore() {
-            return this.score;
-        }
-
-        getX() {
-            return this.x;
-        }
-
-        getY() {
-            return this.y;
-        }
-
-        draw(context) {
-            context.fillStyle = COLOURS.WHITE;
-            context.fillRect(this.x, this.y, this.width, this.height);
-        }
+    function newGame(m) {
+        mode = m;
+        round = 0;
+        colours = ROUND_COLOURS.slice();
+        colour = START_COLOUR;
+        left.score = right.score = 0;
+        left.speed = 420;
+        right.speed = mode === 1 ? 300 : 420;
+        ball.speed = BALL.speed;
+        left.y = right.y = H / 2 - PADDLE.h / 2;
+        left.target = right.target = null;
+        keys.clear();
+        serve(right);
+        showScreen(null);
+        $('pause-btn').disabled = false;
+        updateHud();
+        start();
     }
 
-    /*================================================
-      PaddleBot Class (AI Opponent)
-    ================================================*/
-
-    class PaddleBot extends Paddle {
-        constructor(parameters) {
-            super(parameters);
-            this.SPEED_INCREMENT = 0.2;
-        }
-
-        levelUp() {
-            this.score = 0;
-            this.speed += this.SPEED_INCREMENT;
-        }
-
-        handleUpMovement(target) {
-            if (this.y > target.y - this.height / 2) {
-                if (target.moveX === DIRECTION.RIGHT) {
-                    this.y -= this.speed;
-                } else {
-                    this.y -= this.speed / 4;
-                }
-            }
-        }
-
-        handleDownMovement(target) {
-            if (this.y < target.y - this.height / 2) {
-                if (target.moveX === DIRECTION.RIGHT) {
-                    this.y += this.speed;
-                } else {
-                    this.y += this.speed / 4;
-                }
-            }
-        }
-
-        handleWallCollision(canvas) {
-            if (this.y >= canvas.height - this.height) {
-                this.y = canvas.height - this.height;
-            } else if (this.y <= 0) {
-                this.y = 0;
-            }
-        }
-
-        update(canvas, target) {
-            this.handleUpMovement(target);
-            this.handleDownMovement(target);
-            this.handleWallCollision(canvas);
-        }
+    // the player who lost the point serves, from their own paddle
+    function serve(from) {
+        server = from;
+        serveAt = performance.now() + SERVE_DELAY;
+        ball.rally = 0;
+        ball.x = W / 2;
+        ball.y = H / 2;
+        state = 'serving';
     }
 
-    /*================================================
-      Player Class
-    ================================================*/
-
-    class Player extends Paddle {
-        constructor(parameters) {
-            super(parameters);
-            this.SPEED_INCREMENT = 0.3;
-            this.speed = 7;
-        }
-
-        levelUp() {
-            this.score = 0;
-            this.speed += this.SPEED_INCREMENT;
-        }
-
-        handleMovement() {
-            if (this.move === DIRECTION.UP) {
-                this.y -= this.speed;
-            } else if (this.move === DIRECTION.DOWN) {
-                this.y += this.speed;
-            }
-        }
-
-        handleWallCollision(canvas) {
-            if (this.y <= 0) {
-                this.y = 0;
-            } else if (this.y >= canvas.height - this.height) {
-                this.y = canvas.height - this.height;
-            }
-        }
-
-        update(canvas) {
-            this.handleMovement();
-            this.handleWallCollision(canvas);
-        }
+    function launch() {
+        const dir = server === left ? 1 : -1;
+        ball.x = server === left ? left.x + PADDLE.w + BALL.size : right.x - BALL.size;
+        ball.y = server.y + PADDLE.h / 2;
+        ball.vx = dir * ball.speed;
+        ball.vy = (Math.random() < .5 ? -1 : 1) * ball.speed * (0.35 + Math.random() * 0.3);
+        state = 'playing';
     }
 
-    /*================================================
-      Ball Class
-    ================================================*/
+    /*================ Update ================*/
 
-    class Ball {
-        constructor({ x, y }) {
-            this.BALL_SIZE = 20;
-            this.BALL_SPEED = 9;
-            this.BALL_SPEED_LEVEL_INCREMENT = 0.2;
-            
-            this.x = x;
-            this.y = y;
-            this.initialX = x;
-            this.initialY = y;
-            this.width = this.BALL_SIZE;
-            this.height = this.BALL_SIZE;
-            this.speedX = this.BALL_SPEED;
-            this.speedY = this.BALL_SPEED * (2 / 3);
-            this.moveX = DIRECTION.IDLE;
-            this.moveY = DIRECTION.IDLE;
+    function movePaddle(p, dir, dt) {
+        if (p.target !== null) {
+            // touch/mouse: glide towards the finger, a bit faster than keys
+            const centre = p.y + PADDLE.h / 2, diff = p.target - centre, step = p.speed * 1.6 * dt;
+            p.y += Math.abs(diff) < step ? diff : Math.sign(diff) * step;
+        } else {
+            p.y += dir * p.speed * dt;
         }
-
-        reset() {
-            this.x = this.initialX;
-            this.y = this.initialY;
-            this.moveX = DIRECTION.IDLE;
-            this.moveY = DIRECTION.IDLE;
-        }
-
-        levelUp() {
-            this.speedX += this.BALL_SPEED_LEVEL_INCREMENT;
-            this.speedY += this.BALL_SPEED_LEVEL_INCREMENT;
-        }
-
-        isOutOfLeftBounds() {
-            return this.x < 0;
-        }
-
-        isOutOfRightBounds(canvas) {
-            return this.x >= canvas.width - this.width;
-        }
-
-        handlePaddleCollision(paddle) {
-            if (this.moveX === DIRECTION.LEFT) {
-                this.x = paddle.getX() + this.width;
-                this.moveX = DIRECTION.RIGHT;
-            } else {
-                this.x = paddle.getX() - this.width;
-                this.moveX = DIRECTION.LEFT;
-            }
-
-            beep1.play();
-        }
-
-        handleWallCollision(canvas) {
-            if (this.y <= 0) {
-                this.moveY = DIRECTION.DOWN;
-            } else if (this.y >= canvas.height - this.height) {
-                this.moveY = DIRECTION.UP;
-            }
-        }
-
-        handleVerticalMovement() {
-            if (this.moveY === DIRECTION.UP) {
-                this.y -= this.speedY;
-            } else if (this.moveY === DIRECTION.DOWN) {
-                this.y += this.speedY;
-            }
-        }
-
-        handleHorizontalMovement() {
-            if (this.moveX === DIRECTION.LEFT) {
-                this.x -= this.speedX;
-            } else if (this.moveX === DIRECTION.RIGHT) {
-                this.x += this.speedX;
-            }
-        }
-
-        getRandomDirection() {
-            const directions = [DIRECTION.UP, DIRECTION.DOWN];
-            const index = Math.round(Math.random());
-            return directions[index];
-        }
-
-        handleServe(server, direction) {
-            this.moveX = direction;
-            this.moveY = this.getRandomDirection();
-            this.y = server.y + server.height / 2;
-            this.x = server.x + (direction === DIRECTION.LEFT ? -server.width : server.width);
-        }
-
-        update(canvas) {
-            this.handleVerticalMovement();
-            this.handleHorizontalMovement();
-            this.handleWallCollision(canvas);
-        }
-
-        draw(context) {
-            context.fillRect(
-                this.x - this.width / 2,
-                this.y - this.height / 2,
-                this.width,
-                this.height
-            );
-        }
+        p.y = Math.max(0, Math.min(H - PADDLE.h, p.y));
     }
 
-    /*================================================
-      Game Class
-    ================================================*/
-
-    class Game {
-        constructor() {
-            this.SCREEN_WIDTH = 1800;
-            this.SCREEN_HEIGHT = 1100;
-            this.TURN_DELAY_MS = 1000;
-            this.MENU_DELAY_MS = 1000;
-            this.WALL_OFFSET = 150;
-
-            this.canvas = document.getElementById('pong-canvas');
-            this.context = this.canvas.getContext('2d', { alpha: false });
-
-            this.canvas.width = this.SCREEN_WIDTH;
-            this.canvas.height = this.SCREEN_HEIGHT;
-
-            // Responsive sizing
-            this.updateCanvasSize();
-            window.addEventListener('resize', () => this.updateCanvasSize());
-
-            this.initialize();
-            this.listen();
-            this.setupUI();
-        }
-
-        updateCanvasSize() {
-            const maxWidth = Math.min(900, window.innerWidth - 20);
-            const maxHeight = Math.min(550, window.innerHeight - 200);
-            
-            const aspectRatio = this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
-            let width = maxWidth;
-            let height = width / aspectRatio;
-            
-            if (height > maxHeight) {
-                height = maxHeight;
-                width = height * aspectRatio;
-            }
-            
-            this.canvas.style.width = `${width}px`;
-            this.canvas.style.height = `${height}px`;
-        }
-
-        setupUI() {
-            // Pause button
-            const pauseBtn = document.getElementById('pause-btn');
-            if (pauseBtn) {
-                pauseBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (this.running) {
-                        this.togglePause();
-                    }
-                });
-            }
-            
-            // Sound button
-            const soundBtn = document.getElementById('sound-btn');
-            if (soundBtn) {
-                soundBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const enabled = AudioSystem.toggle();
-                    this.updateSoundIcon(enabled);
-                });
-            }
-        }
-
-        updateSoundIcon(enabled) {
-            const soundBtn = document.getElementById('sound-btn');
-            if (soundBtn) {
-                const iconOn = soundBtn.querySelector('.icon-sound-on');
-                const iconOff = soundBtn.querySelector('.icon-sound-off');
-                if (iconOn && iconOff) {
-                    iconOn.style.display = enabled ? 'block' : 'none';
-                    iconOff.style.display = enabled ? 'none' : 'block';
-                }
-            }
-        }
-
-        updatePauseIcon(paused) {
-            const pauseBtn = document.getElementById('pause-btn');
-            if (pauseBtn) {
-                const iconPause = pauseBtn.querySelector('.icon-pause');
-                const iconPlay = pauseBtn.querySelector('.icon-play');
-                if (iconPause && iconPlay) {
-                    iconPause.style.display = paused ? 'none' : 'block';
-                    iconPlay.style.display = paused ? 'block' : 'none';
-                }
-            }
-        }
-
-        initialize() {
-            this.availableColours = [...ROUND_COLOURS];
-
-            this.playerA = new Player({
-                x: this.WALL_OFFSET,
-                y: this.canvas.height / 2
-            });
-
-            this.playerB = new PaddleBot({
-                x: this.canvas.width - this.WALL_OFFSET,
-                y: this.canvas.height / 2
-            });
-
-            this.ball = new Ball({
-                x: this.canvas.width / 2,
-                y: this.canvas.height / 2
-            });
-
-            this.round = 0;
-            this.running = false;
-            this.gameOver = false;
-            this.paused = false;
-            this.playerTurn = this.playerB;
-            this.timer = performance.now();
-            this.colour = COLOURS.DEFAULT;
-
-            this.showMenuScreen("Press key or tap to start");
-            this.updatePauseIcon(false);
-        }
-
-        showMenuScreen(text, callback) {
-            const RECTANGLE_WIDTH = 800;
-            const RECTANGLE_HEIGHT = 120;
-            const MENU_TIMEOUT_MS = 3000;
-
-            this.draw();
-
-            this.context.font = "50px Courier New";
-            this.context.fillStyle = this.colour;
-
-            this.context.fillRect(
-                this.canvas.width / 2 - RECTANGLE_WIDTH / 2,
-                this.canvas.height / 2 - RECTANGLE_HEIGHT / 2,
-                RECTANGLE_WIDTH,
-                RECTANGLE_HEIGHT
-            );
-
-            this.context.fillStyle = COLOURS.WHITE;
-            this.context.textAlign = "center";
-            this.context.textBaseline = "middle";
-
-            this.context.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
-
-            if (callback) {
-                setTimeout(callback.bind(this), MENU_TIMEOUT_MS);
-            }
-        }
-
-        hasCollision(ball, player) {
-            return (
-                ball.x < player.x + player.width &&
-                ball.x + ball.width > player.x &&
-                ball.y < player.y + player.height &&
-                ball.y + ball.height > player.y
-            );
-        }
-
-        levelUp() {
-            this.round += 1;
-            this.playerA.levelUp();
-            this.playerB.levelUp();
-            this.ball.levelUp();
-            this.colour = this.getRandomColour();
-
-            beep3.play();
-        }
-
-        hasWonRound(object) {
-            return object.getScore() >= ROUNDS[this.round];
-        }
-
-        hasNextRound() {
-            return ROUNDS[this.round + 1];
-        }
-
-        getServeDirection() {
-            return this.playerTurn === this.playerA ? DIRECTION.RIGHT : DIRECTION.LEFT;
-        }
-
-        update() {
-            this.ball.update(this.canvas);
-            this.playerB.update(this.canvas, this.ball);
-            this.playerA.update(this.canvas);
-
-            if (this.ball.isOutOfLeftBounds()) {
-                this.resetTurn(this.playerB, this.playerA);
-            } else if (this.ball.isOutOfRightBounds(this.canvas)) {
-                this.resetTurn(this.playerA, this.playerB);
-            }
-
-            if (this.isTurnDelayOver() && this.playerTurn) {
-                const direction = this.getServeDirection();
-                this.ball.handleServe(this.playerTurn, direction);
-                this.playerTurn = null;
-            }
-
-            if (this.hasCollision(this.ball, this.playerA)) {
-                this.ball.handlePaddleCollision(this.playerA);
-            }
-
-            if (this.hasCollision(this.ball, this.playerB)) {
-                this.ball.handlePaddleCollision(this.playerB);
-            }
-
-            if (this.hasWonRound(this.playerA)) {
-                if (!this.hasNextRound()) {
-                    this.gameOver = true;
-                    const showMenuScreen = this.showMenuScreen.bind(
-                        this,
-                        "You Win!",
-                        this.initialize
-                    );
-                    setTimeout(showMenuScreen, this.MENU_DELAY_MS);
-                } else {
-                    this.levelUp();
-                }
-            } else if (this.hasWonRound(this.playerB)) {
-                this.gameOver = true;
-                const showMenuScreen = this.showMenuScreen.bind(
-                    this,
-                    "Game Over!",
-                    this.initialize
-                );
-                setTimeout(showMenuScreen, this.MENU_DELAY_MS);
-            }
-        }
-
-        drawCourtNet() {
-            this.context.beginPath();
-            this.context.setLineDash([2, 15]);
-            this.context.moveTo(this.canvas.width / 2, this.canvas.height - this.WALL_OFFSET);
-            this.context.lineTo(this.canvas.width / 2, this.WALL_OFFSET);
-            this.context.lineWidth = 10;
-            this.context.strokeStyle = COLOURS.WHITE;
-            this.context.stroke();
-        }
-
-        drawPlayerScores() {
-            const SCORE_X_PADDING = 300;
-            const SCORE_Y_PADDING = 200;
-
-            this.context.font = "100px Courier New";
-            this.context.textAlign = "center";
-
-            this.context.fillText(
-                this.playerA.getScore().toString(),
-                this.canvas.width / 2 - SCORE_X_PADDING,
-                SCORE_Y_PADDING
-            );
-
-            this.context.fillText(
-                this.playerB.getScore().toString(),
-                this.canvas.width / 2 + SCORE_X_PADDING,
-                SCORE_Y_PADDING
-            );
-        }
-
-        drawRoundCount() {
-            const ROUND_Y_PADDING = 45;
-
-            this.context.font = "25px Courier New";
-
-            this.context.fillText(
-                `ROUND ${this.round + 1} OF ${ROUNDS.length}`,
-                this.canvas.width / 2,
-                ROUND_Y_PADDING
-            );
-        }
-
-        drawRoundScore() {
-            const GOAL_Y_PADDING = 100;
-
-            this.context.font = "30px Courier New";
-
-            this.context.fillText(
-                `${ROUNDS[this.round]} TO WIN`,
-                this.canvas.width / 2,
-                GOAL_Y_PADDING
-            );
-        }
-
-        draw() {
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-            this.context.fillStyle = this.colour;
-            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-            this.playerA.draw(this.context);
-            this.playerB.draw(this.context);
-
-            if (this.isTurnDelayOver()) {
-                this.ball.draw(this.context);
-            }
-
-            this.drawCourtNet();
-            this.drawPlayerScores();
-            this.drawRoundCount();
-            this.drawRoundScore();
-        }
-
-        loop() {
-            if (this.paused) {
-                return;
-            }
-
-            this.update();
-            this.draw();
-
-            if (!this.gameOver) {
-                requestAnimationFrame(this.loop.bind(this));
-            }
-        }
-
-        togglePause() {
-            if (this.paused) {
-                window.requestAnimationFrame(this.loop.bind(this));
-                this.paused = false;
-                this.updatePauseIcon(false);
-            } else {
-                this.showMenuScreen("Paused");
-                this.paused = true;
-                this.updatePauseIcon(true);
-            }
-        }
-
-        startGame() {
-            if (this.running === false) {
-                this.running = true;
-                AudioSystem.resume();
-                window.requestAnimationFrame(this.loop.bind(this));
-            }
-        }
-
-        listen() {
-            const self = this;
-            
-            // Keyboard controls
-            document.addEventListener("keydown", function(e) {
-                const key = e.key;
-                
-                self.startGame();
-
-                if (key === "w" || key === "ArrowUp") {
-                    e.preventDefault();
-                    self.playerA.move = DIRECTION.UP;
-                }
-
-                if (key === "s" || key === "ArrowDown") {
-                    e.preventDefault();
-                    self.playerA.move = DIRECTION.DOWN;
-                }
-
-                if (key === "Escape") {
-                    if (self.running) {
-                        self.togglePause();
-                    }
-                }
-            });
-
-            document.addEventListener("keyup", function() {
-                self.playerA.move = DIRECTION.IDLE;
-            });
-            
-            // Canvas tap to start
-            this.canvas.addEventListener('click', function() {
-                self.startGame();
-            });
-            
-            this.canvas.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                self.startGame();
-            }, { passive: false });
-        }
-
-        resetTurn(winner, loser) {
-            this.ball.reset();
-            this.playerTurn = loser;
-            this.timer = performance.now();
-
-            winner.addScore();
-            beep2.play();
-        }
-
-        isTurnDelayOver() {
-            return performance.now() - this.timer >= this.TURN_DELAY_MS;
-        }
-
-        getRandomColour() {
-            if (this.availableColours.length === 0) {
-                this.availableColours = [...ROUND_COLOURS];
-            }
-            const index = Math.floor(Math.random() * this.availableColours.length);
-            const colour = this.availableColours[index];
-            this.availableColours.splice(index, 1);
-            return colour;
-        }
+    function cpu(dt) {
+        const centre = right.y + PADDLE.h / 2;
+        const coming = ball.vx > 0 && state === 'playing';
+        const aim = coming ? ball.y : H / 2;
+        const diff = aim - centre;
+        if (Math.abs(diff) < 12) return;
+        const speed = coming ? right.speed : right.speed / 4;
+        right.y += Math.sign(diff) * Math.min(Math.abs(diff), speed * dt);
+        right.y = Math.max(0, Math.min(H - PADDLE.h, right.y));
     }
 
-    /*================================================
-      Initialize Game
-    ================================================*/
+    function dirFor(up, down) {
+        return (down.some(k => keys.has(k)) ? 1 : 0) - (up.some(k => keys.has(k)) ? 1 : 0);
+    }
 
-    const game = new Game();
+    function update(dt) {
+        if (mode === 1) {
+            movePaddle(left, dirFor(['KeyW', 'ArrowUp'], ['KeyS', 'ArrowDown']), dt);
+            cpu(dt);
+        } else {
+            movePaddle(left, dirFor(['KeyW'], ['KeyS']), dt);
+            movePaddle(right, dirFor(['ArrowUp'], ['ArrowDown']), dt);
+        }
 
-    /*================================================
-      Mobile Controls
-    ================================================*/
-
-    function initMobileControls() {
-        const btnUp = document.getElementById('btn-up');
-        const btnDown = document.getElementById('btn-down');
-
-        if (!btnUp || !btnDown) {
+        if (state === 'serving') {
+            if (performance.now() >= serveAt) launch();
             return;
         }
 
-        function addActiveClass(btn) {
-            btn.classList.add('active');
+        // sub-steps so a fast ball can't jump straight through a paddle
+        const steps = Math.ceil(Math.max(Math.abs(ball.vx), Math.abs(ball.vy)) * dt / 8);
+        for (let s = 0; s < steps && state === 'playing'; s++) stepBall(dt / steps);
+    }
+
+    function stepBall(dt) {
+        const r = BALL.size / 2;
+        ball.x += ball.vx * dt;
+        ball.y += ball.vy * dt;
+
+        if (ball.y - r < 0) { ball.y = r; ball.vy = Math.abs(ball.vy); }
+        if (ball.y + r > H) { ball.y = H - r; ball.vy = -Math.abs(ball.vy); }
+
+        const paddle = ball.vx < 0 ? left : right;
+        if (ball.x + r > paddle.x && ball.x - r < paddle.x + PADDLE.w &&
+            ball.y + r > paddle.y && ball.y - r < paddle.y + PADDLE.h) {
+            // angle depends on where it hit: edges send it steep, centre sends it flat
+            const offset = (ball.y - (paddle.y + PADDLE.h / 2)) / (PADDLE.h / 2 + r);
+            const speed = ball.speed * Math.min(1.5, 1 + ball.rally * 0.03);
+            ball.rally++;
+            ball.vx = (paddle === left ? 1 : -1) * speed;
+            ball.vy = offset * speed * BALL.maxAngle;
+            ball.x = paddle === left ? paddle.x + PADDLE.w + r : paddle.x - r;
+            Sound.hit();
         }
 
-        function removeActiveClass(btn) {
-            btn.classList.remove('active');
+        if (ball.x + r < 0) point(right);
+        else if (ball.x - r > W) point(left);
+    }
+
+    function point(winner) {
+        winner.score++;
+        Sound.score();
+        const loser = winner === left ? right : left;
+
+        if (mode === 2) {
+            if (winner.score >= VERSUS_TARGET) {
+                return finish((winner === left ? 'Left' : 'Right') + ' player wins!',
+                    left.score + ' – ' + right.score);
+            }
+        } else if (winner === right && right.score >= ROUNDS[round]) {
+            const best = Math.max(Number(store('pong-best')) || 0, round + 1);
+            store('pong-best', best);
+            return finish('Game over', 'The computer took round ' + (round + 1) + '. Your best: round ' + best + ' of ' + ROUNDS.length + '.');
+        } else if (winner === left && left.score >= ROUNDS[round]) {
+            if (round === ROUNDS.length - 1) {
+                store('pong-best', ROUNDS.length);
+                return finish('You win! 🏆', 'All ' + ROUNDS.length + ' rounds cleared.');
+            }
+            levelUp();
         }
+        updateHud();
+        serve(loser);
+    }
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+    function levelUp() {
+        round++;
+        left.score = right.score = 0;
+        left.speed += 18;
+        right.speed += 12;
+        ball.speed += 12;
+        if (!colours.length) colours = ROUND_COLOURS.slice();
+        colour = colours.splice(Math.floor(Math.random() * colours.length), 1)[0];
+        Sound.level();
+    }
 
-        // Setup touch and mouse events for a button
-        function setupButton(btn, direction) {
-            // Touch events
-            btn.addEventListener('touchstart', function(e) {
-                preventDefaults(e);
-                addActiveClass(btn);
-                game.startGame();
-                game.playerA.move = direction;
-            }, { passive: false });
+    function finish(title, text) {
+        state = 'over';
+        $('pause-btn').disabled = true;
+        $('resultTitle').textContent = title;
+        $('resultText').textContent = text;
+        draw();
+        showScreen('resultScreen');
+    }
 
-            btn.addEventListener('touchend', function(e) {
-                preventDefaults(e);
-                removeActiveClass(btn);
-                game.playerA.move = DIRECTION.IDLE;
-            }, { passive: false });
+    /*================ Drawing ================*/
 
-            btn.addEventListener('touchcancel', function(e) {
-                removeActiveClass(btn);
-                game.playerA.move = DIRECTION.IDLE;
-            }, { passive: false });
+    function draw() {
+        ctx.fillStyle = colour;
+        ctx.fillRect(0, 0, W, H);
 
-            // Mouse events (for testing)
-            btn.addEventListener('mousedown', function(e) {
-                preventDefaults(e);
-                addActiveClass(btn);
-                game.startGame();
-                game.playerA.move = direction;
-            });
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = '#fff';
+        ctx.setLineDash([2, 15]);
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.moveTo(W / 2, H - 150);
+        ctx.lineTo(W / 2, 150);
+        ctx.stroke();
 
-            btn.addEventListener('mouseup', function(e) {
-                preventDefaults(e);
-                removeActiveClass(btn);
-                game.playerA.move = DIRECTION.IDLE;
-            });
+        ctx.font = '120px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(String(left.score), W / 2 - 300, 200);
+        ctx.fillText(String(right.score), W / 2 + 300, 200);
 
-            btn.addEventListener('mouseleave', function(e) {
-                removeActiveClass(btn);
-                game.playerA.move = DIRECTION.IDLE;
-            });
-        }
+        ctx.fillRect(left.x, left.y, PADDLE.w, PADDLE.h);
+        ctx.fillRect(right.x, right.y, PADDLE.w, PADDLE.h);
 
-        // Setup buttons
-        setupButton(btnUp, DIRECTION.UP);
-        setupButton(btnDown, DIRECTION.DOWN);
-
-        // Prevent context menu on long press
-        var mobileControls = document.querySelector('.mobile-controls');
-        if (mobileControls) {
-            mobileControls.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
+        if (state === 'playing') {
+            ctx.fillRect(ball.x - BALL.size / 2, ball.y - BALL.size / 2, BALL.size, BALL.size);
         }
     }
 
-    // Initialize mobile controls when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initMobileControls);
-    } else {
-        initMobileControls();
+    function updateHud() {
+        $('roundInfo').textContent = mode === 1
+            ? 'Round ' + (round + 1) + ' of ' + ROUNDS.length + ' · first to ' + ROUNDS[round]
+            : 'First to ' + VERSUS_TARGET;
     }
 
+    /*================ Loop ================*/
+
+    function frame(now) {
+        const dt = Math.min(0.05, (now - lastTime) / 1000); // cap after a hitch
+        lastTime = now;
+        if (state === 'playing' || state === 'serving') {
+            update(dt);
+            draw();
+            rafId = requestAnimationFrame(frame);
+        } else {
+            rafId = 0;
+        }
+    }
+
+    function start() {
+        if (rafId) return;
+        lastTime = performance.now();
+        rafId = requestAnimationFrame(frame);
+    }
+
+    /*================ Screens + pause ================*/
+
+    function showScreen(id, focus = true) {
+        ['menu', 'pausedScreen', 'resultScreen'].forEach(s => { $(s).hidden = s !== id; });
+        const btn = focus && id && $(id).querySelector('button');
+        if (btn) btn.focus({ preventScroll: true });
+    }
+
+    let resumeState = 'playing';
+    function pause() {
+        if (state !== 'playing' && state !== 'serving') return;
+        resumeState = state;
+        state = 'paused';
+        keys.clear();
+        setPauseIcon(true);
+        showScreen('pausedScreen');
+    }
+    function resume() {
+        if (state !== 'paused') return;
+        // keep the serve countdown honest after a pause
+        if (resumeState === 'serving') serveAt = performance.now() + SERVE_DELAY;
+        state = resumeState;
+        setPauseIcon(false);
+        showScreen(null);
+        start();
+    }
+    function setPauseIcon(paused) {
+        document.querySelector('.icon-pause').hidden = paused;
+        document.querySelector('.icon-play').hidden = !paused;
+        $('pause-btn').setAttribute('aria-label', paused ? 'Resume' : 'Pause (Esc)');
+    }
+
+    function renderSound() {
+        document.querySelector('.icon-sound-on').hidden = !Sound.on;
+        document.querySelector('.icon-sound-off').hidden = Sound.on;
+        $('sound-btn').setAttribute('aria-pressed', String(Sound.on));
+    }
+
+    function showMenu(firstLoad) {
+        state = 'menu';
+        $('pause-btn').disabled = true;
+        const best = Number(store('pong-best'));
+        $('bestInfo').hidden = !best;
+        $('bestInfo').textContent = 'Your best vs the computer: round ' + best + ' of ' + ROUNDS.length;
+        $('roundInfo').textContent = 'Pong';
+        colour = START_COLOUR;
+        left.score = right.score = 0;
+        draw();
+        showScreen('menu', !firstLoad); // no focus ring on arrival
+    }
+
+    /*================ Input ================*/
+
+    const GAME_KEYS = ['KeyW', 'KeyS', 'ArrowUp', 'ArrowDown'];
+    document.addEventListener('keydown', e => {
+        if (e.code === 'Escape' || e.code === 'KeyP') {
+            if (state === 'paused') resume(); else pause();
+            return;
+        }
+        if (GAME_KEYS.includes(e.code)) {
+            e.preventDefault(); // stop the page scrolling
+            keys.add(e.code);
+            left.target = right.target = null; // keys take over from touch
+        }
+    });
+    document.addEventListener('keyup', e => keys.delete(e.code));
+
+    // Touch/mouse: each pointer steers the paddle on its half of the court
+    // (in 1 player mode anywhere steers yours).
+    const pointers = new Map();
+    function courtY(e) {
+        const r = canvas.getBoundingClientRect();
+        return (e.clientY - r.top) * (H / r.height);
+    }
+    function paddleFor(e) {
+        if (mode === 1) return left;
+        const r = canvas.getBoundingClientRect();
+        return e.clientX - r.left < r.width / 2 ? left : right;
+    }
+    canvas.addEventListener('pointerdown', e => {
+        if (state !== 'playing' && state !== 'serving') return;
+        canvas.setPointerCapture(e.pointerId);
+        const p = paddleFor(e);
+        pointers.set(e.pointerId, p);
+        p.target = courtY(e);
+    });
+    canvas.addEventListener('pointermove', e => {
+        const p = pointers.get(e.pointerId);
+        if (p) p.target = courtY(e);
+    });
+    ['pointerup', 'pointercancel'].forEach(t => canvas.addEventListener(t, e => {
+        const p = pointers.get(e.pointerId);
+        if (p) p.target = null;
+        pointers.delete(e.pointerId);
+    }));
+
+    document.querySelectorAll('[data-mode]').forEach(b =>
+        b.addEventListener('click', () => newGame(Number(b.dataset.mode))));
+    $('againBtn').addEventListener('click', () => newGame(mode));
+    $('menuBtn').addEventListener('click', () => showMenu(false));
+    $('resumeBtn').addEventListener('click', resume);
+    $('pause-btn').addEventListener('click', () => (state === 'paused' ? resume() : pause()));
+    $('sound-btn').addEventListener('click', () => {
+        Sound.on = !Sound.on;
+        store('pong-sound', Sound.on ? 'on' : 'off');
+        renderSound();
+    });
+
+    // never keep playing in a background tab
+    document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+    window.addEventListener('blur', pause);
+
+    renderSound();
+    showMenu(true);
 })();

@@ -1,52 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <title>Snake Game</title>
-        <link rel="stylesheet" href="css/snake_game.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" type="text/javascript"></script>
-    </head>
-    <body>
-        <div class="score">0</div>
-        <div class="stage"></div>
-        
-        <!-- Back Button -->
-        <button class="back-btn" onclick="window.location.href='https://williamsham90.github.io/Portfolio/'" aria-label="Go back to portfolio">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            <span>Back</span>
-        </button>
-        
-        <!-- Mobile Controls - Only visible on touch devices -->
-        <div class="mobile-controls" aria-label="Game controls">
-            <div class="controls-row">
-                <button class="control-btn" id="btn-up" aria-label="Move up">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 4l-8 8h5v8h6v-8h5z"/>
-                    </svg>
-                </button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Snake · William Sham</title>
+    <meta name="description" content="Glowing Snake: eat, grow and don't bite your own tail. Keyboard, swipe or on-screen controls.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E🐍%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="css/snake_game.css">
+</head>
+<body>
+    <a class="back-btn" href="../index.html#play">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Back</span>
+    </a>
+
+    <main class="snake">
+        <div class="hud">
+            <p>Score <b id="score" aria-live="polite">0</b></p>
+            <p>Best <b id="best">0</b></p>
+            <button class="pause-btn" id="pauseBtn" type="button" aria-label="Pause (Space)" disabled>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
+        </div>
+
+        <div class="stage" id="stage">
+            <canvas id="board" aria-label="Snake board"></canvas>
+
+            <div class="screen" id="startScreen">
+                <h1>Snake</h1>
+                <p>Eat the green food and grow. Don't bite your own tail — the walls wrap around.</p>
+                <button class="big-btn" type="button" id="startBtn">Start</button>
+                <p class="keys">Arrow keys or WASD · swipe on touch screens · Space pauses</p>
             </div>
-            <div class="controls-row">
-                <button class="control-btn" id="btn-left" aria-label="Move left">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4 12l8-8v5h8v6h-8v5z"/>
-                    </svg>
-                </button>
-                <button class="control-btn" id="btn-down" aria-label="Move down">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 20l8-8h-5v-8h-6v8h-5z"/>
-                    </svg>
-                </button>
-                <button class="control-btn" id="btn-right" aria-label="Move right">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 12l-8 8v-5h-8v-6h8v-5z"/>
-                    </svg>
-                </button>
+            <div class="screen" id="pauseScreen" hidden>
+                <h2>Paused</h2>
+                <button class="big-btn" type="button" id="resumeBtn">Resume</button>
+            </div>
+            <div class="screen" id="overScreen" hidden>
+                <h2>Game over</h2>
+                <p id="overText"></p>
+                <button class="big-btn" type="button" id="againBtn">Play again</button>
             </div>
         </div>
-        
-        <script src="js/snake_game.js"></script>
-    </body>
+
+        <div class="mobile-controls" aria-label="Direction controls">
+            <button class="control-btn up" type="button" data-dir="up" aria-label="Up">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg>
+            </button>
+            <button class="control-btn left" type="button" data-dir="left" aria-label="Left">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 12l8-8v5h8v6h-8v5z"/></svg>
+            </button>
+            <button class="control-btn down" type="button" data-dir="down" aria-label="Down">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20l8-8h-5v-8h-6v8h-5z"/></svg>
+            </button>
+            <button class="control-btn right" type="button" data-dir="right" aria-label="Right">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 12l-8 8v-5h-8v-6h8v-5z"/></svg>
+            </button>
+        </div>
+    </main>
+
+    <script src="js/snake_game.js"></script>
+</body>
 </html>

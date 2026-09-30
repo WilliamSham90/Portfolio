@@ -1,91 +1,48 @@
 /*================================================
-  Word Guessing Game - JavaScript
-  Vanilla JS, Mobile-friendly with on-screen keyboard
+  Word Guess
+  Ten lives, an optional hint, and a win streak kept in localStorage.
+  Physical keyboard and the on-screen keys both play.
 ================================================*/
 
-(function() {
+(function () {
     'use strict';
 
-    /*================================================
-      Sound System (Web Audio API)
-    ================================================*/
+    const MAX_WRONG = 10;
 
-    const AudioSystem = {
-        context: null,
-        enabled: true,
-        
-        init: function() {
+    function store(key, value) {
+        try {
+            if (value === undefined) return localStorage.getItem(key);
+            localStorage.setItem(key, value);
+        } catch (e) { return null; }
+    }
+
+    /*================ Sound (created on first use, after a gesture) ================*/
+
+    const Sound = {
+        ctx: null,
+        on: store('wg-sound') !== 'off',
+        tone(freq, dur, type, vol) {
+            if (!this.on) return;
             try {
-                this.context = new (window.AudioContext || window.webkitAudioContext)();
-            } catch (e) {
-                console.log('Web Audio API not supported');
-                this.enabled = false;
-            }
+                this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator(), gain = this.ctx.createGain(), t = this.ctx.currentTime;
+                osc.type = type || 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(vol || 0.12, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                osc.connect(gain).connect(this.ctx.destination);
+                osc.start(t);
+                osc.stop(t + dur);
+            } catch (e) { this.on = false; }
         },
-        
-        resume: function() {
-            if (this.context && this.context.state === 'suspended') {
-                this.context.resume();
-            }
-        },
-        
-        playTone: function(frequency, duration, type, volume) {
-            if (!this.enabled || !this.context) return;
-            
-            this.resume();
-            
-            const oscillator = this.context.createOscillator();
-            const gainNode = this.context.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(this.context.destination);
-            
-            oscillator.frequency.value = frequency;
-            oscillator.type = type || 'sine';
-            
-            const vol = volume || 0.1;
-            gainNode.gain.setValueAtTime(vol, this.context.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
-            
-            oscillator.start(this.context.currentTime);
-            oscillator.stop(this.context.currentTime + duration);
-        },
-        
-        goodSound: function() {
-            this.playTone(523.25, 0.15, 'sine', 0.15); // C5
-            setTimeout(() => this.playTone(659.25, 0.15, 'sine', 0.15), 100); // E5
-        },
-        
-        badSound: function() {
-            this.playTone(200, 0.2, 'sawtooth', 0.1);
-        },
-        
-        winSound: function() {
-            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-            notes.forEach((freq, i) => {
-                setTimeout(() => this.playTone(freq, 0.3, 'sine', 0.15), i * 150);
-            });
-        },
-        
-        loseSound: function() {
-            const notes = [392, 349.23, 329.63, 293.66]; // G4, F4, E4, D4
-            notes.forEach((freq, i) => {
-                setTimeout(() => this.playTone(freq, 0.3, 'sine', 0.12), i * 200);
-            });
-        },
-        
-        toggle: function() {
-            this.enabled = !this.enabled;
-            return this.enabled;
-        }
+        good() { this.tone(523.25, .15); setTimeout(() => this.tone(659.25, .15), 100); },
+        bad() { this.tone(200, .2, 'sawtooth', .08); },
+        win() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => setTimeout(() => this.tone(f, .3), i * 150)); },
+        lose() { [392, 349.23, 329.63, 293.66].forEach((f, i) => setTimeout(() => this.tone(f, .3), i * 200)); }
     };
 
-    // Initialize audio
-    AudioSystem.init();
-
-    /*================================================
-      Word List with Hints
-    ================================================*/
+    /*================ Words ================*/
 
     const wordList = [
         { word: "chrome", hint: "Google's speedy browser" },
@@ -182,7 +139,6 @@
         { word: "gradient", hint: "Smooth transition between colors" },
         { word: "shadow", hint: "Effect that adds depth to elements" },
         { word: "opacity", hint: "How transparent an element is" },
-        // 15 new words
         { word: "cookies", hint: "Small data stored by websites in your browser" },
         { word: "cache", hint: "Temporary storage for faster loading" },
         { word: "domain", hint: "Website address like example.com" },
@@ -200,371 +156,201 @@
         { word: "debugging", hint: "Finding and fixing code errors" }
     ];
 
-    /*================================================
-      Hangman Game Object
-    ================================================*/
+    /*================ State + DOM ================*/
 
-    const Hangman = {
-        maxWrong: 10,
-        
-        init: function(words) {
-            this.words = words;
-            this.hm = document.querySelector('.hangman');
-            this.msg = document.querySelector('.message');
-            this.msgTitle = document.querySelector('.title');
-            this.msgText = document.querySelector('.text');
-            this.restart = document.querySelector('.restart');
-            this.wrd = this.randomWord();
-            this.correct = 0;
-            this.guess = document.querySelector('.guess');
-            this.wrong = document.querySelector('.wrong');
-            this.wrongGuesses = [];
-            this.rightGuesses = [];
-            this.guessForm = document.querySelector('.guessForm');
-            this.guessLetterInput = document.querySelector('.guessLetter');
-            this.keyboard = document.getElementById('keyboard');
-            this.gameOver = false;
-            
-            this.setup();
-        },
+    const $ = id => document.getElementById(id);
+    const guessEl = document.querySelector('.guess');
+    const keyboard = $('keyboard');
+    const message = $('message');
+    const hintBtn = $('hintBtn');
+    const hintEl = $('hint');
+    const soundBtn = $('soundBtn');
 
-        setup: function() {
-            this.binding();
-            this.showGuess();
-            this.showWrong();
-            this.showHint();
-            this.resetKeyboard();
-            
-            // Focus input on desktop
-            if (this.guessLetterInput && window.matchMedia('(hover: hover)').matches) {
-                this.guessLetterInput.focus();
-            }
-        },
-
-        showHint: function() {
-            const hintEl = document.querySelector('.hint');
-            if (hintEl && this.wrd.hint) {
-                hintEl.innerHTML = '💡 <strong>Hint:</strong> ' + this.wrd.hint;
-            }
-        },
-
-        binding: function() {
-            const self = this;
-            
-            // Form submission
-            if (this.guessForm) {
-                this.guessForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    self.handleFormGuess();
-                });
-            }
-            
-            // Restart button
-            if (this.restart) {
-                this.restart.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    self.theRestart();
-                });
-            }
-            
-            // Keyboard buttons
-            if (this.keyboard) {
-                const keys = this.keyboard.querySelectorAll('.key');
-                keys.forEach(function(key) {
-                    key.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const letter = this.getAttribute('data-letter');
-                        if (letter && !self.gameOver) {
-                            AudioSystem.resume();
-                            self.processGuess(letter.toLowerCase());
-                        }
-                    });
-                    
-                    // Touch events for better mobile response
-                    key.addEventListener('touchstart', function(e) {
-                        e.preventDefault();
-                        this.click();
-                    }, { passive: false });
-                });
-            }
-            
-            // Physical keyboard support
-            document.addEventListener('keydown', function(e) {
-                if (self.gameOver) return;
-                
-                const key = e.key.toLowerCase();
-                if (key.match(/^[a-z]$/) && key.length === 1) {
-                    // Don't process if typing in input
-                    if (document.activeElement === self.guessLetterInput) return;
-                    
-                    AudioSystem.resume();
-                    self.processGuess(key);
-                }
-            });
-        },
-
-        handleFormGuess: function() {
-            const guess = this.guessLetterInput.value.toLowerCase();
-            this.guessLetterInput.value = '';
-            this.guessLetterInput.focus();
-            
-            if (guess.match(/[a-z]/) && guess.length === 1) {
-                AudioSystem.resume();
-                this.processGuess(guess);
-            }
-        },
-
-        processGuess: function(guess) {
-            if (this.gameOver) return;
-            
-            // Already guessed
-            if (this.wrongGuesses.includes(guess) || this.rightGuesses.includes(guess)) {
-                AudioSystem.badSound();
-                this.shakeKey(guess);
-                return;
-            }
-            
-            const foundLetters = this.checkGuess(guess);
-            
-            if (foundLetters.length > 0) {
-                this.setLetters(foundLetters);
-                AudioSystem.goodSound();
-                this.markKeyCorrect(guess);
-            } else {
-                this.wrongGuesses.push(guess);
-                this.markKeyWrong(guess);
-                
-                if (this.wrongGuesses.length >= this.maxWrong) {
-                    this.lose();
-                } else {
-                    this.showWrong();
-                    AudioSystem.badSound();
-                }
-            }
-        },
-
-        randomWord: function() {
-            const wordObj = this.words[Math.floor(Math.random() * this.words.length)];
-            return this.wordData(wordObj.word, wordObj.hint);
-        },
-
-        wordData: function(word, hint) {
-            return {
-                letters: this.getLetters(word),
-                word: word.toLowerCase(),
-                totalLetters: word.length,
-                hint: hint
-            };
-        },
-
-        getLetters: function(word) {
-            const letters = [];
-            for (let i = 0; i < word.length; i++) {
-                letters.push({
-                    letter: word[i],
-                    pos: i
-                });
-            }
-            return letters;
-        },
-
-        showGuess: function() {
-            let html = '<ul class="word">';
-            this.wrd.letters.forEach(function(val, key) {
-                html += '<li data-pos="' + key + '" class="letter">*</li>';
-            });
-            html += '</ul>';
-            this.guess.innerHTML = html;
-        },
-
-        showWrong: function() {
-            let html = '';
-            
-            if (this.wrongGuesses.length > 0) {
-                html = '<ul class="wrongLetters">';
-                html += '<p>Wrong (' + this.wrongGuesses.length + '/' + this.maxWrong + '):</p>';
-                this.wrongGuesses.forEach(function(val) {
-                    html += '<li>' + val.toUpperCase() + '</li>';
-                });
-                html += '</ul>';
-            }
-            
-            this.wrong.innerHTML = html;
-        },
-
-        checkGuess: function(guessedLetter) {
-            const self = this;
-            const found = [];
-            
-            this.wrd.letters.forEach(function(val) {
-                if (guessedLetter === val.letter.toLowerCase()) {
-                    found.push(val);
-                    self.rightGuesses.push(val.letter.toLowerCase());
-                }
-            });
-            
-            return found;
-        },
-
-        setLetters: function(letters) {
-            const self = this;
-            this.correct += letters.length;
-            
-            letters.forEach(function(val) {
-                const letterEl = document.querySelector('li[data-pos="' + val.pos + '"]');
-                if (letterEl) {
-                    letterEl.textContent = val.letter.toUpperCase();
-                    letterEl.classList.add('correct');
-                }
-            });
-            
-            // Check for win
-            if (this.correct === this.wrd.letters.length) {
-                setTimeout(function() {
-                    self.win();
-                }, 300);
-            }
-        },
-
-        resetKeyboard: function() {
-            if (!this.keyboard) return;
-            
-            const keys = this.keyboard.querySelectorAll('.key');
-            keys.forEach(function(key) {
-                key.classList.remove('correct-key', 'wrong-key');
-                key.disabled = false;
-            });
-        },
-
-        markKeyCorrect: function(letter) {
-            const key = this.keyboard.querySelector('.key[data-letter="' + letter.toUpperCase() + '"]');
-            if (key) {
-                key.classList.add('correct-key');
-            }
-        },
-
-        markKeyWrong: function(letter) {
-            const key = this.keyboard.querySelector('.key[data-letter="' + letter.toUpperCase() + '"]');
-            if (key) {
-                key.classList.add('wrong-key');
-            }
-        },
-
-        shakeKey: function(letter) {
-            const key = this.keyboard.querySelector('.key[data-letter="' + letter.toUpperCase() + '"]');
-            if (key) {
-                key.style.animation = 'none';
-                key.offsetHeight; // Trigger reflow
-                key.style.animation = 'shake 0.3s ease';
-            }
-        },
-
-        hideMsg: function() {
-            this.msg.classList.remove('show');
-            this.msgTitle.classList.remove('show');
-            this.msgText.classList.remove('show');
-            this.restart.classList.remove('show');
-        },
-
-        showMsg: function() {
-            const self = this;
-            
-            this.msg.classList.add('show');
-            
-            setTimeout(function() {
-                self.msgTitle.classList.add('show');
-            }, 100);
-            
-            setTimeout(function() {
-                self.msgText.classList.add('show');
-            }, 400);
-            
-            setTimeout(function() {
-                self.restart.classList.add('show');
-            }, 700);
-        },
-
-        rating: function() {
-            const right = this.rightGuesses.length;
-            const wrong = this.wrongGuesses.length || 0;
-            const total = right + wrong;
-            
-            return {
-                rating: total > 0 ? Math.floor((right / total) * 100) : 0,
-                guesses: total
-            };
-        },
-
-        win: function() {
-            this.gameOver = true;
-            const rating = this.rating();
-            
-            this.msgTitle.innerHTML = '🎉 Awesome, You Won!';
-            this.msgText.innerHTML = 
-                'You solved "<span class="highlight">' + this.wrd.word + '</span>" in ' +
-                '<span class="highlight">' + rating.guesses + '</span> guesses!<br>' +
-                'Score: <span class="highlight">' + rating.rating + '%</span>';
-            
-            this.showMsg();
-            AudioSystem.winSound();
-        },
-
-        lose: function() {
-            this.gameOver = true;
-            this.showWrong();
-            
-            this.msgTitle.innerHTML = 
-                '😢 Game Over!<br>The word was "<span class="highlight">' + this.wrd.word + '</span>"';
-            this.msgText.innerHTML = "Don't worry, you'll get the next one!";
-            
-            this.showMsg();
-            AudioSystem.loseSound();
-        },
-
-        theRestart: function() {
-            this.hideMsg();
-            this.gameOver = false;
-            this.wrd = this.randomWord();
-            this.correct = 0;
-            this.wrongGuesses = [];
-            this.rightGuesses = [];
-            this.showGuess();
-            this.showWrong();
-            this.showHint();
-            this.resetKeyboard();
-            
-            // Focus input on desktop
-            if (this.guessLetterInput && window.matchMedia('(hover: hover)').matches) {
-                setTimeout(() => this.guessLetterInput.focus(), 100);
-            }
-        }
+    let current, guessed, wrong, over, lastIndex = -1;
+    let stats = {
+        streak: Number(store('wg-streak')) || 0,
+        best: Number(store('wg-best')) || 0,
+        wins: Number(store('wg-wins')) || 0
     };
 
-    /*================================================
-      Add shake animation
-    ================================================*/
+    // build the on-screen keyboard once
+    ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'].forEach((row, r) => {
+        keyboard.children[r].innerHTML = [...row].map(l =>
+            '<button class="key" type="button" data-letter="' + l.toLowerCase() + '">' + l + '</button>').join('');
+    });
+    const keyFor = l => keyboard.querySelector('.key[data-letter="' + l + '"]');
 
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-    `;
-    document.head.appendChild(style);
+    /*================ Game ================*/
 
-    /*================================================
-      Initialize Game
-    ================================================*/
+    function newWord() {
+        // never the same word twice in a row
+        let i;
+        do { i = Math.floor(Math.random() * wordList.length); } while (i === lastIndex && wordList.length > 1);
+        lastIndex = i;
+        current = wordList[i];
+        guessed = new Set();
+        wrong = [];
+        over = false;
 
-    // Wait for DOM
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            Hangman.init(wordList);
+        guessEl.innerHTML = '<ul class="word" aria-label="' + current.word.length + ' letter word">' +
+            [...current.word].map(() => '<li class="letter"><span></span></li>').join('') + '</ul>';
+        keyboard.querySelectorAll('.key').forEach(k => {
+            k.classList.remove('correct-key', 'wrong-key');
+            k.disabled = false;
         });
-    } else {
-        Hangman.init(wordList);
+        hintEl.hidden = true;
+        hintEl.textContent = current.hint;
+        hintBtn.hidden = false;
+        hintBtn.setAttribute('aria-expanded', 'false');
+        message.hidden = true;
+        renderLives();
+        renderStats();
     }
 
+    function guess(letter) {
+        if (over || !/^[a-z]$/.test(letter)) return;
+        const key = keyFor(letter);
+        if (guessed.has(letter)) {
+            shake(key);
+            return;
+        }
+        guessed.add(letter);
+        if (key) key.disabled = true;
+
+        if (current.word.includes(letter)) {
+            if (key) key.classList.add('correct-key');
+            guessEl.querySelectorAll('.letter').forEach((li, i) => {
+                if (current.word[i] === letter) {
+                    li.firstChild.textContent = letter;
+                    li.classList.add('correct');
+                }
+            });
+            Sound.good();
+            if ([...current.word].every(l => guessed.has(l))) setTimeout(win, 350);
+        } else {
+            if (key) key.classList.add('wrong-key');
+            wrong.push(letter);
+            renderLives();
+            if (wrong.length >= MAX_WRONG) lose();
+            else Sound.bad();
+        }
+    }
+
+    function win() {
+        over = true;
+        stats.wins++;
+        stats.streak++;
+        stats.best = Math.max(stats.best, stats.streak);
+        saveStats();
+        const tries = guessed.size;
+        const accuracy = Math.round(((tries - wrong.length) / tries) * 100);
+        showMessage('🎉 You got it!',
+            'The word was <span class="highlight">' + current.word + '</span>.<br>' +
+            tries + ' guesses · ' + accuracy + '% accuracy · streak ' + stats.streak);
+        Sound.win();
+    }
+
+    function lose() {
+        over = true;
+        stats.streak = 0;
+        saveStats();
+        // show the answer on the board too
+        guessEl.querySelectorAll('.letter').forEach((li, i) => {
+            if (!li.classList.contains('correct')) {
+                li.firstChild.textContent = current.word[i];
+                li.classList.add('missed');
+            }
+        });
+        showMessage('😢 Out of lives',
+            'The word was <span class="highlight">' + current.word + '</span>.<br>You\'ll get the next one!');
+        Sound.lose();
+    }
+
+    function showMessage(title, html) {
+        $('msgTitle').textContent = title;
+        $('msgText').innerHTML = html;
+        setTimeout(() => {
+            message.hidden = false;
+            $('restartBtn').focus();
+        }, 300);
+    }
+
+    /*================ Rendering ================*/
+
+    function renderLives() {
+        const left = MAX_WRONG - wrong.length;
+        $('lives').innerHTML = Array.from({ length: MAX_WRONG }, (_, i) =>
+            '<i class="' + (i < left ? 'on' : '') + '"></i>').join('');
+        $('livesText').textContent = left === 1 ? 'Last life!' : left + ' lives left';
+        $('livesText').classList.toggle('danger', left <= 3);
+    }
+
+    function renderStats() {
+        $('streak').textContent = stats.streak;
+        $('bestStreak').textContent = stats.best;
+        $('wins').textContent = stats.wins;
+    }
+
+    function saveStats() {
+        store('wg-streak', stats.streak);
+        store('wg-best', stats.best);
+        store('wg-wins', stats.wins);
+        renderStats();
+    }
+
+    function shake(el) {
+        if (!el) return;
+        el.classList.remove('shake');
+        void el.offsetWidth; // restart the animation
+        el.classList.add('shake');
+    }
+
+    function renderSound() {
+        soundBtn.textContent = Sound.on ? '🔊' : '🔇';
+        soundBtn.setAttribute('aria-pressed', String(Sound.on));
+    }
+
+    /*================ Input ================*/
+
+    keyboard.addEventListener('click', e => {
+        const key = e.target.closest('.key');
+        if (key) guess(key.dataset.letter);
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return; // leave shortcuts alone
+        if (over) {
+            if (e.key === 'Enter' && !message.hidden) {
+                e.preventDefault();
+                newWord();
+            }
+            return;
+        }
+        const letter = e.key.toLowerCase();
+        if (/^[a-z]$/.test(letter)) {
+            guess(letter);
+            const key = keyFor(letter);
+            if (key) {
+                key.classList.add('pressed');
+                setTimeout(() => key.classList.remove('pressed'), 120);
+            }
+        }
+    });
+
+    hintBtn.addEventListener('click', () => {
+        hintEl.hidden = false;
+        hintBtn.hidden = true;
+        hintBtn.setAttribute('aria-expanded', 'true');
+    });
+
+    soundBtn.addEventListener('click', () => {
+        Sound.on = !Sound.on;
+        store('wg-sound', Sound.on ? 'on' : 'off');
+        renderSound();
+    });
+
+    $('restartBtn').addEventListener('click', newWord);
+
+    renderSound();
+    newWord();
 })();

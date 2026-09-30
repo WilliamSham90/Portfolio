@@ -1,548 +1,277 @@
 /*================================================
-  Minesweeper - CSS Styles
-  Mobile-friendly version
+  Minesweeper — classic Windows look on a CSS "Bliss" hillside
+  (the old CodePen wallpaper is blocked cross-origin, so it's drawn here).
 ================================================*/
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
-    height: 100%;
-    font-family: 'Roboto Mono', monospace;
-}
+html, body { min-height: 100%; }
 
 body {
     min-height: 100vh;
-    padding: 10px;
-    background: #7ea2e5 center / cover no-repeat;
-    background-image: url('https://assets.codepen.io/15664/bliss.webp'), url('https://assets.codepen.io/15664/bliss-mini.webp');
+    min-height: 100svh;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 64px 12px 20px;
+    font-family: "Tahoma", "Segoe UI", system-ui, sans-serif;
+    color: #111;
+    background:
+        radial-gradient(160% 55% at 25% 108%, #5fae33 0 48%, transparent 48.5%),
+        radial-gradient(120% 45% at 95% 112%, #4a9a25 0 45%, transparent 45.5%),
+        radial-gradient(60% 18% at 30% 22%, rgba(255, 255, 255, .7), transparent 70%),
+        radial-gradient(40% 12% at 78% 30%, rgba(255, 255, 255, .55), transparent 70%),
+        linear-gradient(#2f6fd1 0%, #6aa6ea 45%, #b9dcf7 72%);
+    background-attachment: fixed;
+}
+
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid #ffd400; outline-offset: 2px; }
+
+.sr-only {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
 }
 
 /*================================================
-  Game Container
+  Layout
 ================================================*/
 
 .game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    position: relative;
+    gap: 12px;
 }
 
-/*================================================
-  Action Selector (Mine/Flag Mode)
-================================================*/
-
-.action-selector {
+.toolbar {
     display: flex;
-    gap: 10px;
-    margin-bottom: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 16px;
 }
+
+.levels {
+    display: flex;
+    background: rgba(255, 255, 255, .35);
+    border: 1px solid rgba(255, 255, 255, .6);
+    border-radius: 999px;
+    padding: 3px;
+    backdrop-filter: blur(8px);
+}
+
+.level-btn {
+    border: 0;
+    background: transparent;
+    padding: 8px 14px;
+    min-height: 36px;
+    border-radius: 999px;
+    font-size: .88rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+    cursor: pointer;
+}
+.level-btn[aria-pressed="true"] { background: #fff; color: #1d4fa8; text-shadow: none; }
+
+.action-selector { display: flex; gap: 8px; }
 
 .mode-btn {
     width: 44px;
     height: 44px;
     font-size: 1.25rem;
     border: 1px solid #808080;
-    border-radius: 4px;
-    background: rgba(210, 210, 210, 0.6);
+    border-radius: 8px;
+    background: rgba(230, 230, 230, .7);
     cursor: pointer;
-    transition: transform 0.2s, background 0.2s, border-radius 0.2s;
-    -webkit-tap-highlight-color: transparent;
+    transition: transform .15s, background .15s, border-radius .15s;
 }
+.mode-btn[aria-pressed="true"] { background: #fff; transform: scale(1.08); border-radius: 50%; }
 
-.mode-btn:hover {
-    background: rgba(210, 210, 210, 0.9);
-}
-
-.mode-btn.active {
-    background: rgba(210, 210, 210, 0.95);
-    transform: scale(1.1);
-    border-radius: 50%;
+.help {
+    font-size: .8rem;
+    color: #fff;
+    text-align: center;
+    max-width: 44ch;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(0, 30, 80, .35);
+    backdrop-filter: blur(6px);
 }
 
 /*================================================
-  Grid
+  Window frame + LED counters
 ================================================*/
 
-.grid {
-    display: grid;
-    border: solid #808080;
-    border-width: 1px 0 0 1px;
-    background: #c0c0c0;
-    user-select: none;
-    touch-action: manipulation;
-}
-
-.cell {
-    width: 100%;
-    aspect-ratio: 1;
-    background: #c0c0c0;
-    border: solid #808080;
-    border-width: 0 1px 1px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+.board-frame {
     position: relative;
-    font-weight: bold;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.cell::before {
-    content: '';
-    position: absolute;
-    inset: 0;
     background: #c0c0c0;
-    border: 2px outset #ececec;
-    transition: opacity 0.1s;
+    padding: 8px;
+    border: 3px solid;
+    border-color: #fff #7b7b7b #7b7b7b #fff;
+    box-shadow: 0 18px 40px -18px rgba(0, 0, 0, .55);
 }
-
-.cell:active:not(.revealed):not(.flagged)::before {
-    background: #bdbdbd;
-    border: solid #999;
-    border-width: 2px 0 0 2px;
-}
-
-.cell.revealed::before {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.cell-content {
-    position: relative;
-    z-index: 1;
-    font-size: 0.9rem;
-    pointer-events: none;
-}
-
-.cell.flagged .cell-content::after {
-    content: '🚩';
-    font-size: 0.75rem;
-}
-
-.cell.revealed.mine {
-    background: #ff0000;
-}
-
-.cell.revealed.mine .cell-content::after {
-    content: '💣';
-    font-size: 0.75rem;
-}
-
-/* Number colors */
-.cell.revealed[data-neighbors="1"] .cell-content { color: #0000ff; }
-.cell.revealed[data-neighbors="2"] .cell-content { color: #008100; }
-.cell.revealed[data-neighbors="3"] .cell-content { color: #ff1300; }
-.cell.revealed[data-neighbors="4"] .cell-content { color: #000083; }
-.cell.revealed[data-neighbors="5"] .cell-content { color: #810500; }
-.cell.revealed[data-neighbors="6"] .cell-content { color: #2a9494; }
-.cell.revealed[data-neighbors="7"] .cell-content { color: #000000; }
-.cell.revealed[data-neighbors="8"] .cell-content { color: #808080; }
-
-/*================================================
-  Info Bar
-================================================*/
 
 .infos {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    gap: 10px;
+    gap: 8px;
+    padding: 6px;
+    margin-bottom: 8px;
+    border: 3px solid;
+    border-color: #7b7b7b #fff #fff #7b7b7b;
 }
 
-.counter, .timer {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: #ccc;
-    border: 1px solid #808080;
-    padding: 0 0.5rem;
-    height: 2.25rem;
-    font-family: 'Roboto Mono', monospace;
-}
-
-.counter {
-    min-width: 80px;
+.led {
+    min-width: 3.6ch;
+    padding: 2px 5px;
+    background: #000;
+    color: #ff2020;
+    font: 700 1.6rem/1 ui-monospace, "Consolas", "Courier New", monospace;
+    letter-spacing: .04em;
+    text-align: center;
+    text-shadow: 0 0 6px rgba(255, 32, 32, .55);
 }
 
 .face {
-    font-size: 1rem;
-}
-
-.mine-count {
-    font-size: 1.25rem;
-    font-weight: bold;
-}
-
-.timer {
-    min-width: 70px;
-    justify-content: center;
-}
-
-.digits {
-    font-size: 1rem;
-    font-weight: bold;
-}
-
-.restart-btn {
     width: 40px;
     height: 40px;
-    font-size: 1.25rem;
-    border: 1px solid #808080;
-    border-radius: 4px;
-    background: #ccc;
+    font-size: 1.35rem;
+    line-height: 1;
+    background: #c0c0c0;
+    border: 3px solid;
+    border-color: #fff #7b7b7b #7b7b7b #fff;
     cursor: pointer;
-    transition: transform 0.1s;
-    -webkit-tap-highlight-color: transparent;
 }
-
-.restart-btn:hover {
-    background: #ddd;
-}
-
-.restart-btn:active {
-    transform: scale(0.95);
-}
+.face:active { border-color: #7b7b7b #fff #fff #7b7b7b; }
 
 /*================================================
-  Overlay (Win/Lose)
+  Grid — cell size fits the screen for any board
+================================================*/
+
+.grid {
+    --cell: clamp(20px, min(calc((100vw - 56px) / var(--cols)), calc((100vh - 290px) / var(--rows))), 40px);
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--cell));
+    grid-auto-rows: var(--cell);
+    border: 3px solid;
+    border-color: #7b7b7b #fff #fff #7b7b7b;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+}
+@supports (height: 100svh) {
+    .grid { --cell: clamp(20px, min(calc((100vw - 56px) / var(--cols)), calc((100svh - 290px) / var(--rows))), 40px); }
+}
+
+.cell {
+    display: grid;
+    place-items: center;
+    width: var(--cell);
+    height: var(--cell);
+    padding: 0;
+    background: #c0c0c0;
+    border: calc(var(--cell) * .09) solid;
+    border-color: #fff #7b7b7b #7b7b7b #fff;
+    font: 800 calc(var(--cell) * .58) / 1 "Tahoma", system-ui, sans-serif;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.cell:focus-visible { outline: 2px solid #1d4fa8; outline-offset: -3px; }
+.cell:not(.revealed):not(.flagged):active { border: 1px solid #7b7b7b; border-width: 1px 0 0 1px; }
+
+.cell.revealed {
+    border: 0;
+    border-right: 1px solid #7b7b7b;
+    border-bottom: 1px solid #7b7b7b;
+    cursor: default;
+    animation: pop .14s ease-out;
+}
+
+.cell.flagged::after { content: '🚩'; font-size: calc(var(--cell) * .5); }
+.cell.revealed.mine::after { content: '💣'; font-size: calc(var(--cell) * .55); }
+.cell.boom { background: #ff2a2a; }
+.cell.wrong-flag { background: #ffb3b3; animation: shake .3s ease-in-out; }
+.cell.wrong-flag::after { content: '❌'; font-size: calc(var(--cell) * .45); }
+
+.cell[data-n="1"] { color: #0000ff; }
+.cell[data-n="2"] { color: #008100; }
+.cell[data-n="3"] { color: #ff1300; }
+.cell[data-n="4"] { color: #000083; }
+.cell[data-n="5"] { color: #810500; }
+.cell[data-n="6"] { color: #2a9494; }
+.cell[data-n="7"] { color: #000000; }
+.cell[data-n="8"] { color: #808080; }
+
+/*================================================
+  Win / lose message
 ================================================*/
 
 .overlay {
     position: absolute;
     inset: 0;
-    background: rgba(10, 0, 0, 0.75);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s, visibility 0.3s;
-    border-radius: 4px;
-    z-index: 100;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(20, 0, 0, .72);
+    animation: fade .25s ease-out;
 }
+.overlay[hidden] { display: none; }
+.overlay.victory { background: rgba(0, 45, 10, .78); }
 
-.overlay.visible {
-    opacity: 1;
-    visibility: visible;
-}
-
-.overlay.victory {
-    background: rgba(0, 50, 0, 0.85);
-}
-
-.overlay-content {
-    text-align: center;
-    color: #fff;
-    font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
-}
-
-.overlay-message {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-}
+.overlay-content { text-align: center; color: #fff; }
+.overlay-title { font-size: 1.5rem; font-weight: 800; }
+.overlay-text { margin: 6px 0 16px; font-size: .95rem; opacity: .9; }
 
 .overlay-btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border: none;
-    border-radius: 4px;
+    padding: 12px 22px;
+    min-height: 44px;
+    border: 0;
+    border-radius: 999px;
     background: #fff;
-    color: #333;
+    color: #1d4fa8;
+    font-weight: 800;
     cursor: pointer;
-    transition: transform 0.1s, background 0.1s;
-    -webkit-tap-highlight-color: transparent;
 }
+.overlay-btn:hover { background: #ffe97a; }
 
-.overlay-btn:hover {
-    background: #eee;
-}
-
-.overlay-btn:active {
-    transform: scale(0.95);
-}
+@keyframes pop { from { transform: scale(.85); } to { transform: none; } }
+@keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+@keyframes fade { from { opacity: 0; } }
 
 /*================================================
-  Responsive Design
-================================================*/
-
-/* Desktop - larger cells */
-@media (min-width: 600px) and (min-height: 600px) {
-    .grid {
-        font-size: 24px;
-    }
-    
-    .cell-content {
-        font-size: 0.9rem;
-    }
-    
-    .cell.flagged .cell-content::after,
-    .cell.revealed.mine .cell-content::after {
-        font-size: 0.85rem;
-    }
-}
-
-/* Tablet */
-@media (max-width: 599px), (max-height: 599px) {
-    .grid {
-        font-size: 20px;
-    }
-}
-
-/* Mobile */
-@media (max-width: 400px) {
-    body {
-        padding: 5px;
-    }
-    
-    .grid {
-        font-size: 16px;
-    }
-    
-    .cell-content {
-        font-size: 0.75rem;
-    }
-    
-    .cell.flagged .cell-content::after,
-    .cell.revealed.mine .cell-content::after {
-        font-size: 0.65rem;
-    }
-    
-    .mode-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.1rem;
-    }
-    
-    .counter, .timer {
-        height: 2rem;
-        padding: 0 0.35rem;
-    }
-    
-    .mine-count, .digits {
-        font-size: 1rem;
-    }
-    
-    .face {
-        font-size: 0.9rem;
-    }
-    
-    .restart-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 1.1rem;
-    }
-}
-
-/* Very small screens */
-@media (max-width: 320px) {
-    .grid {
-        font-size: 14px;
-    }
-    
-    .infos {
-        gap: 5px;
-    }
-    
-    .counter {
-        min-width: 70px;
-    }
-    
-    .timer {
-        min-width: 60px;
-    }
-}
-
-/* Landscape mobile */
-@media (max-height: 450px) and (orientation: landscape) {
-    body {
-        padding: 5px;
-        align-items: flex-start;
-    }
-    
-    .game-container {
-        gap: 5px;
-    }
-    
-    .grid {
-        font-size: 18px;
-    }
-    
-    .action-selector {
-        margin-bottom: 0;
-    }
-    
-    .mode-btn {
-        width: 36px;
-        height: 36px;
-    }
-}
-
-/*================================================
-  Touch Device Enhancements
-================================================*/
-
-@media (hover: none) and (pointer: coarse) {
-    .mode-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 1.4rem;
-    }
-    
-    .mode-btn.active {
-        transform: scale(1.05);
-    }
-    
-    /* Larger tap targets on mobile */
-    .restart-btn {
-        width: 44px;
-        height: 44px;
-    }
-}
-
-/*================================================
-  Animations
-================================================*/
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-}
-
-.cell.wrong-flag {
-    animation: shake 0.3s ease-in-out;
-}
-
-@keyframes pop {
-    0% { transform: scale(0); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-.cell.revealed .cell-content {
-    animation: pop 0.15s ease-out;
-}
-
-/*================================================
-  Back Button - Liquid Glass Effect
+  Back button — liquid glass, top left
 ================================================*/
 
 .back-btn {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    top: 12px;
+    left: 12px;
     z-index: 200;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 20px;
-    border: none;
+    padding: 10px 18px;
+    min-height: 44px;
     border-radius: 16px;
-    cursor: pointer;
-    font-family: inherit;
     font-size: 14px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.95);
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.2) 0%,
-        rgba(255, 255, 255, 0.05) 100%
-    );
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.2),
-        inset 0 1px 1px rgba(255, 255, 255, 0.4),
-        inset 0 -1px 1px rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+    background: linear-gradient(135deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, .08));
+    border: 1px solid rgba(255, 255, 255, .45);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .2), inset 0 1px 1px rgba(255, 255, 255, .45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: transform .2s, background .2s;
 }
+.back-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, .32); }
+.back-btn svg { width: 18px; height: 18px; flex: none; }
 
-.back-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.25) 0%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    border-radius: 16px 16px 0 0;
-    pointer-events: none;
-}
-
-.back-btn:hover {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.3) 0%,
-        rgba(255, 255, 255, 0.1) 100%
-    );
-    transform: translateY(-2px);
-    box-shadow: 
-        0 12px 40px rgba(0, 0, 0, 0.25),
-        inset 0 1px 1px rgba(255, 255, 255, 0.5),
-        inset 0 -1px 1px rgba(255, 255, 255, 0.1);
-}
-
-.back-btn:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 
-        0 4px 20px rgba(0, 0, 0, 0.2),
-        inset 0 1px 1px rgba(255, 255, 255, 0.3),
-        inset 0 -1px 1px rgba(255, 255, 255, 0.1);
-}
-
-.back-btn svg {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
-}
-
-.back-btn span {
-    position: relative;
-    z-index: 1;
-}
-
-@media (max-width: 400px) {
-    .back-btn {
-        padding: 10px 16px;
-        font-size: 13px;
-        bottom: 15px;
-        left: 15px;
-    }
-    
-    .back-btn svg {
-        width: 16px;
-        height: 16px;
-    }
-}
-
-@media (hover: none) and (pointer: coarse) {
-    .back-btn {
-        padding: 14px 22px;
-        font-size: 15px;
-    }
-    
-    .back-btn svg {
-        width: 20px;
-        height: 20px;
-    }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
 }

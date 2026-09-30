@@ -1,147 +1,124 @@
 /*================================================
-  Tower Blocks - JavaScript
-  Converted from TypeScript, Mobile-friendly
+  Tower Blocks
+  three.js r83 + GSAP 3. Blocks slide at a speed measured per second (not
+  per frame), every mesh's geometry/material is freed when it leaves the
+  scene, and perfect drops build a streak. Best height is saved locally.
 ================================================*/
 
-(function() {
+(function () {
     'use strict';
 
+    function store(key, value) {
+        try {
+            if (value === undefined) return localStorage.getItem(key);
+            localStorage.setItem(key, value);
+        } catch (e) { return null; }
+    }
+
+    function disposeMesh(mesh) {
+        if (mesh && mesh.geometry) mesh.geometry.dispose();
+    }
+
     /*================================================
-      Stage Class - Handles Three.js Scene
+      Stage — renderer, camera, lights
     ================================================*/
 
     class Stage {
         constructor() {
-            // Container
             this.container = document.getElementById('game');
-            
-            // Renderer
-            this.renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: false
-            });
-            
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+            this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            // sharp on retina, capped so big 3x screens don't cook the GPU
+            this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
             this.renderer.setClearColor('#D0CBC7', 1);
             this.container.appendChild(this.renderer.domElement);
-            
-            // Scene
-            this.scene = new THREE.Scene();
 
-            // Camera
-            var aspect = window.innerWidth / window.innerHeight;
-            var d = 20;
-            this.camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, -100, 1000);
-            this.camera.position.x = 2;
-            this.camera.position.y = 2; 
-            this.camera.position.z = 2; 
+            this.scene = new THREE.Scene();
+            this.camera = new THREE.OrthographicCamera(-20, 20, 20, -20, -100, 1000);
+            this.camera.position.set(2, 2, 2);
             this.camera.lookAt(new THREE.Vector3(0, 0, 0));
-            
-            // Lights
+
             this.light = new THREE.DirectionalLight(0xffffff, 0.5);
             this.light.position.set(0, 499, 0);
             this.scene.add(this.light);
+            this.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-            this.softLight = new THREE.AmbientLight(0xffffff, 0.4);
-            this.scene.add(this.softLight);
-            
-            // Handle resize
             window.addEventListener('resize', () => this.onResize());
             this.onResize();
         }
-        
+
         setCamera(y, speed) {
-            speed = speed || 0.3;
-            TweenLite.to(this.camera.position, speed, { y: y + 4, ease: Power1.easeInOut });
-            TweenLite.to(this.camera.lookAt, speed, { y: y, ease: Power1.easeInOut });
+            gsap.to(this.camera.position, { duration: speed || 0.3, y: y + 4, ease: 'power1.inOut' });
         }
-        
+
         onResize() {
-            var viewSize = 30;
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-            this.camera.left = window.innerWidth / -viewSize;
-            this.camera.right = window.innerWidth / viewSize;
-            this.camera.top = window.innerHeight / viewSize;
-            this.camera.bottom = window.innerHeight / -viewSize;
+            const viewSize = 30, w = window.innerWidth, h = window.innerHeight;
+            this.renderer.setSize(w, h);
+            this.camera.left = w / -viewSize;
+            this.camera.right = w / viewSize;
+            this.camera.top = h / viewSize;
+            this.camera.bottom = h / -viewSize;
             this.camera.updateProjectionMatrix();
         }
-        
-        render() {
-            this.renderer.render(this.scene, this.camera);
-        }
 
-        add(elem) {
-            this.scene.add(elem);
-        }
-
-        remove(elem) {
-            this.scene.remove(elem);
-        }
+        render() { this.renderer.render(this.scene, this.camera); }
+        add(elem) { this.scene.add(elem); }
     }
 
     /*================================================
-      Block Class - Individual Game Blocks
+      Block
     ================================================*/
 
-    class Block {
-        static get STATES() {
-            return { ACTIVE: 'active', STOPPED: 'stopped', MISSED: 'missed' };
-        }
-        
-        static get MOVE_AMOUNT() {
-            return 12;
-        }
+    const STATES = { ACTIVE: 'active', STOPPED: 'stopped', MISSED: 'missed' };
+    const MOVE_AMOUNT = 12;
 
-        constructor(block) {
-            this.dimension = { width: 0, height: 0, depth: 0 };
-            this.position = { x: 0, y: 0, z: 0 };
-            
-            // Set size and position
-            this.targetBlock = block;
-            
-            this.index = (this.targetBlock ? this.targetBlock.index : 0) + 1;
+    function boxMesh(dim, material) {
+        const geometry = new THREE.BoxGeometry(dim.width, dim.height, dim.depth);
+        geometry.applyMatrix(new THREE.Matrix4().makeTranslation(dim.width / 2, dim.height / 2, dim.depth / 2));
+        return new THREE.Mesh(geometry, material);
+    }
+
+    class Block {
+        constructor(target) {
+            this.targetBlock = target;
+            this.index = (target ? target.index : 0) + 1;
             this.workingPlane = this.index % 2 ? 'x' : 'z';
             this.workingDimension = this.index % 2 ? 'width' : 'depth';
-            
-            // Set the dimensions from the target block, or defaults
-            this.dimension.width = this.targetBlock ? this.targetBlock.dimension.width : 10;
-            this.dimension.height = this.targetBlock ? this.targetBlock.dimension.height : 2;
-            this.dimension.depth = this.targetBlock ? this.targetBlock.dimension.depth : 10;
-            
-            this.position.x = this.targetBlock ? this.targetBlock.position.x : 0;
-            this.position.y = this.dimension.height * this.index;
-            this.position.z = this.targetBlock ? this.targetBlock.position.z : 0;
-            
-            this.colorOffset = this.targetBlock ? this.targetBlock.colorOffset : Math.round(Math.random() * 100);
-            
-            // Set color
-            if (!this.targetBlock) {
+
+            this.dimension = {
+                width: target ? target.dimension.width : 10,
+                height: target ? target.dimension.height : 2,
+                depth: target ? target.dimension.depth : 10
+            };
+            this.position = {
+                x: target ? target.position.x : 0,
+                y: this.dimension.height * this.index,
+                z: target ? target.position.z : 0
+            };
+
+            this.colorOffset = target ? target.colorOffset : Math.round(Math.random() * 100);
+            if (!target) {
                 this.color = 0x333344;
             } else {
-                var offset = this.index + this.colorOffset;
-                var r = Math.sin(0.3 * offset) * 55 + 200;
-                var g = Math.sin(0.3 * offset + 2) * 55 + 200;
-                var b = Math.sin(0.3 * offset + 4) * 55 + 200;
-                this.color = new THREE.Color(r / 255, g / 255, b / 255);
+                const o = this.index + this.colorOffset;
+                this.color = new THREE.Color(
+                    (Math.sin(0.3 * o) * 55 + 200) / 255,
+                    (Math.sin(0.3 * o + 2) * 55 + 200) / 255,
+                    (Math.sin(0.3 * o + 4) * 55 + 200) / 255);
             }
-            
-            // State
-            this.state = this.index > 1 ? Block.STATES.ACTIVE : Block.STATES.STOPPED;
-            
-            // Set direction
-            this.speed = -0.1 - (this.index * 0.005);
-            if (this.speed < -4) this.speed = -4;
+
+            this.state = this.index > 1 ? STATES.ACTIVE : STATES.STOPPED;
+
+            // speed in world units per 60Hz frame, as tuned originally; tick() scales it by real time
+            this.speed = Math.max(-4, -0.1 - this.index * 0.005);
             this.direction = this.speed;
-            
-            // Create block
-            var geometry = new THREE.BoxGeometry(this.dimension.width, this.dimension.height, this.dimension.depth);
-            geometry.applyMatrix(new THREE.Matrix4().makeTranslation(this.dimension.width / 2, this.dimension.height / 2, this.dimension.depth / 2));
+
             this.material = new THREE.MeshToonMaterial({ color: this.color, shading: THREE.FlatShading });
-            this.mesh = new THREE.Mesh(geometry, this.material);
-            this.mesh.position.set(this.position.x, this.position.y + (this.state == Block.STATES.ACTIVE ? 0 : 0), this.position.z);
-            
-            if (this.state == Block.STATES.ACTIVE) {
-                this.position[this.workingPlane] = Math.random() > 0.5 ? -Block.MOVE_AMOUNT : Block.MOVE_AMOUNT;
+            this.mesh = boxMesh(this.dimension, this.material);
+            this.mesh.position.set(this.position.x, this.position.y, this.position.z);
+
+            if (this.state === STATES.ACTIVE) {
+                this.position[this.workingPlane] = Math.random() > 0.5 ? -MOVE_AMOUNT : MOVE_AMOUNT;
             }
         }
 
@@ -150,317 +127,243 @@
         }
 
         place() {
-            this.state = Block.STATES.STOPPED;
-            
-            var overlap = this.targetBlock.dimension[this.workingDimension] - Math.abs(this.position[this.workingPlane] - this.targetBlock.position[this.workingPlane]);
-            
-            var blocksToReturn = {
-                plane: this.workingPlane,
-                direction: this.direction
-            };
-            
-            if (this.dimension[this.workingDimension] - overlap < 0.3) {
-                overlap = this.dimension[this.workingDimension];
-                blocksToReturn.bonus = true;
-                this.position.x = this.targetBlock.position.x;
-                this.position.z = this.targetBlock.position.z;
-                this.dimension.width = this.targetBlock.dimension.width;
-                this.dimension.depth = this.targetBlock.dimension.depth;
-            }
-            
-            if (overlap > 0) {
-                var choppedDimensions = { 
-                    width: this.dimension.width, 
-                    height: this.dimension.height, 
-                    depth: this.dimension.depth 
-                };
-                choppedDimensions[this.workingDimension] -= overlap;
-                this.dimension[this.workingDimension] = overlap;
-                        
-                var placedGeometry = new THREE.BoxGeometry(this.dimension.width, this.dimension.height, this.dimension.depth);
-                placedGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(this.dimension.width / 2, this.dimension.height / 2, this.dimension.depth / 2));
-                var placedMesh = new THREE.Mesh(placedGeometry, this.material);
-                
-                var choppedGeometry = new THREE.BoxGeometry(choppedDimensions.width, choppedDimensions.height, choppedDimensions.depth);
-                choppedGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(choppedDimensions.width / 2, choppedDimensions.height / 2, choppedDimensions.depth / 2));
-                var choppedMesh = new THREE.Mesh(choppedGeometry, this.material);
-                
-                var choppedPosition = {
-                    x: this.position.x,
-                    y: this.position.y,
-                    z: this.position.z
-                };
-                
-                if (this.position[this.workingPlane] < this.targetBlock.position[this.workingPlane]) {
-                    this.position[this.workingPlane] = this.targetBlock.position[this.workingPlane];
-                } else {
-                    choppedPosition[this.workingPlane] += overlap;
-                }
-                
-                placedMesh.position.set(this.position.x, this.position.y, this.position.z);
-                choppedMesh.position.set(choppedPosition.x, choppedPosition.y, choppedPosition.z);
-                
-                blocksToReturn.placed = placedMesh;
-                if (!blocksToReturn.bonus) blocksToReturn.chopped = choppedMesh;
-            } else {
-                this.state = Block.STATES.MISSED;
-            }
-            
-            this.dimension[this.workingDimension] = overlap;
+            this.state = STATES.STOPPED;
+            const plane = this.workingPlane, dimKey = this.workingDimension, target = this.targetBlock;
+            let overlap = target.dimension[dimKey] - Math.abs(this.position[plane] - target.position[plane]);
+            const result = { plane, direction: this.direction };
 
-            return blocksToReturn;
-        }
-        
-        tick() {
-            if (this.state == Block.STATES.ACTIVE) {
-                var value = this.position[this.workingPlane];
-                if (value > Block.MOVE_AMOUNT || value < -Block.MOVE_AMOUNT) this.reverseDirection();
-                this.position[this.workingPlane] += this.direction;
-                this.mesh.position[this.workingPlane] = this.position[this.workingPlane];
+            if (this.dimension[dimKey] - overlap < 0.3) {
+                // close enough: snap it and keep the full size
+                overlap = this.dimension[dimKey];
+                result.bonus = true;
+                this.position.x = target.position.x;
+                this.position.z = target.position.z;
+                this.dimension.width = target.dimension.width;
+                this.dimension.depth = target.dimension.depth;
             }
+
+            if (overlap > 0) {
+                const chopped = { width: this.dimension.width, height: this.dimension.height, depth: this.dimension.depth };
+                chopped[dimKey] -= overlap;
+                this.dimension[dimKey] = overlap;
+
+                const placedMesh = boxMesh(this.dimension, this.material);
+                const choppedPos = { x: this.position.x, y: this.position.y, z: this.position.z };
+                if (this.position[plane] < target.position[plane]) this.position[plane] = target.position[plane];
+                else choppedPos[plane] += overlap;
+
+                placedMesh.position.set(this.position.x, this.position.y, this.position.z);
+                result.placed = placedMesh;
+                if (!result.bonus) {
+                    const choppedMesh = boxMesh(chopped, this.material);
+                    choppedMesh.position.set(choppedPos.x, choppedPos.y, choppedPos.z);
+                    result.chopped = choppedMesh;
+                }
+            } else {
+                this.state = STATES.MISSED;
+            }
+            this.dimension[dimKey] = overlap;
+            return result;
+        }
+
+        tick(dt) {
+            if (this.state !== STATES.ACTIVE) return;
+            const value = this.position[this.workingPlane];
+            if (value > MOVE_AMOUNT || value < -MOVE_AMOUNT) this.reverseDirection();
+            this.position[this.workingPlane] += this.direction * dt * 60;
+            this.mesh.position[this.workingPlane] = this.position[this.workingPlane];
         }
     }
 
     /*================================================
-      Game Class - Main Game Controller
+      Game
     ================================================*/
 
-    class Game {
-        static get STATES() {
-            return {
-                'LOADING': 'loading',
-                'PLAYING': 'playing',
-                'READY': 'ready',
-                'ENDED': 'ended',
-                'RESETTING': 'resetting'
-            };
-        }
+    const GAME = { LOADING: 'loading', PLAYING: 'playing', READY: 'ready', ENDED: 'ended', RESETTING: 'resetting' };
 
+    class Game {
         constructor() {
             this.blocks = [];
-            this.state = Game.STATES.LOADING;
-            
+            this.state = GAME.LOADING;
+            this.streak = 0;
+            this.best = Number(store('tower-best')) || 0;
             this.stage = new Stage();
-            
+
             this.mainContainer = document.getElementById('container');
             this.scoreContainer = document.getElementById('score');
-            this.startButton = document.getElementById('start-button');
             this.instructions = document.getElementById('instructions');
-            this.scoreContainer.innerHTML = '0';
-            
+            this.perfect = document.getElementById('perfect');
+
             this.newBlocks = new THREE.Group();
             this.placedBlocks = new THREE.Group();
             this.choppedBlocks = new THREE.Group();
-            
             this.stage.add(this.newBlocks);
             this.stage.add(this.placedBlocks);
             this.stage.add(this.choppedBlocks);
-            
+
             this.addBlock();
+            this.lastTime = performance.now();
             this.tick();
-            
-            this.updateState(Game.STATES.READY);
-            
+            this.updateState(GAME.READY);
+            this.showBest();
             this.bindEvents();
         }
 
         bindEvents() {
-            var self = this;
-            
-            // Keyboard controls
-            document.addEventListener('keydown', function(e) {
-                if (e.keyCode == 32) {
+            // one pointerdown covers mouse, touch and pen with no double-firing;
+            // the Back link is left to do its own job
+            this.mainContainer.addEventListener('pointerdown', e => {
+                if (e.button !== 0 || e.target.closest('.back-btn')) return;
+                e.preventDefault();
+                this.onAction();
+            });
+            document.getElementById('start-button').addEventListener('click', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if ((e.code === 'Space' || e.code === 'Enter') && !e.repeat) {
+                    if (e.target.closest && e.target.closest('.back-btn')) return;
                     e.preventDefault();
-                    self.onAction();
+                    this.onAction();
                 }
             });
-            
-            // Mouse click
-            document.addEventListener('click', function(e) {
-                self.onAction();
-            });
-            
-            // Touch support - properly handled to avoid double-firing
-            var touchHandled = false;
-            
-            document.addEventListener('touchstart', function(e) {
-                if (touchHandled) return;
-                touchHandled = true;
-                
-                // Prevent the click event from also firing
-                e.preventDefault();
-                
-                self.onAction();
-                
-                // Reset after a short delay
-                setTimeout(function() {
-                    touchHandled = false;
-                }, 100);
-            }, { passive: false });
-            
-            // Prevent default touch behaviors that might interfere
-            document.addEventListener('touchmove', function(e) {
-                e.preventDefault();
-            }, { passive: false });
         }
 
         updateState(newState) {
-            var self = this;
-            for (var key in Game.STATES) {
-                this.mainContainer.classList.remove(Game.STATES[key]);
-            }
+            Object.values(GAME).forEach(s => this.mainContainer.classList.remove(s));
             this.mainContainer.classList.add(newState);
             this.state = newState;
         }
 
         onAction() {
-            switch (this.state) {
-                case Game.STATES.READY:
-                    this.startGame();
-                    break;
-                case Game.STATES.PLAYING:
-                    this.placeBlock();
-                    break;
-                case Game.STATES.ENDED:
-                    this.restartGame();
-                    break;
-            }
+            if (this.state === GAME.READY) this.startGame();
+            else if (this.state === GAME.PLAYING) this.placeBlock();
+            else if (this.state === GAME.ENDED) this.restartGame();
         }
-        
+
         startGame() {
-            if (this.state != Game.STATES.PLAYING) {
-                this.scoreContainer.innerHTML = '0';
-                this.updateState(Game.STATES.PLAYING);
-                this.addBlock();
-            }
+            if (this.state === GAME.PLAYING) return;
+            this.scoreContainer.textContent = '0';
+            this.streak = 0;
+            this.instructions.classList.remove('hide');
+            this.updateState(GAME.PLAYING);
+            this.addBlock();
         }
 
         restartGame() {
-            var self = this;
-            this.updateState(Game.STATES.RESETTING);
-            
-            var oldBlocks = this.placedBlocks.children;
-            var removeSpeed = 0.2;
-            var delayAmount = 0.02;
-            
-            for (var i = 0; i < oldBlocks.length; i++) {
-                TweenLite.to(oldBlocks[i].scale, removeSpeed, {
-                    x: 0, y: 0, z: 0, 
-                    delay: (oldBlocks.length - i) * delayAmount, 
-                    ease: Power1.easeIn, 
-                    onComplete: (function(block) {
-                        return function() {
-                            self.placedBlocks.remove(block);
-                        };
-                    })(oldBlocks[i])
+            this.updateState(GAME.RESETTING);
+            const oldBlocks = this.placedBlocks.children.slice();
+            const removeSpeed = 0.2, delayAmount = 0.02;
+
+            oldBlocks.forEach((block, i) => {
+                const delay = (oldBlocks.length - i) * delayAmount;
+                gsap.to(block.scale, {
+                    duration: removeSpeed, x: 0, y: 0, z: 0, delay, ease: 'power1.in',
+                    onComplete: () => {
+                        this.placedBlocks.remove(block);
+                        disposeMesh(block);
+                        block.material.dispose();
+                    }
                 });
-                TweenLite.to(oldBlocks[i].rotation, removeSpeed, {
-                    y: 0.5, 
-                    delay: (oldBlocks.length - i) * delayAmount, 
-                    ease: Power1.easeIn
-                });
-            }
-            
-            var cameraMoveSpeed = removeSpeed * 2 + (oldBlocks.length * delayAmount);
-            this.stage.setCamera(2, cameraMoveSpeed);
-            
-            var countdown = { value: this.blocks.length - 1 };
-            TweenLite.to(countdown, cameraMoveSpeed, {
-                value: 0, 
-                onUpdate: function() {
-                    self.scoreContainer.innerHTML = String(Math.round(countdown.value));
-                }
+                gsap.to(block.rotation, { duration: removeSpeed, y: 0.5, delay, ease: 'power1.in' });
             });
-            
+
+            const cameraMoveSpeed = removeSpeed * 2 + oldBlocks.length * delayAmount;
+            this.stage.setCamera(2, cameraMoveSpeed);
+
+            const countdown = { value: this.blocks.length - 1 };
+            gsap.to(countdown, {
+                duration: cameraMoveSpeed, value: 0,
+                onUpdate: () => { this.scoreContainer.textContent = String(Math.round(countdown.value)); }
+            });
+
+            // placed blocks free their material above; the missed one never got placed
+            this.blocks[this.blocks.length - 1].material.dispose();
             this.blocks = this.blocks.slice(0, 1);
-            
-            setTimeout(function() {
-                self.startGame();
-            }, cameraMoveSpeed * 1000);
+            setTimeout(() => this.startGame(), cameraMoveSpeed * 1000);
         }
-        
+
         placeBlock() {
-            var self = this;
-            var currentBlock = this.blocks[this.blocks.length - 1];
-            var newBlocks = currentBlock.place();
-            this.newBlocks.remove(currentBlock.mesh);
-            
-            if (newBlocks.placed) this.placedBlocks.add(newBlocks.placed);
-            
-            if (newBlocks.chopped) {
-                this.choppedBlocks.add(newBlocks.chopped);
-                var positionParams = { 
-                    y: '-=30', 
-                    ease: Power1.easeIn, 
-                    onComplete: function() {
-                        self.choppedBlocks.remove(newBlocks.chopped);
+            const current = this.blocks[this.blocks.length - 1];
+            const result = current.place();
+            this.newBlocks.remove(current.mesh);
+            disposeMesh(current.mesh);
+
+            if (result.placed) this.placedBlocks.add(result.placed);
+
+            if (result.bonus) this.showPerfect();
+            else if (current.state !== STATES.MISSED) this.streak = 0;
+
+            if (result.chopped) {
+                const chopped = result.chopped;
+                this.choppedBlocks.add(chopped);
+                const pos = {
+                    duration: 1, y: '-=30', ease: 'power1.in',
+                    onComplete: () => {
+                        this.choppedBlocks.remove(chopped);
+                        disposeMesh(chopped);
                     }
                 };
-                var rotateRandomness = 10;
-                var rotationParams = {
-                    delay: 0.05,
-                    x: newBlocks.plane == 'z' ? ((Math.random() * rotateRandomness) - (rotateRandomness / 2)) : 0.1,
-                    z: newBlocks.plane == 'x' ? ((Math.random() * rotateRandomness) - (rotateRandomness / 2)) : 0.1,
-                    y: Math.random() * 0.1,
+                const spin = 10;
+                const rot = {
+                    duration: 1, delay: 0.05,
+                    x: result.plane === 'z' ? Math.random() * spin - spin / 2 : 0.1,
+                    z: result.plane === 'x' ? Math.random() * spin - spin / 2 : 0.1,
+                    y: Math.random() * 0.1
                 };
-                
-                if (newBlocks.chopped.position[newBlocks.plane] > newBlocks.placed.position[newBlocks.plane]) {
-                    positionParams[newBlocks.plane] = '+=' + (40 * Math.abs(newBlocks.direction));
-                } else {
-                    positionParams[newBlocks.plane] = '-=' + (40 * Math.abs(newBlocks.direction));
-                }
-                TweenLite.to(newBlocks.chopped.position, 1, positionParams);
-                TweenLite.to(newBlocks.chopped.rotation, 1, rotationParams);
+                const push = 40 * Math.abs(result.direction);
+                pos[result.plane] = chopped.position[result.plane] > result.placed.position[result.plane] ? '+=' + push : '-=' + push;
+                gsap.to(chopped.position, pos);
+                gsap.to(chopped.rotation, rot);
             }
-            
+
             this.addBlock();
         }
-        
-        addBlock() {
-            var lastBlock = this.blocks[this.blocks.length - 1];
-            
-            if (lastBlock && lastBlock.state == Block.STATES.MISSED) {
-                return this.endGame();
-            }
-            
-            this.scoreContainer.innerHTML = String(this.blocks.length - 1);
-            
-            var newKidOnTheBlock = new Block(lastBlock);
-            this.newBlocks.add(newKidOnTheBlock.mesh);
-            this.blocks.push(newKidOnTheBlock);
 
-            this.stage.setCamera(this.blocks.length * 2);
-            
-            if (this.blocks.length >= 5) {
-                this.instructions.classList.add('hide');
-            }
+        showPerfect() {
+            this.streak++;
+            this.perfect.textContent = this.streak > 1 ? 'Perfect ×' + this.streak : 'Perfect!';
+            this.perfect.classList.remove('pop');
+            void this.perfect.offsetWidth; // restart the animation
+            this.perfect.classList.add('pop');
         }
-        
+
+        addBlock() {
+            const last = this.blocks[this.blocks.length - 1];
+            if (last && last.state === STATES.MISSED) return this.endGame();
+
+            this.scoreContainer.textContent = String(this.blocks.length - 1);
+            const block = new Block(last);
+            this.newBlocks.add(block.mesh);
+            this.blocks.push(block);
+            this.stage.setCamera(this.blocks.length * 2);
+            if (this.blocks.length >= 5) this.instructions.classList.add('hide');
+        }
+
         endGame() {
-            this.updateState(Game.STATES.ENDED);
+            const score = this.blocks.length - 2; // base block and the missed one don't count
+            const isBest = score > this.best;
+            if (isBest) {
+                this.best = score;
+                store('tower-best', score);
+            }
+            document.getElementById('final-text').textContent =
+                'Height ' + score + (isBest && score > 0 ? ' · New best!' : ' · Best ' + this.best);
+            this.showBest();
+            this.updateState(GAME.ENDED);
+        }
+
+        showBest() {
+            document.getElementById('best-text').textContent = this.best ? 'Best: ' + this.best : '';
         }
 
         tick() {
-            var self = this;
-            this.blocks[this.blocks.length - 1].tick();
+            const now = performance.now();
+            const dt = Math.min(0.05, (now - this.lastTime) / 1000); // cap after a hitch
+            this.lastTime = now;
+            this.blocks[this.blocks.length - 1].tick(dt);
             this.stage.render();
-            requestAnimationFrame(function() {
-                self.tick();
-            });
+            requestAnimationFrame(() => this.tick());
         }
     }
 
-    /*================================================
-      Initialize Game
-    ================================================*/
-
-    // Wait for DOM and scripts to load
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            new Game();
-        });
-    } else {
-        new Game();
-    }
-
+    new Game();
 })();
