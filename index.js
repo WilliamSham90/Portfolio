@@ -58,7 +58,7 @@
     "stat.years":"Jaar ervaring in webontwikkeling","stat.projects":"Voltooide projekte",
     "stat.live":"Werwe tans aanlyn","stat.tech":"Tegnologieë wat ek gereeld gebruik",
     "home.workEyebrow":"Uitgesoekte werk","home.workTitle":"Werk wat nou aanlyn is",
-    "home.statement":"Ek vat 'n idee wat halfpad op 'n oproep geskets is en maak daarvan iets wat aanlyn, vinnig en maklik is om te onderhou — getipeerde API's, sinvolle databasisse en koppelvlakke wat mense regtig graag gebruik.",
+    "home.statement":"Vasgeval op 'n gebroke webwerf? Van uitleg wat heeltemal op mobiele toestelle in duie stort tot mysterieuse prestasiedalings, ek het dit alles gesien. Laat my die kode ontrafel en jou platform laat presteer presies soos dit behoort.",
     "home.processEyebrow":"Hoe ek werk","home.processTitle":"Vervelige proses. Uitstekende webwerf.",
     "step.1n":"01 / OMVANG","step.1t":"Eers verstaan, dan bou",
     "step.1p":"Eers vrae, dan 'n klikbare skets en 'n geskrewe omvang. Jy keur die plan goed voordat ek 'n enkele reël kode skryf.",
@@ -1031,8 +1031,29 @@
     initEmbeds();
     animatePage(route);
   }
+  /* Page wipe (#wipe in index.css): direction follows the nav order, and
+     the route swaps (and the page jumps to the top) only while the panel
+     fully covers the screen. A new click mid-wipe finishes the old one. */
+  const wipe = $("#wipe"), wipeLayers = $$("#wipe i");
+  let wiping = null;
+  function wipeTo(route, scroll){
+    if (wiping) wiping.progress(1);
+    pickWipe();
+    wipe.classList.toggle("rev", ROUTES.indexOf(route) < ROUTES.indexOf(current));
+    wiping = gsap.timeline({ onComplete(){ wiping = null; } })
+      .set(wipe, { visibility: "visible" })
+      .fromTo(wipeLayers, { xPercent: -100 }, { xPercent: 0, duration: .45, ease: "power2.inOut", stagger: .035 })
+      .add(() => {
+        if (scroll) scrollTo({ top: 0, behavior: "auto" });
+        applyRoute(route);
+      })
+      .to(wipeLayers, { xPercent: 100, duration: .5, ease: "power2.inOut", stagger: { each: .035, from: "end" } })
+      .set(wipe, { visibility: "hidden" });
+  }
+
   function go(route, scroll){
     if (ROUTES.indexOf(route) === -1) route = "portfolio";
+    if (GS && !reduced && route !== current) return wipeTo(route, scroll);
     if (scroll) scrollTo({ top: 0, behavior: "auto" });
     if (document.startViewTransition && !reduced) document.startViewTransition(() => applyRoute(route));
     else applyRoute(route);

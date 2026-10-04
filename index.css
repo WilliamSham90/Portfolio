@@ -385,21 +385,27 @@ button{ font: inherit; color: inherit; }
 /* ===============================================================
    PROJECT ROWS
    =============================================================== */
-.rows{ display: grid; }
+/* 41px = 20px, the 1px splitter, 20px */
+.rows{ display: grid; gap: 41px; }
 /* margin/padding-inline cancel out to keep the content columns exactly
-   where they were, but the row's own box — and so its hover background
-   and hairlines — now spans edge to edge of the shell instead of
-   stopping at the gutter. */
+   where they were, but the row's own box — and so its hover card — spans
+   edge to edge of the shell instead of stopping at the gutter. */
 .row{
+  position: relative;
   display: grid; grid-template-columns: 62px minmax(0,1fr) minmax(0,1fr);
   gap: clamp(22px, 4vw, 56px); align-items: center;
   margin-inline: calc(-1 * var(--gut)); padding-inline: var(--gut);
   border-radius: var(--r);
-  padding-block: clamp(30px, 4.4vw, 54px); border-top: 1px solid var(--hair);
+  padding-block: clamp(30px, 4.4vw, 54px);
   transition: background-color .25s ease;
 }
 .row:hover{ background: color-mix(in srgb, var(--accent, var(--pink)) 8%, transparent); }
-.rows .row:last-child{ border-bottom: 1px solid var(--hair); }
+/* splitter: a straight hairline centred in the gap, not a border on the
+   row, so the hover card's rounded corners never bend it */
+.row + .row::before{
+  content:""; position: absolute; left: 0; right: 0; top: -21px; height: 1px;
+  background: var(--hair);
+}
 .row:nth-child(even) .row-media{ order: 3; }
 .row-num{ font-family: "JetBrains Mono", monospace; font-size: .78rem; color: var(--ink-faint); align-self: start; padding-top: 6px; font-variant-numeric: tabular-nums; }
 .row-body{ display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
@@ -839,7 +845,7 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
 #loader{
   position: fixed; inset: 0; z-index: 100;
   display: grid; place-items: center;
-  background: var(--pink); color: var(--on-accent);
+  color: var(--wipe-fg);
   transform-origin: bottom;
   transition: transform .6s cubic-bezier(1,.885,.32,1) .1s;
   animation: loader-bail 0s 4s forwards;
@@ -851,16 +857,44 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
 #loader.out{ transform: scaleY(0); }
 .loader-ring{ position: relative; width: 0; height: 0; animation: loader-spin 5s linear infinite; transition: opacity .3s; }
 #loader.out .loader-ring{ opacity: 0; }
-/* 15 slots, 24deg apart (--i in the markup); slot 7 is the gap between words */
+/* 17 slots (--i in the markup); slot 7 is the gap between words */
 .loader-ring span{
   position: absolute; left: -.5em; top: -72px; width: 1em; text-align: center;
   font: 800 19px/1 "Bricolage Grotesque", system-ui, sans-serif;
-  transform-origin: 50% 72px; rotate: calc(var(--i) * 24deg);
+  transform-origin: 50% 72px; rotate: calc(var(--i) * 1turn / 17);
   animation: loader-pop .25s ease-in-out calc(var(--i) * -.0625s) infinite alternate;
 }
 @keyframes loader-spin{ to{ transform: rotate(1turn); } }
 @keyframes loader-pop{ to{ translate: 0 10px; } }
 @keyframes loader-bail{ to{ visibility: hidden; } }
+
+/* Page wipe — the loader's pink + ink pair swept sideways between routes
+   (index.js, wipeTo): left to right when moving forward in the nav order,
+   mirrored (.rev) when moving back. Each layer is a 130vw parallelogram so
+   its slanted edges clear the screen on any aspect ratio, phone included. */
+#wipe{ position: fixed; inset: 0; z-index: 99; overflow: hidden; visibility: hidden; pointer-events: none; }
+#wipe.rev{ transform: scaleX(-1); }
+#wipe i{
+  position: absolute; top: 0; bottom: 0; left: -15vw; width: 130vw; pointer-events: auto;
+  clip-path: polygon(15vw 0, 100% 0, calc(100% - 15vw) 100%, 0 100%);
+  background: var(--ink);
+}
+
+/* Loader + wipe colour: pickWipe (index.html <head>) sets one of these
+   five on <html> per load and per page change, never the same twice in a
+   row. Yellow carries ink text; the rest keep white. */
+:root{ --wipe: var(--pink); --wipe-fg: var(--on-accent); }
+:root[data-wipe="0"]{ --wipe: #F5B800; --wipe-fg: var(--ink); } /* yellow */
+:root[data-wipe="1"]{ --wipe: var(--pink); }                     /* red */
+:root[data-wipe="2"]{ --wipe: var(--mint); }                     /* green */
+:root[data-wipe="3"]{ --wipe: var(--blue); }                     /* blue */
+:root[data-wipe="4"]{ --wipe: #F2662A; }                         /* orange */
+
+/* the site's dot texture (body::before sits under these overlays), a
+   little stronger so it still reads on colour */
+#loader, #wipe i + i{
+  background: var(--wipe) radial-gradient(rgba(19,17,26,.16) 1px, transparent 1.15px) 0 0 / 4px 4px;
+}
 
 /* ===============================================================
    RESPONSIVE

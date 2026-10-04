@@ -19,6 +19,21 @@
      the first screen needs so text doesn't reflow when they arrive -->
 <link rel="preload" href="Fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="Fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
+<script>
+  /* Loader + page-wipe colour: one of the five :root[data-wipe] sets in
+     index.css, never the same twice in a row (sessionStorage carries the
+     last one across reloads). Inline here so the loader's first frame is
+     already in its colour; index.js calls it again on every page change. */
+  function pickWipe(){
+    var d = document.documentElement, last = d.dataset.wipe;
+    if (last === undefined) try { last = sessionStorage.getItem("ws-wipe"); } catch (e) {}
+    var n = last == null || isNaN(last) ? Math.floor(Math.random() * 5)
+      : (+last + 1 + Math.floor(Math.random() * 4)) % 5;
+    d.dataset.wipe = n;
+    try { sessionStorage.setItem("ws-wipe", n); } catch (e) {}
+  }
+  pickWipe();
+</script>
 <link rel="stylesheet" href="index.css">
 <!-- hero photo is the LCP element but is inserted by index.js, so let the browser fetch it now -->
 <link rel="preload" as="image" href="Images/williampp.jpg" fetchpriority="high">
@@ -27,9 +42,11 @@
 
 <div id="loader" aria-hidden="true">
   <div class="loader-ring">
-    <span style="--i:0">L</span><span style="--i:1">O</span><span style="--i:2">A</span><span style="--i:3">D</span><span style="--i:4">I</span><span style="--i:5">N</span><span style="--i:6">G</span><span style="--i:8">N</span><span style="--i:9">O</span><span style="--i:10">W</span><span style="--i:11">.</span><span style="--i:12">.</span><span style="--i:13">.</span><span style="--i:14">✦</span>
+    <span style="--i:0">L</span><span style="--i:1">O</span><span style="--i:2">A</span><span style="--i:3">D</span><span style="--i:4">I</span><span style="--i:5">N</span><span style="--i:6">G</span><span style="--i:8">0</span><span style="--i:9">1</span><span style="--i:10">0</span><span style="--i:11">0</span><span style="--i:12">0</span><span style="--i:13">0</span><span style="--i:14">0</span><span style="--i:15">1</span><span style="--i:16">✦</span>
   </div>
 </div>
+
+<div id="wipe" aria-hidden="true"><i></i><i></i></div>
 
 <div id="progress" aria-hidden="true"></div>
 
@@ -137,7 +154,7 @@
     <div class="tinted">
       <div class="shell">
         <section class="sec">
-          <p class="statement" data-statement data-i18n="home.statement">I take products from a half-drawn idea on a call to something live, fast and maintainable — typed APIs, sensible databases, and interfaces people actually enjoy using.</p>
+          <p class="statement" data-statement data-i18n="home.statement">Stuck on a broken site? From layouts that completely shatter on mobile devices to mysterious performance drops, I've seen it all. Let me untangle the code and get your platform performing exactly the way it should.</p>
         </section>
         <section class="sec">
           <div class="sec-head">
