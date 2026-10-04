@@ -25,6 +25,12 @@
 </head>
 <body>
 
+<div id="loader" aria-hidden="true">
+  <div class="loader-ring">
+    <span style="--i:0">L</span><span style="--i:1">O</span><span style="--i:2">A</span><span style="--i:3">D</span><span style="--i:4">I</span><span style="--i:5">N</span><span style="--i:6">G</span><span style="--i:8">N</span><span style="--i:9">O</span><span style="--i:10">W</span><span style="--i:11">.</span><span style="--i:12">.</span><span style="--i:13">.</span><span style="--i:14">✦</span>
+  </div>
+</div>
+
 <div id="progress" aria-hidden="true"></div>
 
 <header class="topbar">
@@ -95,7 +101,7 @@
         <div data-anim="portrait" class="portrait-wrap">
           <div class="portrait" id="portrait" title="Click to change the background colour">
             <span class="portrait-hint" data-i18n="portrait.hint">click to change background</span>
-            <div class="portrait-tag"><span class="dot" aria-hidden="true"></span><span data-i18n="hero.tag">Senior Web Developer · LKDA, Pretoria</span></div>
+            <div class="portrait-tag"><span class="dot" aria-hidden="true"></span><span data-i18n="hero.tag">Senior Web Developer · Krugersdorp</span></div>
           </div>
         </div>
       </div>
@@ -187,7 +193,7 @@
         <div class="band-fx" aria-hidden="true"></div>
         <div>
           <h2 data-split data-i18n="band.homeTitle">Got something half-built, or not yet started?</h2>
-          <p data-i18n="band.homeText">I take on freelance work alongside my day job at LKDA. Tell me what you're trying to make.</p>
+          <p data-i18n="band.homeText">I take on freelance work alongside my day job. Tell me what you're trying to make.</p>
         </div>
         <a class="btn" href="#contact" data-i18n="cta.startChat">Start a conversation →</a>
       </div>
@@ -201,16 +207,16 @@
         <div class="sec-head">
           <div>
             <span class="label"><b>[01]</b> <span data-i18n="about.eyebrow">About</span></span>
-            <h2 data-split data-i18n="about.title">Code by day, zombie maps by night</h2>
+            <h2 data-split data-i18n="about.title">Pray Build Sleep Eat Repeat</h2>
           </div>
         </div>
         <div class="about-grid">
           <div class="about-copy">
             <p class="lead" data-anim="up" data-i18n="about.p1">I'm William, a full-stack developer from Krugersdorp. I build websites that load fast, read well and are easy to look after.</p>
-            <p class="prose" data-anim="up" data-i18n="about.p2">By day I'm a senior web developer at LKDA in Pretoria. By night I'm usually still building something, just with more zombies.</p>
+            <p class="prose" data-anim="up" data-i18n="about.p2">Every project I take on is an opportunity to grow, learn, and refine my skills as a developer. I give all the glory to God.</p>
             <pre class="codeblock" data-anim="up"><span class="k">const</span> <span class="p">william</span> = {
   <span class="p">home</span>:     <span class="s">'Krugersdorp, Gauteng'</span>,
-  <span class="p">dayJob</span>:   <span class="s" data-i18n="about.cJob">'Senior Web Developer @ LKDA'</span>,
+  <span class="p">dayJob</span>:   <span class="s" data-i18n="about.cJob">'Senior Web Developer'</span>,
   <span class="p">speaks</span>:   [<span class="s" data-i18n="about.cEn">'English'</span>, <span class="s">'Afrikaans'</span>],
   <span class="p">passions</span>: [
     <span class="s" data-i18n="about.cP1">'websites'</span>, <span class="s" data-i18n="about.cP2">'digital art'</span>,
@@ -223,15 +229,15 @@
             <div class="stack" id="stack">
               <figure class="snap" data-pos="0" style="--accent: var(--pink); --accent-2: var(--yellow)">
                 <div class="ph"><img src="Images/williampp.jpg" alt="William Sham" loading="lazy" decoding="async" onerror="this.remove()"></div>
-                <figcaption data-i18n="about.snap1">Hi, that's me</figcaption>
+                <figcaption data-i18n="about.snap1">Hi, that's me, all dressed up</figcaption>
               </figure>
               <figure class="snap" data-pos="1" style="--accent: var(--blue); --accent-2: var(--yellow)">
-                <div class="ph"><img src="Images/About%20us%20image%202.jpeg" alt="William Sham" loading="lazy" decoding="async" onerror="this.remove()"></div>
-                <figcaption data-i18n="about.snap2">Where the work happens</figcaption>
+                <div class="ph"><img src="Images/About%20us%20image%202.jpeg" alt="William Sham on a Ferris wheel at a fair" loading="lazy" decoding="async" onerror="this.remove()"></div>
+                <figcaption data-i18n="about.snap2">Best seat at the fair</figcaption>
               </figure>
               <figure class="snap" data-pos="2" style="--accent: var(--mint); --accent-2: var(--pink)">
-                <div class="ph"><img src="Images/About%20us%20image%203.jpeg" alt="William Sham" loading="lazy" decoding="async" onerror="this.remove()"></div>
-                <figcaption data-i18n="about.snap3">Weekend mode</figcaption>
+                <div class="ph"><img src="Images/About%20us%20image%203.jpeg" alt="William Sham outdoors in a garden" loading="lazy" decoding="async" onerror="this.remove()"></div>
+                <figcaption data-i18n="about.snap3">Fresh air, no screens</figcaption>
               </figure>
             </div>
             <button class="ghost" id="shuffle" type="button"><span aria-hidden="true">↻</span><span data-i18n="about.shuffle">Shuffle the photos</span></button>
@@ -304,7 +310,7 @@
             <span class="label"><b>[01]</b> <span data-i18n="proj.eyebrow">Projects · 2021—2026</span></span>
             <h2 data-split data-i18n="proj.title">Thirty-five sites, live right now</h2>
           </div>
-          <p class="lead" data-i18n="proj.sub">Corporate platforms, multi-market automotive sites, e-commerce stores, Laravel systems and game mods.</p>
+          <p class="lead" data-i18n="proj.sub">Corporate platforms, multi-market automotive sites, e-commerce stores, Laravel systems, game mods, Umbraco sites, GSAP websites, and more.</p>
         </div>
         <div class="rows" id="featured-rows-2"></div>
       </section>
@@ -448,7 +454,7 @@
             <div style="margin-top:8px">
               <details>
                 <summary data-i18n="faq.q1">Are you available right now?</summary>
-                <p data-i18n="faq.a1">I'm full-time at LKDA, so freelance work happens evenings and weekends. That means I take on fewer projects but finish the ones I start.</p>
+                <p data-i18n="faq.a1">I'm a full-time software developer, so freelance work happens evenings and weekends. That means I take on fewer projects but finish the ones I start.</p>
               </details>
               <details>
                 <summary data-i18n="faq.q2">What do you work on most?</summary>
@@ -456,7 +462,7 @@
               </details>
               <details>
                 <summary data-i18n="faq.q3">Do you do 3D and game work too?</summary>
-                <p data-i18n="faq.a3">Yes — Blender, Maya, Unreal and Radiant. I've shipped custom Call of Duty zombie maps and mod tools to the Steam Workshop.</p>
+                <p data-i18n="faq.a3">Yes. Blender, Maya, Unreal and Radiant. I've shipped custom Call of Duty zombie maps and mod tools to the Steam Workshop.</p>
               </details>
             </div>
           </div>
@@ -480,7 +486,7 @@
       <a href="#play" data-i18n="nav.play">Playground</a>
       <a href="#contact" data-i18n="nav.contact">Contact</a>
     </nav>
-    <span data-i18n="foot.built">Built by hand · GSAP</span>
+    <span data-i18n="foot.built">All glory to GOD · Psalm 115:1</span>
   </div>
 </footer>
 

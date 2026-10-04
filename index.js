@@ -49,7 +49,7 @@
     "drawer.title":"Kieslys",
     "hero.status":"Beskikbaar vir vryskutwerk",
     "hero.sub":"Full-stack-ontwikkelaar. Ek bou vinnige, stewige webwerwe, van die databasis tot die laaste piksel.",
-    "hero.tag":"Senior webontwikkelaar · LKDA, Pretoria",
+    "hero.tag":"Senior webontwikkelaar · Krugersdorp",
     "doodle.hint":"Klik en sleep enige plek hier om te teken","doodle.clear":"Vee uit","doodle.touch":"Tekenmodus: af",
     "portrait.hint":"klik om die agtergrond te verander",
     "cta.work":"Kyk na my werk","cta.touch":"Kom ons gesels","cta.allProjects":"Al 35 projekte",
@@ -67,7 +67,7 @@
     "step.3n":"03 / OORHANDIG","step.3t":"Los dit netjies",
     "step.3p":"Toetse, 'n README wat op 'n splinternuwe skootrekenaar werk, CI wat met elke merge ontplooi, en 'n deurloop vir wie dit ook al oorneem.",
     "band.homeTitle":"Iets halfklaar, of nog nie eens begin nie?",
-    "band.homeText":"Ek doen vryskutwerk naas my dagwerk by LKDA. Vertel my wat jy wil bou.",
+    "band.homeText":"Ek doen vryskutwerk naas my dagwerk. Vertel my wat jy wil bou.",
     "live.eyebrow":"Regstreekse voorskou","live.title":"Williams OS, reg hier voor jou","live.title2":"Williams OS",
     "live.open":"Maak volskerm oop",
     "live.copy":"Dis die regte werf, nie 'n skermskoot nie. Dit pas by enige breedte aan, so jy sien die rekenaaruitleg hier en die selfoonuitleg op 'n foon.",
@@ -75,12 +75,12 @@
     "live.p1":"Laai outomaties wanneer jy daarheen blaai",
     "live.p2":"Veilig geïsoleer",
     "live.p3":"Responsief, nie geskaal nie",
-    "about.eyebrow":"Oor my","about.title":"Bedags kode, saans zombiekaarte",
+    "about.eyebrow":"Oor my","about.title":"Bid Bou Slaap Eet Herhaal",
     "about.p1":"Ek is William, 'n full-stack-ontwikkelaar van Krugersdorp. Ek bou webwerwe wat vinnig laai, lekker lees en maklik is om te onderhou.",
-    "about.p2":"Bedags is ek 'n senior webontwikkelaar by LKDA in Pretoria. Saans bou ek gewoonlik steeds iets — net met meer zombies.",
-    "about.cJob":"'Senior webontwikkelaar @ LKDA'","about.cEn":"'Engels'",
+    "about.p2":"Elke projek wat ek aanpak, is 'n geleentheid om te groei, te leer en my vaardighede as ontwikkelaar te verfyn. Ek gee al die eer aan God.",
+    "about.cJob":"'Senior webontwikkelaar'","about.cEn":"'Engels'",
     "about.cP1":"'webwerwe'","about.cP2":"'digitale kuns'","about.cP3":"'3D-modelle'","about.cP4":"'speletjie-ontwerp'",
-    "about.snap1":"Hallo, dis ek","about.snap2":"Waar die werk gebeur","about.snap3":"Naweekmodus",
+    "about.snap1":"Hallo, dis ek, mooi aangetrek","about.snap2":"Die beste sitplek by die kermis","about.snap3":"Vars lug, geen skerms nie",
     "about.shuffle":"Skommel die foto's",
     "skills.eyebrow":"Vaardighede","skills.title":"Waarmee ek werk",
     "exp.eyebrow":"Ervaring","exp.title":"Waar ek al gewerk het",
@@ -88,7 +88,7 @@
     "band.aboutTitle":"Wil jy die storie agter enige hiervan hoor?",
     "band.aboutText":"Argitektuur, kompromieë en die dele wat skeefgeloop het — ek vertel jou graag daarvan.",
     "proj.eyebrow":"Projekte · 2021—2026","proj.title":"Vyf-en-dertig werwe, almal nou aanlyn",
-    "proj.sub":"Korporatiewe platforms, motorwerwe vir verskeie markte, aanlyn winkels, Laravel-stelsels en speletjiemods.",
+    "proj.sub":"Korporatiewe platforms, motorwerwe vir verskeie markte, aanlyn winkels, Laravel-stelsels, speletjiemods, Umbraco-werwe, GSAP-webwerwe en meer.",
     "proj.all":"Die res","proj.none":"Niks in dié kategorie nie — probeer 'n ander filter.",
     "band.projTitle":"Drie Nissan-markte, en nog meer op pad",
     "band.projText":"Korporatiewe WordPress op groot skaal, Laravel-platforms, Perfex CRM-modules en heelwat Radiant. Joune kan die volgende een wees.",
@@ -107,12 +107,12 @@
     "form.phEmail":"jy@maatskappy.co.za","form.phSubject":"Nuwe webwerf vir…",
     "form.phMsg":"Een sin of tien. Sperdatums, beperkings en enige bestaande kode help alles.",
     "faq.q1":"Is jy nou beskikbaar?",
-    "faq.a1":"Ek werk voltyds by LKDA, so vryskutwerk doen ek saans en oor naweke. Ek neem dus minder projekte aan, maar ek maak klaar wat ek begin.",
+    "faq.a1":"Ek is 'n voltydse sagteware-ontwikkelaar, so vryskutwerk doen ek saans en oor naweke. Ek neem dus minder projekte aan, maar ek maak klaar wat ek begin.",
     "faq.q2":"Waaraan werk jy die meeste?",
     "faq.a2":"WordPress- en Laravel-werwe, Umbraco en Perfex CRM, Azure-hosting en stadige werwe vinniger maak. Enigiets van 'n enkele landingsbladsy tot 'n korporatiewe platform vir verskeie markte.",
     "faq.q3":"Doen jy ook 3D- en speletjiewerk?",
-    "faq.a3":"Ja — Blender, Maya, Unreal en Radiant. Ek het al pasgemaakte Call of Duty-zombiekaarte en mod-gereedskap op die Steam Workshop gepubliseer.",
-    "foot.built":"Met die hand gebou · GSAP"
+    "faq.a3":"Ja. Blender, Maya, Unreal en Radiant. Ek het al pasgemaakte Call of Duty-zombiekaarte en mod-gereedskap op die Steam Workshop gepubliseer.",
+    "foot.built":"Alle eer aan GOD · Psalm 115:1"
   };
 
   let LANG = store("ws-lang") === "af" ? "af" : "en";
@@ -1053,6 +1053,24 @@
   initShapeFx($("#work-fx"), $("#work-live"), true);
   initShapeFx($("#proj-live-fx"), $("#proj-live"), true);
   $$(".band-fx").forEach(fx => initShapeFx(fx, fx.closest(".band")));
+
+  /* Loader: lift once the page has loaded, but not before 0.7s from
+     navigation (a beat, not a flicker) and never after 2.5s (one slow
+     asset shouldn't hold the page hostage). The intro replays as it
+     lifts, so it isn't spent behind the panel. */
+  const loader = $("#loader");
+  if (loader){
+    let lifted = false;
+    const lift = () => {
+      if (lifted) return;
+      lifted = true;
+      loader.classList.add("out");
+      animatePage(current);
+      setTimeout(() => loader.remove(), 900);
+    };
+    addEventListener("load", () => setTimeout(lift, Math.max(0, 700 - performance.now())));
+    setTimeout(lift, 2500);
+  }
 
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (GS) ScrollTrigger.refresh(); });
   addEventListener("load", () => { sizeDoodle(); initEmbeds(); if (GS) ScrollTrigger.refresh(); });

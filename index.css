@@ -825,8 +825,42 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
 }
 #to-top.show{ transform: translateY(0); opacity: 1; pointer-events: auto; }
 
-.w{ display: inline-block; overflow: hidden; vertical-align: top; }
+/* the mask is padded out (and the padding cancelled by negative margin) so
+   descenders (g, y) and overhanging glyphs (?, f) aren't clipped by the
+   headings' tight line-height and negative letter-spacing */
+.w{ display: inline-block; overflow: hidden; vertical-align: top; padding: .1em .08em .16em; margin: -.1em -.08em -.16em; }
 .w > span{ display: inline-block; }
+
+/* Loader — riff on codepen.io/Margarita-the-solid/pen/ZYLoLBe. The label
+   orbits on a pink panel; once the page has loaded (index.js, BOOT) the
+   panel collapses to the bottom edge with its slanted ink band (::before)
+   sweeping down behind it. loader-bail hides it anyway if index.js never
+   runs. Reduced motion is covered by the global rule below. */
+#loader{
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center;
+  background: var(--pink); color: var(--on-accent);
+  transform-origin: bottom;
+  transition: transform .6s cubic-bezier(1,.885,.32,1) .1s;
+  animation: loader-bail 0s 4s forwards;
+}
+#loader::before{
+  content:""; position: absolute; left: 0; top: -75%; width: 100%; height: 75%;
+  background: var(--ink); clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
+}
+#loader.out{ transform: scaleY(0); }
+.loader-ring{ position: relative; width: 0; height: 0; animation: loader-spin 5s linear infinite; transition: opacity .3s; }
+#loader.out .loader-ring{ opacity: 0; }
+/* 15 slots, 24deg apart (--i in the markup); slot 7 is the gap between words */
+.loader-ring span{
+  position: absolute; left: -.5em; top: -72px; width: 1em; text-align: center;
+  font: 800 19px/1 "Bricolage Grotesque", system-ui, sans-serif;
+  transform-origin: 50% 72px; rotate: calc(var(--i) * 24deg);
+  animation: loader-pop .25s ease-in-out calc(var(--i) * -.0625s) infinite alternate;
+}
+@keyframes loader-spin{ to{ transform: rotate(1turn); } }
+@keyframes loader-pop{ to{ translate: 0 10px; } }
+@keyframes loader-bail{ to{ visibility: hidden; } }
 
 /* ===============================================================
    RESPONSIVE
