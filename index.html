@@ -52,7 +52,20 @@
 
 <header class="topbar">
   <div class="shell topbar-in">
-    <a class="brand" href="#portfolio"><span class="brand-dot" aria-hidden="true"></span>WILLIAM&nbsp;SHAM</a>
+    <!-- click: the icons spin through to Batman (index.js, BRAND). The
+         96px webps are all in the DOM so every swap is already decoded. -->
+    <button class="brand" id="brand" type="button" aria-label="William Sham">
+      <span class="brand-icon" aria-hidden="true">
+        <img class="on" src="Images/Navimages/exclamation.webp" alt="" width="34" height="34">
+        <img src="Images/Navimages/pow.webp" alt="" width="34" height="34">
+        <img src="Images/Navimages/smash.webp" alt="" width="34" height="34">
+        <img src="Images/Navimages/super.webp" alt="" width="34" height="34">
+        <img src="Images/Navimages/yeah.webp" alt="" width="34" height="34">
+        <img src="Images/Navimages/batman.webp" alt="" width="34" height="34">
+      </span>
+      <span class="brand-text" aria-hidden="true"><span>WILLIAM&nbsp;SHAM,</span> <span class="brand-is">IS <span class="brand-mask"><span id="brand-word">A Programmer</span></span></span></span>
+    </button>
+    <span class="bat-bubble" id="bat-bubble" role="status"></span>
     <nav class="nav" id="nav" aria-label="Primary">
       <a href="#portfolio" data-route="portfolio" data-i18n="nav.portfolio">Portfolio</a>
       <a href="#about"     data-route="about"     data-i18n="nav.about">About</a>
@@ -96,10 +109,10 @@
         <div class="hero-copy">
           <span class="status" data-anim="fade"><span class="dot" aria-hidden="true"></span><span data-i18n="hero.status">Open to freelance work</span></span>
           <h1 data-split>William Sham</h1>
-          <p class="hero-sub" data-split data-i18n="hero.sub">Full-stack developer. I build fast, solid websites, from the database to the last pixel.</p>
+          <p class="hero-sub" data-split data-i18n="hero.sub">Full-stack developer. I make the internet look good. You're welcome.</p>
           <div class="hero-cta" data-anim="fade">
-            <a class="btn btn-accent" href="#projects" data-i18n="cta.work">See the work</a>
-            <a class="btn btn-line" href="#contact" data-i18n="cta.touch">Get in touch</a>
+            <a class="btn btn-accent" href="#projects" data-i18n="cta.work">Hall Of Fame</a>
+            <a class="btn btn-line" href="#contact" data-i18n="cta.touch">Click &amp; Find Out</a>
           </div>
           <div class="socials" data-anim="fade">
             <a class="soc" href="https://github.com/WilliamSham90" target="_blank" rel="noopener">GitHub ↗</a>
@@ -351,10 +364,10 @@
       <div class="band" style="--accent: var(--mint)">
         <div class="band-fx" aria-hidden="true"></div>
         <div>
-          <h2 data-split data-i18n="band.projTitle">Three Nissan markets and counting</h2>
-          <p data-i18n="band.projText">Corporate Umbraco at scale, ASP.NET Hybrid, CRM and a fair amount of C#. Yours could be next.</p>
+          <h2 data-split data-i18n="band.projTitle">Don't Miss Out</h2>
+          <p data-i18n="band.projText">Warning: Not clicking this button may result in severe FOMO.</p>
         </div>
-        <a class="btn" href="#contact" data-i18n="cta.hire">Hire me →</a>
+        <a class="btn" href="#contact" data-i18n="cta.hire">Include Me →</a>
       </div>
     </div>
   </section>

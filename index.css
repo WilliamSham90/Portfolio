@@ -148,13 +148,45 @@ button{ font: inherit; color: inherit; }
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--hair);
 }
-.topbar-in{ display: flex; align-items: center; gap: 14px; min-height: 66px; }
+.topbar-in{ position: relative; display: flex; align-items: center; gap: 14px; min-height: 66px; }
 .brand{
-  display: inline-flex; align-items: center; gap: 11px; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 11px;
   margin-right: auto; font-family: "JetBrains Mono", monospace;
-  font-weight: 700; font-size: .86rem; padding-block: 10px;
+  font-weight: 700; font-size: .86rem; padding: 10px 0; text-align: left;
+  border: 0; background: none; cursor: pointer;
 }
-.brand-dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--pink); flex: none; }
+/* the six icons sit stacked; .on is the one showing */
+.brand-icon{ position: relative; width: 34px; height: 34px; flex: none; }
+/* hover wiggle lives on the imgs: GSAP owns .brand-icon's transform */
+.brand-icon img{ position: absolute; inset: 0; width: 100%; height: 100%; visibility: hidden; transition: transform .25s cubic-bezier(.22,1,.36,1); }
+.brand-icon img.on{ visibility: visible; }
+.brand:hover .brand-icon img{ transform: rotate(-8deg) scale(1.08); }
+.brand-text{ white-space: nowrap; line-height: 1.25; }
+/* the rotating word (index.js, BRAND): brand pink, uppercase to match the name */
+.brand-is{ color: var(--ink-faint); }
+.brand-mask{ display: inline-block; overflow: hidden; vertical-align: bottom; padding-block: .1em; margin-block: -.1em; }
+#brand-word{ display: inline-block; color: var(--pink); text-transform: uppercase; }
+/* with the nav links on screen there isn't room for the longest word on
+   one line, so the word list drops under the name */
+@media (max-width: 1199px){
+  .brand-is{ display: block; font-size: .7rem; }
+}
+
+/* "I'm Batman" — comic bubble under the brand icon */
+.bat-bubble{
+  position: absolute; left: calc(var(--gut) + 4px); top: calc(100% - 6px);
+  padding: 9px 15px; border-radius: 14px;
+  background: #fff; color: var(--ink); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+  font: 800 1.05rem/1 "Bricolage Grotesque", system-ui, sans-serif; white-space: nowrap;
+  transform-origin: 14px -8px; visibility: hidden; pointer-events: none;
+}
+.bat-bubble::before{
+  content:""; position: absolute; left: 10px; top: -8px; width: 12px; height: 12px;
+  background: #fff; border-left: 2px solid var(--ink); border-top: 2px solid var(--ink); transform: rotate(45deg);
+}
+.bat-confetti{ position: fixed; z-index: 80; width: 0; height: 0; pointer-events: none; }
+.bat-confetti i{ position: absolute; left: -12px; top: -6px; width: 24px; height: 12px; }
+.bat-confetti svg{ display: block; width: 100%; height: 100%; fill: currentColor; }
 
 .nav{ display: flex; align-items: center; gap: 2px; }
 .nav a{
@@ -278,12 +310,13 @@ button{ font: inherit; color: inherit; }
   gap: clamp(28px, 5vw, 72px); align-items: end; pointer-events: none;
 }
 .hero-grid > *{ pointer-events: auto; }
-.hero-grid .hero-copy{ pointer-events: none; }
-.hero-grid .hero-copy > *{ pointer-events: auto; }
-/* the display type is drawable-through, so a drag across it inks rather than
-   starting a text selection — links and buttons keep their own hit areas */
+/* the whole copy column is drawable-through: only links and buttons keep
+   their own hit areas. (Its rows used to be hit-testable edge to edge, so
+   the empty space beside the buttons was a dead spot for drawing.) */
+.hero-grid .hero-copy, .hero-grid .hero-copy *{ pointer-events: none; }
+.hero-grid .hero-copy :is(a, button){ pointer-events: auto; }
 .hero-grid .hero-copy > h1,
-.hero-grid .hero-copy > .hero-sub{ pointer-events: none; user-select: none; }
+.hero-grid .hero-copy > .hero-sub{ user-select: none; }
 
 .hero h1{ font-size: clamp(2.6rem, 1.5rem + 5.2vw, 5.6rem); margin-block: 20px 0; }
 .hero-sub{
@@ -503,22 +536,27 @@ button{ font: inherit; color: inherit; }
 /* Shared with .shot .art — loadingArt() is used for both. */
 .pulse-dot{ transform-box: fill-box; transform-origin: center; animation: dotPulse 1.4s ease-in-out infinite; }
 @keyframes dotPulse{ 0%, 100%{ transform: scale(.7); opacity: .45; } 50%{ transform: scale(1); opacity: 1; } }
-/* "It's live" hint: visitors didn't realise the frame is interactive.
-   Appears once the site has loaded, sits over the empty middle of the
-   Williams OS desktop, never blocks a click (pointer-events: none), and
-   goes once the visitor clicks into the frame (.used, index.js). */
+/* "It's live" overlay: visitors didn't realise the frame is interactive.
+   Once the site has loaded, a dimmed layer with the message covers the
+   frame; one click (or Enter) dismisses both and hands focus to the frame
+   (.used, index.js). Until then a page scroll over it stays a page scroll. */
 .embed-hint{
-  position: absolute; z-index: 2; left: 50%; top: 50%;
-  display: flex; align-items: center; gap: 10px; width: max-content; max-width: calc(100% - 32px);
-  padding: 11px 18px 11px 14px; border-radius: 999px;
-  background: rgba(19,17,26,.84); color: #fff; backdrop-filter: blur(6px);
-  font-family: "JetBrains Mono", monospace; font-size: .76rem; letter-spacing: .02em; text-align: center;
-  box-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 16px 32px -14px rgba(19,17,26,.7);
-  pointer-events: none;
-  opacity: 0; transform: translate(-50%, calc(-50% + 12px));
-  transition: opacity .45s, transform .45s cubic-bezier(.22,1,.36,1);
+  position: absolute; z-index: 2; inset: 0;
+  display: grid; place-items: center; padding: 16px;
+  border: 0; background: rgba(19,17,26,.32); cursor: pointer;
+  opacity: 0; visibility: hidden;
+  transition: opacity .35s, visibility 0s .35s;
 }
-.embed-stage:not(.used):has(> iframe.ready) .embed-hint{ opacity: 1; transform: translate(-50%, -50%); }
+.embed-stage:not(.used):has(> iframe.ready) .embed-hint{ opacity: 1; visibility: visible; transition-delay: 0s; }
+.embed-hint > span{
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px 12px 15px; border-radius: 999px;
+  background: rgba(19,17,26,.86); color: #fff; backdrop-filter: blur(6px);
+  font-family: "JetBrains Mono", monospace; font-size: .78rem; letter-spacing: .02em; text-align: center;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.16), 0 16px 32px -14px rgba(19,17,26,.7);
+  transition: transform .25s cubic-bezier(.22,1,.36,1), background .2s;
+}
+.embed-hint:hover > span{ transform: scale(1.05); background: var(--ink); }
 /* the cursor acts out a press, drag and release */
 .embed-hint svg{ width: 18px; height: 18px; flex: none; fill: #fff; stroke: var(--ink); stroke-width: 1.2; animation: hintDrag 2.2s ease-in-out infinite; }
 @keyframes hintDrag{
@@ -533,9 +571,6 @@ button{ font: inherit; color: inherit; }
   .embed-stage{ height: clamp(420px, 68vh, 620px); }
   .embed-url{ font-size: .62rem; }
   .embed-open{ display: none; }
-  /* the phone layout fills the middle with icons; the strip above the taskbar is free */
-  .embed-hint{ top: auto; bottom: 74px; transform: translate(-50%, 12px); }
-  .embed-stage:not(.used):has(> iframe.ready) .embed-hint{ transform: translate(-50%, 0); }
 }
 
 /* ===============================================================

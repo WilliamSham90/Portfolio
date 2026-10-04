@@ -48,13 +48,13 @@
     "nav.portfolio":"Portefeulje","nav.about":"Oor my","nav.projects":"Projekte","nav.play":"Speelgrond","nav.contact":"Kontak",
     "drawer.title":"Kieslys",
     "hero.status":"Beskikbaar vir vryskutwerk",
-    "hero.sub":"Full-stack-ontwikkelaar. Ek bou vinnige, stewige webwerwe, van die databasis tot die laaste piksel.",
+    "hero.sub":"Full-stack developer. Ek maak die internet mooi. Plesier",
     "hero.tag":"Senior webontwikkelaar · Krugersdorp",
     "doodle.hint":"Klik en sleep enige plek hier om te teken","doodle.clear":"Vee uit","doodle.touch":"Tekenmodus: af",
     "portrait.hint":"klik om die agtergrond te verander",
-    "cta.work":"Kyk na my werk","cta.touch":"Kom ons gesels","cta.allProjects":"Al 35 projekte",
+    "cta.work":"Eregalery","cta.touch":"Klik & Vind Uit","cta.allProjects":"Al 35 projekte",
     "cta.startChat":"GEE MY DAARDIE KOFFIE →","cta.cv":"Vra my CV aan","cta.ask":"Okay, EK sal jou vra →",
-    "cta.hire":"Werk saam met my →","cta.idea":"Die Knoppie →",
+    "cta.hire":"Help My →","cta.idea":"Die Knoppie →",
     "stat.years":"Jaar ervaring in webontwikkeling","stat.projects":"Voltooide projekte",
     "stat.live":"Werwe tans aanlyn","stat.tech":"Tegnologieë wat ek gereeld gebruik",
     "home.workEyebrow":"Uitgesoekte werk","home.workTitle":"Werk wat nou aanlyn is",
@@ -90,8 +90,8 @@
     "proj.eyebrow":"Projekte · 2021—2026","proj.title":"Vyf-en-dertig werwe, almal nou aanlyn",
     "proj.sub":"Korporatiewe platforms, motorwerwe vir verskeie markte, aanlyn winkels, Laravel-stelsels, speletjiemods, Umbraco-werwe, GSAP-webwerwe en meer.",
     "proj.all":"Die res","proj.none":"Niks in dié kategorie nie — probeer 'n ander filter.",
-    "band.projTitle":"Drie Nissan-markte, en nog meer op pad",
-    "band.projText":"Korporatiewe Umbraco op groot skaal, ASP.NET Hybrid, CRM en heelwat C#. Joune kan die volgende een wees.",
+    "band.projTitle":"Moet Nie Uitmis Nie",
+    "band.projText":"Pasop! Jy het FOMO. Kliek die knoppie om ontslae te raak van FOMO",
     "play.eyebrow":"Speelgrond","play.title":"Dinge wat ek op 'n Sondag gebou het",
     "play.intro":"Eksperimente, widgets en speletjies, elkeen selfstandig op sy eie bladsy.",
     "play.pages":"Bladsye","play.games":"Speletjies",
@@ -326,11 +326,11 @@
         '</div>' +
         '<div class="embed-stage">' +
           '<div class="embed-fallback" aria-hidden="true">' + loadingArt(1200, 760) + '</div>' +
-          '<div class="embed-hint" aria-hidden="true">' +
-            '<svg viewBox="0 0 24 24"><path d="M5 2v18l5-5 3.5 7 3-1.4-3.4-6.9H20z"/></svg>' +
-            '<span>' + (coarse ? T("live.hintTouch", "It's live · tap, drag & explore")
-                               : T("live.hint", "It's live · click, drag & explore")) + '</span>' +
-          '</div>' +
+          '<button class="embed-hint" type="button"><span>' +
+            '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2v18l5-5 3.5 7 3-1.4-3.4-6.9H20z"/></svg>' +
+            (coarse ? T("live.hintTouch", "It's live · tap, drag & explore")
+                    : T("live.hint", "It's live · click, drag & explore")) +
+          '</span></button>' +
           '<iframe data-src="' + esc(src) + '" title="' + esc(label) + ' — live preview" ' +
             'sandbox="allow-scripts allow-same-origin allow-popups allow-forms" ' +
             'referrerpolicy="no-referrer-when-downgrade"></iframe>' +
@@ -339,6 +339,10 @@
       '<p class="embed-caption">' + esc(label) + ' · ' + esc(host) + '</p>';
 
     const frame = $(".embed-stage iframe", el);
+    $(".embed-hint", el).addEventListener("click", () => {
+      frame.parentElement.classList.add("used");
+      frame.focus();
+    });
     const io = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
@@ -1018,6 +1022,97 @@
   }, { passive: true });
   toTop.addEventListener("click", () => {
     scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  });
+
+  /* =================================================================
+     BRAND — "WILLIAM SHAM, IS <word>" and the Batman button
+     The word list rotates on a GSAP delayedCall loop. A click spins the
+     comic icons slot-machine style (fast, then slowing) until it lands on
+     Batman: bat confetti, an "I'm Batman" bubble, and the word list says
+     BATMAN for a few seconds before it carries on. Reduced motion keeps
+     the joke (Batman, bubble, word) but drops the spin, slide and confetti.
+     ================================================================= */
+  const WORDS = {
+    en: ["A Programmer","Poster Sexy","A Bug Slayer","Always Hungry","An Unpaid Comedian","A Follower Of Christ"],
+    af: ["'n Programmeerder","Poster Sexy","'n Foutjagter","Altyd Honger","'n Onbetaalde Komediant","'n Volgeling Van Christus"]
+  };
+  const brandWord = $("#brand-word"), brandIcons = $$(".brand-icon img"), bubble = $("#bat-bubble");
+  const BATMAN = brandIcons.length - 1;
+  const SPIN = [1, 2, 3, 4, 0, 1, 2, 3, 4, BATMAN];
+  const BAT = '<svg viewBox="0 0 100 50"><path d="M50 15 47 5 44 14C36 7 19 4 3 9c10 4 12 12 8 21 8-5 17-3 21 5 5-6 13-5 18 7 5-12 13-13 18-7 4-8 13-10 21-5-4-9-2-17 8-21C81 4 64 7 56 14L53 5z"/></svg>';
+  const animate = GS && !reduced;
+  let wordIdx = 0, wordLoop = null, batBusy = false;
+
+  function setWord(text){
+    if (!animate){ brandWord.textContent = text; return; }
+    gsap.timeline()
+      .to(brandWord, { yPercent: -110, opacity: 0, duration: .3, ease: "power2.in" })
+      .add(() => { brandWord.textContent = text; })
+      .fromTo(brandWord, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .45, ease: "power3.out" });
+  }
+  function rotateWords(){
+    wordLoop = gsap.delayedCall(2.4, () => {
+      wordIdx = (wordIdx + 1) % WORDS.en.length;
+      setWord(WORDS[LANG][wordIdx]);
+      rotateWords();
+    });
+  }
+  brandWord.textContent = WORDS[LANG][0];
+  if (animate) rotateWords();
+
+  function showIcon(n, pop){
+    brandIcons.forEach((img, i) => img.classList.toggle("on", i === n));
+    if (pop) gsap.fromTo(".brand-icon", { scale: .65, rotation: gsap.utils.random(-14, 14) },
+      { scale: 1, rotation: 0, duration: .2, ease: "back.out(3)" });
+  }
+  function batConfetti(){
+    const r = $(".brand-icon").getBoundingClientRect();
+    const box = document.createElement("div");
+    box.className = "bat-confetti";
+    box.style.left = r.left + r.width / 2 + "px";
+    box.style.top = r.top + r.height / 2 + "px";
+    box.innerHTML = Array.from({ length: 24 }, (_, i) =>
+      '<i style="color:' + (i % 3 ? "#13111A" : "#F5B800") + '">' + BAT + '</i>').join("");
+    document.body.appendChild(box);
+    /* the icon sits in the top-left corner, so the burst sprays down and right */
+    gsap.timeline({ onComplete: () => box.remove() })
+      .fromTo(box.children, { x: 0, y: 0, scale: 0, rotation: 0 }, {
+        x: () => gsap.utils.random(-50, 260), y: () => gsap.utils.random(-25, 170),
+        scale: () => gsap.utils.random(.55, 1.35), rotation: () => gsap.utils.random(-180, 180),
+        duration: .75, ease: "power3.out", stagger: .008 })
+      .to(box.children, { y: () => "+=" + gsap.utils.random(40, 110), opacity: 0,
+        duration: .9, ease: "power1.in", stagger: .008 }, "-=.2");
+  }
+  function batman(){
+    if (wordLoop) wordLoop.kill();
+    bubble.textContent = "I'm Batman";
+    setWord("Batman");
+    if (animate){
+      gsap.fromTo(".brand-icon", { scale: 1.9, rotation: -16 }, { scale: 1, rotation: 0, duration: .8, ease: "elastic.out(1, .45)" });
+      gsap.fromTo(bubble, { autoAlpha: 0, scale: 0, rotation: -10 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: .55, ease: "back.out(2.2)" });
+      batConfetti();
+    } else bubble.style.visibility = "visible";
+  }
+  function unBatman(){
+    batBusy = false;
+    setWord(WORDS[LANG][wordIdx]);
+    if (animate){
+      gsap.to(bubble, { autoAlpha: 0, scale: 0, duration: .25, ease: "power2.in", onComplete: () => { bubble.textContent = ""; } });
+      showIcon(0, true);
+      rotateWords();
+    } else {
+      bubble.style.visibility = ""; bubble.textContent = "";
+      showIcon(0);
+    }
+  }
+  $("#brand").addEventListener("click", () => {
+    if (batBusy) return;
+    batBusy = true;
+    if (!animate){ showIcon(BATMAN); batman(); setTimeout(unBatman, 2800); return; }
+    const tl = gsap.timeline();
+    /* gaps grow from 0.05s to ~0.25s: a spin that slows onto Batman */
+    SPIN.forEach((n, i) => tl.add(() => showIcon(n, n !== BATMAN), i ? "+=" + (.05 + .2 * (i / SPIN.length) ** 2) : 0));
+    tl.add(batman).add(unBatman, "+=2.8");
   });
 
   /* =================================================================
