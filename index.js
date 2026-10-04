@@ -470,19 +470,19 @@
       wins:{ en:[], af:[] } }
   ];
 
-  /* About page, "After hours". Each img is a stand-in: until the file
-     exists in Images/, the tile shows a riso placeholder instead. */
+  /* About page, "After hours". If an img is missing, the tile shows a
+     riso placeholder instead. dl = file in Images/ offered as a download. */
   const AFTER = [
-    { img:"about-maps.jpg", url:"https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",
+    { img:"Crash%20bandicoot.webp", url:"https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",
       en:["Zombie maps","Crash Bandicoot and Forgotten Room 115, two custom Call of Duty maps on the Steam Workshop."],
       af:["Zombiekaarte","Crash Bandicoot en Forgotten Room 115, twee pasgemaakte Call of Duty-kaarte op die Steam Workshop."] },
-    { img:"about-3d.jpg",
+    { img:"3d%20models.png", dl:"PlayStation%202%20-%20Crash%20Twinsanity%20-%20Playable%20Characters%20-%20Crash%20Bandicoot.zip",
       en:["3D models","Blender and Maya, for maps, mods and the odd experiment."],
       af:["3D-modelle","Blender en Maya, vir kaarte, mods en af en toe 'n eksperiment."] },
-    { img:"about-art.jpg",
+    { img:"DigitalartNiko.gif",
       en:["Digital art","Textures, sketches and anything else that needs drawing."],
       af:["Digitale kuns","Teksture, sketse en enigiets anders wat geteken moet word."] },
-    { img:"about-mods.jpg",
+    { img:"discorcod.webp",
       en:["Mod tools","Scripts, models and a Discord server for fellow Black Ops III modders."],
       af:["Mod-gereedskap","Skripte, modelle en 'n Discord-bediener vir ander Black Ops III-modders."] }
   ];
@@ -638,6 +638,8 @@
         '<div class="tile-cap"><h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>' +
         (a.url ? '<a class="arrow-link tile-link" href="' + esc(a.url) + '" target="_blank" rel="noopener"><span>' +
           (LANG === "af" ? "Op Steam" : "On Steam") + '</span><span>↗</span></a>' : '') +
+        (a.dl ? '<a class="arrow-link tile-link" href="' + IMG_BASE + esc(a.dl) + '" download><span>' +
+          (LANG === "af" ? "Laai af" : "Download") + '</span><span>↓</span></a>' : '') +
         '</div></article>';
     }).join("");
 
