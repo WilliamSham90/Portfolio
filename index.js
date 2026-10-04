@@ -48,7 +48,7 @@
     "nav.portfolio":"Portefeulje","nav.about":"Oor my","nav.projects":"Projekte","nav.play":"Speelgrond","nav.contact":"Kontak",
     "drawer.title":"Kieslys",
     "hero.status":"Beskikbaar vir vryskutwerk",
-    "hero.sub":"Full-stack developer. Ek maak die internet mooi. Plesier",
+    "hero.sub":"Full-stack developer. Ek maak die internet mooi.","hero.sub2":"Plesier",
     "hero.tag":"Senior webontwikkelaar · Krugersdorp",
     "doodle.hint":"Klik en sleep enige plek hier om te teken","doodle.clear":"Vee uit","doodle.touch":"Tekenmodus: af",
     "portrait.hint":"klik om die agtergrond te verander",
