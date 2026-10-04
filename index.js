@@ -53,8 +53,8 @@
     "doodle.hint":"Klik en sleep enige plek hier om te teken","doodle.clear":"Vee uit","doodle.touch":"Tekenmodus: af",
     "portrait.hint":"klik om die agtergrond te verander",
     "cta.work":"Kyk na my werk","cta.touch":"Kom ons gesels","cta.allProjects":"Al 35 projekte",
-    "cta.startChat":"Begin 'n gesprek →","cta.cv":"Vra my CV aan","cta.ask":"Vra my →",
-    "cta.hire":"Werk saam met my →","cta.idea":"Vertel my van jou idee →",
+    "cta.startChat":"GEE MY DAARDIE KOFFIE →","cta.cv":"Vra my CV aan","cta.ask":"Okay, EK sal jou vra →",
+    "cta.hire":"Werk saam met my →","cta.idea":"Die Knoppie →",
     "stat.years":"Jaar ervaring in webontwikkeling","stat.projects":"Voltooide projekte",
     "stat.live":"Werwe tans aanlyn","stat.tech":"Tegnologieë wat ek gereeld gebruik",
     "home.workEyebrow":"Uitgesoekte werk","home.workTitle":"Werk wat nou aanlyn is",
@@ -66,8 +66,8 @@
     "step.2p":"Elke twee weke is daar iets wat werk. Jy kry vroeg 'n toetsskakel en hoef nooit te wonder waarmee ek besig is nie.",
     "step.3n":"03 / OORHANDIG","step.3t":"Los dit netjies",
     "step.3p":"Toetse, 'n README wat op 'n splinternuwe skootrekenaar werk, CI wat met elke merge ontplooi, en 'n deurloop vir wie dit ook al oorneem.",
-    "band.homeTitle":"Iets halfklaar, of nog nie eens begin nie?",
-    "band.homeText":"Ek doen vryskutwerk naas my dagwerk. Vertel my wat jy wil bou.",
+    "band.homeTitle":"Mooi so, jy het die onderkant gehaal.",
+    "band.homeText":"Om dankie te sê, wat van ek jou uitneem vir 'n koffie? Klik net op die swart knoppie (definitief nie my kontakbladsy of iets nie).",
     "live.eyebrow":"Regstreekse voorskou","live.title":"Williams OS, reg hier voor jou","live.title2":"Williams OS",
     "live.open":"Maak volskerm oop",
     "live.copy":"Dis die regte werf, nie 'n skermskoot nie. Dit pas by enige breedte aan, so jy sien die rekenaaruitleg hier en die selfoonuitleg op 'n foon.",
@@ -85,18 +85,18 @@
     "skills.eyebrow":"Vaardighede","skills.title":"Waarmee ek werk",
     "exp.eyebrow":"Ervaring","exp.title":"Waar ek al gewerk het",
     "after.eyebrow":"Ná werk","after.title":"Wat ek vir die pret maak",
-    "band.aboutTitle":"Wil jy die storie agter enige hiervan hoor?",
-    "band.aboutText":"Argitektuur, kompromieë en die dele wat skeefgeloop het — ek vertel jou graag daarvan.",
+    "band.aboutTitle":"Nuuskierig oor die kode?",
+    "band.aboutText":"Vra my daaroor... Nee, doen dit regtig net. Ek belowe ek sal nie byt nie ;)",
     "proj.eyebrow":"Projekte · 2021—2026","proj.title":"Vyf-en-dertig werwe, almal nou aanlyn",
     "proj.sub":"Korporatiewe platforms, motorwerwe vir verskeie markte, aanlyn winkels, Laravel-stelsels, speletjiemods, Umbraco-werwe, GSAP-webwerwe en meer.",
     "proj.all":"Die res","proj.none":"Niks in dié kategorie nie — probeer 'n ander filter.",
     "band.projTitle":"Drie Nissan-markte, en nog meer op pad",
-    "band.projText":"Korporatiewe WordPress op groot skaal, Laravel-platforms, Perfex CRM-modules en heelwat Radiant. Joune kan die volgende een wees.",
+    "band.projText":"Korporatiewe Umbraco op groot skaal, ASP.NET Hybrid, CRM en heelwat C#. Joune kan die volgende een wees.",
     "play.eyebrow":"Speelgrond","play.title":"Dinge wat ek op 'n Sondag gebou het",
     "play.intro":"Eksperimente, widgets en speletjies, elkeen selfstandig op sy eie bladsy.",
     "play.pages":"Bladsye","play.games":"Speletjies",
-    "band.playTitle":"Die meeste hiervan het as 'n fout begin",
-    "band.playText":"As jy een hiervan behoorlik gebou wil hê, of 'n nog vreemder idee het, luister ek graag.",
+    "band.playTitle":"Moenie die knoppie druk nie",
+    "band.playText":"Nee, regtig, moenie die knoppie in swart druk nie. Dit mag jou na 'n lekker plek neem, soos my kontakbladsy. Ooh, so scary.",
     "contact.eyebrow":"Kontak","contact.title":"Kom ons kyk of ons 'n goeie pas is",
     "contact.status":"Beskikbaar vir vryskutwerk","contact.direct":"Direkte kontak",
     "contact.email":"E-pos","contact.loc":"Ligging",
@@ -112,7 +112,8 @@
     "faq.a2":"WordPress- en Laravel-werwe, Umbraco en Perfex CRM, Azure-hosting en stadige werwe vinniger maak. Enigiets van 'n enkele landingsbladsy tot 'n korporatiewe platform vir verskeie markte.",
     "faq.q3":"Doen jy ook 3D- en speletjiewerk?",
     "faq.a3":"Ja. Blender, Maya, Unreal en Radiant. Ek het al pasgemaakte Call of Duty-zombiekaarte en mod-gereedskap op die Steam Workshop gepubliseer.",
-    "foot.built":"Alle eer aan GOD · Psalm 115:1"
+    "foot.built":"Alle eer aan GOD · Psalm 115",
+    "live.hint":"Dis lewendig · klik, sleep en verken","live.hintTouch":"Dis lewendig · tik, sleep en verken"
   };
 
   let LANG = store("ws-lang") === "af" ? "af" : "en";
@@ -325,6 +326,11 @@
         '</div>' +
         '<div class="embed-stage">' +
           '<div class="embed-fallback" aria-hidden="true">' + loadingArt(1200, 760) + '</div>' +
+          '<div class="embed-hint" aria-hidden="true">' +
+            '<svg viewBox="0 0 24 24"><path d="M5 2v18l5-5 3.5 7 3-1.4-3.4-6.9H20z"/></svg>' +
+            '<span>' + (coarse ? T("live.hintTouch", "It's live · tap, drag & explore")
+                               : T("live.hint", "It's live · click, drag & explore")) + '</span>' +
+          '</div>' +
           '<iframe data-src="' + esc(src) + '" title="' + esc(label) + ' — live preview" ' +
             'sandbox="allow-scripts allow-same-origin allow-popups allow-forms" ' +
             'referrerpolicy="no-referrer-when-downgrade"></iframe>' +
@@ -347,6 +353,13 @@
   function initEmbeds(){
     $$(".embed-host[data-embed]").forEach(buildEmbed);
   }
+  /* Clicking into an iframe moves focus out of this window. That blur is
+     the only signal a cross-origin frame gives, and it's enough to retire
+     the "it's live" hint once the visitor has found it. */
+  addEventListener("blur", () => setTimeout(() => {
+    const f = document.activeElement;
+    if (f && f.matches(".embed-stage iframe")) f.parentElement.classList.add("used");
+  }));
 
   /* =================================================================
      DATA — straight from index.js
@@ -489,7 +502,8 @@
 
   const STACK = ["JavaScript","React","Vue.js","PHP","Laravel","C#","ASP.NET","Blazor Hybrid","Java","C++","SQL",
     "Microsoft Azure","Azure DevOps","Git","Unreal Engine 4","Unity","Radiant","WordPress","Shopify","Wix","Webflow",
-    "Perfex CRM","Umbraco","Photoshop","Figma","Blender","Maya","SEO","Search Console","Canva","Spline"];
+    "Perfex CRM","Umbraco","Photoshop","Figma","Blender","Maya","SEO","Search Console","Canva","Spline",
+    "GSAP","Locomotive","Without Code","Contentful","Plex","Jellyfin"];
   $("#marquee").innerHTML = STACK.concat(STACK).map(s => "<span>" + s + "</span>").join("");
 
   /* =================================================================

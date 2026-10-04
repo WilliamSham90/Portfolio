@@ -503,12 +503,39 @@ button{ font: inherit; color: inherit; }
 /* Shared with .shot .art — loadingArt() is used for both. */
 .pulse-dot{ transform-box: fill-box; transform-origin: center; animation: dotPulse 1.4s ease-in-out infinite; }
 @keyframes dotPulse{ 0%, 100%{ transform: scale(.7); opacity: .45; } 50%{ transform: scale(1); opacity: 1; } }
+/* "It's live" hint: visitors didn't realise the frame is interactive.
+   Appears once the site has loaded, sits over the empty middle of the
+   Williams OS desktop, never blocks a click (pointer-events: none), and
+   goes once the visitor clicks into the frame (.used, index.js). */
+.embed-hint{
+  position: absolute; z-index: 2; left: 50%; top: 50%;
+  display: flex; align-items: center; gap: 10px; width: max-content; max-width: calc(100% - 32px);
+  padding: 11px 18px 11px 14px; border-radius: 999px;
+  background: rgba(19,17,26,.84); color: #fff; backdrop-filter: blur(6px);
+  font-family: "JetBrains Mono", monospace; font-size: .76rem; letter-spacing: .02em; text-align: center;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 16px 32px -14px rgba(19,17,26,.7);
+  pointer-events: none;
+  opacity: 0; transform: translate(-50%, calc(-50% + 12px));
+  transition: opacity .45s, transform .45s cubic-bezier(.22,1,.36,1);
+}
+.embed-stage:not(.used):has(> iframe.ready) .embed-hint{ opacity: 1; transform: translate(-50%, -50%); }
+/* the cursor acts out a press, drag and release */
+.embed-hint svg{ width: 18px; height: 18px; flex: none; fill: #fff; stroke: var(--ink); stroke-width: 1.2; animation: hintDrag 2.2s ease-in-out infinite; }
+@keyframes hintDrag{
+  0%, 100%{ transform: translate(0, 0) scale(1); }
+  15%     { transform: translate(0, 0) scale(.8); }
+  55%     { transform: translate(12px, 7px) scale(.8); }
+  70%     { transform: translate(12px, 7px) scale(1); }
+}
 .embed-caption{ margin-top: 14px; font-family: "JetBrains Mono", monospace; font-size: .68rem; color: var(--ink-faint); }
 
 @media (max-width: 760px){
   .embed-stage{ height: clamp(420px, 68vh, 620px); }
   .embed-url{ font-size: .62rem; }
   .embed-open{ display: none; }
+  /* the phone layout fills the middle with icons; the strip above the taskbar is free */
+  .embed-hint{ top: auto; bottom: 74px; transform: translate(-50%, 12px); }
+  .embed-stage:not(.used):has(> iframe.ready) .embed-hint{ transform: translate(-50%, 0); }
 }
 
 /* ===============================================================
@@ -857,11 +884,11 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
 #loader.out{ transform: scaleY(0); }
 .loader-ring{ position: relative; width: 0; height: 0; animation: loader-spin 5s linear infinite; transition: opacity .3s; }
 #loader.out .loader-ring{ opacity: 0; }
-/* 17 slots (--i in the markup); slot 7 is the gap between words */
+/* 15 slots (--i in the markup); slot 3 is the gap between words */
 .loader-ring span{
   position: absolute; left: -.5em; top: -72px; width: 1em; text-align: center;
   font: 800 19px/1 "Bricolage Grotesque", system-ui, sans-serif;
-  transform-origin: 50% 72px; rotate: calc(var(--i) * 1turn / 17);
+  transform-origin: 50% 72px; rotate: calc(var(--i) * 1turn / 15);
   animation: loader-pop .25s ease-in-out calc(var(--i) * -.0625s) infinite alternate;
 }
 @keyframes loader-spin{ to{ transform: rotate(1turn); } }
