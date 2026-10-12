@@ -1109,15 +1109,25 @@
     $("#games-grid").innerHTML = GAMES.map((g, i) =>
       liveCardHTML(g, i + 9, GAME_BASE, LANG === "af" ? "Speletjie" : "Game", LANG === "af" ? "Speel nou" : "Play game")).join("");
 
-    $("#skills").innerHTML = SKILLS.map(g =>
-      '<div class="skillgroup" style="--accent: ' + g.accent + '">' +
-      '<span class="label"><b>◆</b> ' + esc(g.cat[LANG]) + '</span>' +
-      '<div class="skill-chips">' + g.items.map(it => {
-        const level = Math.round(it[1] / 20);
-        const dots = Array.from({ length: 5 }, (_, i) => '<i class="' + (i < level ? "on" : "") + '"></i>').join("");
-        return '<span class="skill-chip"><b>' + esc(it[0]) + '</b><span class="skill-lvl" role="img" aria-label="' + level + '/5">' + dots + '</span></span>';
-      }).join("") + '</div>' +
-      '</div>').join("");
+    $("#skills").innerHTML =
+      '<div class="sk-tabs" role="tablist" aria-label="' + (LANG === "af" ? "Vaardigheidskategorieë" : "Skill categories") + '">' +
+      SKILLS.map((g, i) => '<button class="sk-tab" type="button" role="tab" id="sk-tab-' + i + '" aria-controls="sk-panel-' + i +
+        '" aria-selected="' + (i === skillTab) + '" tabindex="' + (i === skillTab ? 0 : -1) + '" data-i="' + i + '" style="--accent: ' + g.accent + '">' +
+        '<span class="sk-n" aria-hidden="true"><b>◆</b> 0' + (i + 1) + '</span><span class="sk-t">' + esc(g.cat[LANG]) + '</span></button>').join("") +
+      '</div><div class="sk-stage">' +
+      SKILLS.map((g, i) => {
+        const avg = Math.round(g.items.reduce((s, it) => s + it[1], 0) / g.items.length);
+        return '<div class="sk-panel' + (i === skillTab ? ' is-on' : '') + '" role="tabpanel" id="sk-panel-' + i + '" aria-labelledby="sk-tab-' + i +
+          '" tabindex="0" style="--accent: ' + g.accent + '; --accent-2: ' + ACCENTS[(ACCENTS.indexOf(g.accent) + 1) % 4] + '">' +
+          '<div class="sk-card"><span class="label"><b>◆</b> ' + g.items.length + (LANG === "af" ? " vaardighede" : " skills") + '</span>' +
+          '<h3 class="sk-title">' + esc(g.cat[LANG]) + '</h3>' +
+          '<p class="sk-avg"><b>' + avg + '</b><span class="label">' + (LANG === "af" ? "Gem. vlak" : "Avg. level") + '</span></p></div>' +
+          '<ul class="sk-stats">' + g.items.map((it, k) =>
+            '<li class="sk-stat" style="--n: ' + k + '"><span class="sk-name">' + esc(it[0]) + '</span>' +
+            '<span class="sk-val">' + it[1] + '<small>/100</small></span>' +
+            '<span class="sk-bar" aria-hidden="true" style="--v: ' + it[1] + '%; --s: ' + Math.max(1, Math.round(it[1] / 5)) + '"><i></i></span></li>').join("") +
+          '</ul></div>';
+      }).join("") + '</div>';
 
     $("#cz-world").style.setProperty("--ground", GROUND + "px");
     $("#cz-world").innerHTML = coasterWorldHTML();
@@ -1151,6 +1161,46 @@
     });
     $("#no-results").hidden = shown > 0;
     if (GS) ScrollTrigger.refresh();
+  });
+
+  /* Skills tabs (WAI-ARIA tabs, automatic activation). The panels share
+     one grid cell, so the section never changes height and the pinned
+     coaster below keeps its ScrollTrigger positions. Moving .is-on
+     restarts the panel's CSS animations (bars, flash, misregistration);
+     the camera shake is a one-off WAAPI run on the whole widget. */
+  let skillTab = 0;
+  const SHAKE = [
+    { transform: "none" },
+    { transform: "scale(1.012) translate(-7px, 3px) rotate(-.5deg)" },
+    { transform: "scale(1.008) translate(6px, -4px) rotate(.45deg)" },
+    { transform: "translate(-4px, 2px) rotate(-.25deg)" },
+    { transform: "translate(3px, -1px) rotate(.15deg)" },
+    { transform: "translate(-1px, 1px)" },
+    { transform: "none" }
+  ];
+  function selectSkill(i, focus){
+    const sk = $("#skills"), tabs = $$('[role="tab"]', sk);
+    if (focus) tabs[i].focus();
+    if (i === skillTab) return;
+    skillTab = i;
+    tabs.forEach((t, k) => { t.setAttribute("aria-selected", String(k === i)); t.tabIndex = k === i ? 0 : -1; });
+    $$(".sk-panel", sk).forEach((p, k) => p.classList.toggle("is-on", k === i));
+    if (reduced) return;
+    sk.classList.add("is-live");
+    sk.animate(SHAKE, { duration: 460, easing: "ease-out" });
+  }
+  $("#skills").addEventListener("click", e => {
+    const tab = e.target.closest('[role="tab"]');
+    if (tab) selectSkill(+tab.dataset.i);
+  });
+  $("#skills").addEventListener("keydown", e => {
+    const tab = e.target.closest('[role="tab"]');
+    if (!tab) return;
+    const n = SKILLS.length, i = +tab.dataset.i;
+    const to = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: n - 1 }[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    selectSkill((to + n) % n, true);
   });
 
   /* =================================================================
@@ -1235,16 +1285,12 @@
           scrollTrigger: { trigger: el, start: "top 94%", once: true } });
       });
 
-      const skillChips = $$(".skill-chip", scope);
-      if (skillChips.length){
-        /* fromTo with explicit "to" values — a plain .from() left scale
-           and rotate stuck at their start values here (opacity settled
-           fine, transform never resolved), so spell out both ends. */
-        gsap.fromTo(skillChips,
-          { scale: .4, opacity: 0, rotate: () => gsap.utils.random(-8, 8) },
-          { scale: 1, opacity: 1, rotate: 0, duration: .6, ease: "back.out(2.2)", clearProps: "transform",
-            stagger: { each: .025, from: "random" },
-            scrollTrigger: { trigger: "#skills", start: "top 85%", once: true } });
+      /* skills bars stay still until scrolled to (.is-live gates their
+         CSS animations); cleared first so every visit replays the fill */
+      const skills = $("#skills", scope);
+      if (skills){
+        skills.classList.remove("is-live");
+        ScrollTrigger.create({ trigger: skills, start: "top 85%", once: true, onEnter: () => skills.classList.add("is-live") });
       }
 
       // the Career Coaster (About only); its cleanup runs when this context reverts
