@@ -1092,7 +1092,8 @@
   function cardHTML(p, i){
     const accent = ACCENTS[i % 4];
     const live = p.url && p.url !== "#";
-    return '<article class="card" data-cat="' + esc(p.cat) + '" style="--accent: ' + accent + '" data-anim="up">' +
+    // no data-anim: animatePage staggers these in with ScrollTrigger.batch
+    return '<article class="card" data-cat="' + esc(p.cat) + '" style="--accent: ' + accent + '">' +
       shotHTML(p.img, false) +
       '<div class="card-body">' +
         '<span class="label">' + esc(CATS[p.cat][LANG]) + '</span>' +
@@ -1362,6 +1363,31 @@
           onUpdate(){ el.textContent = Math.round(obj.v) + suffix; },
           scrollTrigger: { trigger: el, start: "top 94%", once: true } });
       });
+
+      /* Projects → "Everything else": GSAP's "stagger items in on scroll"
+         (ScrollTrigger.batch). Cards that reach the screen together rise
+         in together, 0.15s apart; scrolling back up they drop in from
+         above; off screen they hide again, so it replays both ways. Each
+         entrance clears its transform, so the CSS hover lift still works,
+         and nothing is left offset when ScrollTrigger re-measures. Cards
+         shown by a filter come in the same way (the filter refreshes).
+         A fast jump (scrollbar drag, End, a link) sweeps many cards into
+         one batch, most of them already gone past: only those still on
+         screen animate, and the stagger shrinks so it never runs past .6s. */
+      const projCards = $$("#all-cards .card", scope);
+      if (projCards.length){
+        const show = (els, trigs, from) => {
+          const on = els.filter((_, i) => trigs[i].isActive);
+          if (on.length) gsap.fromTo(on, { opacity: 0, y: from }, { opacity: 1, y: 0, duration: .6, ease: "power3.out",
+            stagger: Math.min(.15, .6 / on.length), overwrite: true, clearProps: "transform" });
+        };
+        const hide = els => gsap.set(els, { opacity: 0, clearProps: "transform", overwrite: true });
+        gsap.set(projCards, { opacity: 0 });
+        ScrollTrigger.batch(projCards, {
+          onEnter: (els, trigs) => show(els, trigs, 100), onEnterBack: (els, trigs) => show(els, trigs, -100),
+          onLeave: hide, onLeaveBack: hide
+        });
+      }
 
       /* skills bars stay still until scrolled to (.is-live gates their
          CSS animations); cleared first so every visit replays the fill */
@@ -1672,9 +1698,10 @@
     en: ["A Programmer","Poster Sexy","A Bug Slayer","Always Hungry","An Unpaid Comedian","A Follower Of JESUS"],
     af: ["'n Programmeerder","Poster Sexy","'n Foutjagter","Altyd Honger","'n Onbetaalde Komediant","'n Volgeling Van Christus"]
   };
-  const brandWord = $("#brand-word"), brandIcons = $$(".brand-icon img"), bubble = $("#bat-bubble");
+  // 0 is the resting pink dot, 1–5 the comic icons, last Batman
+  const brandWord = $("#brand-word"), brandIcons = $$(".brand-icon > *"), bubble = $("#bat-bubble");
   const BATMAN = brandIcons.length - 1;
-  const SPIN = [1, 2, 3, 4, 0, 1, 2, 3, 4, BATMAN];
+  const SPIN = [2, 3, 4, 5, 1, 2, 3, 4, 5, BATMAN];
   const BAT = '<svg viewBox="0 0 100 50"><path d="M50 15 47 5 44 14C36 7 19 4 3 9c10 4 12 12 8 21 8-5 17-3 21 5 5-6 13-5 18 7 5-12 13-13 18-7 4-8 13-10 21-5-4-9-2-17 8-21C81 4 64 7 56 14L53 5z"/></svg>';
   const animate = GS && !reduced;
   let wordIdx = 0, wordLoop = null, batBusy = false;

@@ -160,9 +160,37 @@ button{ font: inherit; color: inherit; }
 /* the six icons sit stacked; .on is the one showing */
 .brand-icon{ position: relative; width: 34px; height: 34px; flex: none; }
 /* hover wiggle lives on the imgs: GSAP owns .brand-icon's transform */
-.brand-icon img{ position: absolute; inset: 0; width: 100%; height: 100%; visibility: hidden; transition: transform .25s cubic-bezier(.22,1,.36,1); }
-.brand-icon img.on{ visibility: visible; }
-.brand:hover .brand-icon img{ transform: rotate(-8deg) scale(1.08); }
+.brand-icon > *{ position: absolute; inset: 0; width: 100%; height: 100%; visibility: hidden; transition: transform .25s cubic-bezier(.22,1,.36,1); }
+.brand-icon > .on{ visibility: visible; }
+.brand:hover .brand-icon > *{ transform: rotate(-8deg) scale(1.08); }
+/* the resting mark: the favicon's pink dot */
+.brand-icon > .brand-dot{ inset: 7px; width: auto; height: auto; border-radius: 50%; background: var(--pink); }
+/* Idle: it morphs circle → square → triangle → hexagon → diamond → ✦ → circle
+   through the four inks, holding each shape a beat. Every outline is the
+   same 24 points, one every 15° around the centre (corners land on them),
+   so each point just slides in or out along its ray. clip-path and colour
+   only: hover and the click spin own the transform. */
+@media (prefers-reduced-motion: no-preference){
+  .brand-icon > .brand-dot{
+    --circle: polygon(50% 0%,62.9% 1.7%,75% 6.7%,85.4% 14.6%,93.3% 25%,98.3% 37.1%,100% 50%,98.3% 62.9%,93.3% 75%,85.4% 85.4%,75% 93.3%,62.9% 98.3%,50% 100%,37.1% 98.3%,25% 93.3%,14.6% 85.4%,6.7% 75%,1.7% 62.9%,0% 50%,1.7% 37.1%,6.7% 25%,14.6% 14.6%,25% 6.7%,37.1% 1.7%);
+    --square: polygon(50% 10%,60.7% 10%,73.1% 10%,90% 10%,90% 26.9%,90% 39.3%,90% 50%,90% 60.7%,90% 73.1%,90% 90%,73.1% 90%,60.7% 90%,50% 90%,39.3% 90%,26.9% 90%,10% 90%,10% 73.1%,10% 60.7%,10% 50%,10% 39.3%,10% 26.9%,10% 10%,26.9% 10%,39.3% 10%);
+    --triangle: polygon(50% 3%,59.9% 20.1%,65.6% 30%,69.8% 37.2%,73.4% 43.5%,77% 49.8%,81.2% 57%,86.9% 66.9%,96.8% 84%,77% 84%,65.6% 84%,57.2% 84%,50% 84%,42.8% 84%,34.4% 84%,23% 84%,3.2% 84%,13.1% 66.9%,18.8% 57%,23% 49.8%,26.6% 43.5%,30.2% 37.2%,34.4% 30%,40.1% 20.1%);
+    --hexagon: polygon(50% 0%,61.6% 6.7%,71.7% 12.5%,81.7% 18.3%,93.3% 25%,93.3% 38.4%,93.3% 50%,93.3% 61.6%,93.3% 75%,81.7% 81.7%,71.7% 87.5%,61.6% 93.3%,50% 100%,38.4% 93.3%,28.3% 87.5%,18.3% 81.7%,6.7% 75%,6.7% 61.6%,6.7% 50%,6.7% 38.4%,6.7% 25%,18.3% 18.3%,28.3% 12.5%,38.4% 6.7%);
+    --diamond: polygon(50% 0%,60.6% 10.6%,68.3% 18.3%,75% 25%,81.7% 31.7%,89.4% 39.4%,100% 50%,89.4% 60.6%,81.7% 68.3%,75% 75%,68.3% 81.7%,60.6% 89.4%,50% 100%,39.4% 89.4%,31.7% 81.7%,25% 75%,18.3% 68.3%,10.6% 60.6%,0% 50%,10.6% 39.4%,18.3% 31.7%,25% 25%,31.7% 18.3%,39.4% 10.6%);
+    --sparkle: polygon(50% 0%,57.3% 22.9%,60.2% 32.3%,62% 38%,67.7% 39.8%,77.1% 42.7%,100% 50%,77.1% 57.3%,67.7% 60.2%,62% 62%,60.2% 67.7%,57.3% 77.1%,50% 100%,42.7% 77.1%,39.8% 67.7%,38% 62%,32.3% 60.2%,22.9% 57.3%,0% 50%,22.9% 42.7%,32.3% 39.8%,38% 38%,39.8% 32.3%,42.7% 22.9%);
+    border-radius: 0; clip-path: var(--circle);
+    animation: brand-morph 12s ease-in-out infinite;
+  }
+}
+/* six 2s steps: hold 1.4s, morph .6s */
+@keyframes brand-morph{
+  0%, 11.667%, 100%{ clip-path: var(--circle);   background: var(--pink); }
+  16.667%, 28.333% { clip-path: var(--square);   background: var(--blue); }
+  33.333%, 45%     { clip-path: var(--triangle); background: var(--yellow); }
+  50%, 61.667%     { clip-path: var(--hexagon);  background: var(--mint); }
+  66.667%, 78.333% { clip-path: var(--diamond);  background: var(--pink); }
+  83.333%, 95%     { clip-path: var(--sparkle);  background: var(--blue); }
+}
 .brand-text{ white-space: nowrap; line-height: 1.25; }
 /* the rotating word (index.js, BRAND): brand pink, uppercase to match the name */
 .brand-is{ color: var(--ink-faint); }
@@ -1320,6 +1348,15 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
   .sec-head{ grid-template-columns: 1fr; align-items: start; }
   .gallery{ grid-template-columns: 1fr; }
   .tile:nth-child(n){ grid-column: auto; }
+  /* Projects → "Everything else": two cards a row on phones, so tightened
+     up; the blurb stops at three lines */
+  #all-cards{ grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  #all-cards .card-body{ padding: 12px; gap: 7px; }
+  #all-cards .card-body h4{ font-size: .95rem; overflow-wrap: anywhere; }
+  #all-cards .card-body p{ font-size: .8rem; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+  #all-cards .tags{ gap: 5px; }
+  #all-cards .tag{ font-size: .62rem; padding: 3px 7px; }
+  #all-cards .card-body .label{ font-size: .62rem; letter-spacing: .1em; }
   .sk-tabs{ grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
   .sk-panel{ grid-template-columns: minmax(0,1fr); }
   .sk-avg{ margin-top: 0; }
