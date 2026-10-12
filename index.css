@@ -782,25 +782,157 @@ button{ font: inherit; color: inherit; }
 .skill-lvl i{ width: 5px; height: 5px; border-radius: 50%; background: var(--hair); display: block; }
 .skill-lvl i.on{ background: var(--accent, var(--pink)); }
 
-.tl{ position: relative; padding-left: clamp(22px, 4vw, 46px); }
-.tl-line{ position: absolute; left: 0; top: 10px; bottom: 10px; width: 1px; background: var(--hair); transform-origin: 50% 0; }
-.job{ position: relative; padding-block: clamp(24px, 3.6vw, 40px); border-top: 1px solid var(--hair); }
-.job:first-child{ border-top: 0; padding-top: 0; }
-/* Time-scroll: dim until the spine's progress reaches it, lights up
-   and grows while it's the current stop, settles to a filled dot once
-   scrolled past — a playhead moving down the timeline as you scroll. */
-.job::before{
-  content:""; position: absolute; left: calc(clamp(22px, 4vw, 46px) * -1 - 3px);
-  top: clamp(28px, 4vw, 44px); width: 7px; height: 7px; border-radius: 50%;
-  background: var(--hair); transform: scale(.8);
-  transition: transform .35s cubic-bezier(.34,1.56,.64,1), background .3s, box-shadow .3s;
+/* ===============================================================
+   CAREER COASTER (About → Experience) — index.js, COASTER.
+   Without .is-ride (reduced motion, no GSAP) the stops are boards
+   stacked down the page. With it the stage is pinned and the world
+   (park, track and cart, in ride units: 1000 = the stage's height) is
+   moved like a camera; each board opens out of the cart through a
+   circle clip: --iris (0–1) of --iris-r around --iris-x/y.
+   =============================================================== */
+.coaster-world{ display: none; }
+.cz-boards{ display: grid; gap: clamp(18px, 2.4vw, 28px); max-width: 1280px; margin-inline: auto; padding-inline: var(--gut); }
+.cz-board{
+  position: relative; overflow: hidden; border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--accent) 14%, var(--paper));
 }
-.job:first-child::before{ top: 8px; }
-.job.tl-done::before{ background: var(--accent, var(--pink)); transform: scale(.9); }
-.job.tl-active::before{
-  background: var(--accent, var(--pink)); transform: scale(1.5);
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent, var(--pink)) 22%, transparent);
+/* the riso dot screen, as on the photo placeholders */
+.cz-board::before{
+  content:""; position: absolute; inset: 0; pointer-events: none; opacity: .07;
+  background: radial-gradient(var(--ink) 1.2px, transparent 1.5px) 0 0 / 11px 11px;
 }
+.cz-board-in{
+  position: relative; height: 100%; max-width: 1240px; margin-inline: auto;
+  padding: clamp(24px, 4vw, 48px);
+  display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 72px); align-items: center;
+}
+/* The job on a ride ticket, in the .band's comic-panel treatment; the
+   stub tears off along the dashes */
+.cz-ticket{
+  display: grid; grid-template-columns: 56px minmax(0, 1fr);
+  background: var(--card); border: 3px solid var(--ink); border-radius: var(--r-lg);
+  box-shadow: clamp(8px, 1.4vw, 12px) clamp(8px, 1.4vw, 12px) 0 0 var(--accent);
+}
+.cz-stub{
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 14px;
+  padding-block: 20px; border-right: 2px dashed var(--hair); font-family: "JetBrains Mono", monospace;
+}
+.cz-stub span{ writing-mode: vertical-rl; rotate: 180deg; font-size: .64rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.cz-stub b{ font-size: .95rem; color: var(--accent); }
+/* Three instant photos, taped on */
+.cz-pics{ position: relative; height: clamp(300px, 34vw, 460px); }
+.cz-polaroid{
+  position: absolute; margin: 0; width: clamp(140px, 16vw, 220px); padding: 10px 10px 34px;
+  background: var(--card); border: 1px solid var(--hair); border-radius: 6px;
+  box-shadow: 0 22px 40px -28px rgba(19,17,26,.5);
+}
+.cz-polaroid .ph{ aspect-ratio: 4/5; border-radius: 3px; }
+.cz-polaroid::before{
+  content:""; position: absolute; z-index: 2; left: 50%; top: -12px; width: 74px; height: 22px; margin-left: -37px;
+  background: color-mix(in srgb, var(--accent-2) 55%, transparent); rotate: -4deg;
+}
+.cz-polaroid:nth-child(1){ left: 0; top: 0; rotate: -6deg; }
+.cz-polaroid:nth-child(2){ right: 2%; top: 14%; rotate: 5deg; }
+.cz-polaroid:nth-child(3){ left: 28%; bottom: 0; rotate: -2deg; }
+
+/* ---- riding ---- */
+.coaster.is-ride .coaster-stage{ position: relative; height: 100vh; height: 100lvh; overflow: hidden; overflow: clip; }
+.coaster.is-ride .coaster-world{ display: block; position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.coaster.is-ride .cz-boards{ position: absolute; inset: 0; display: block; max-width: none; padding: 0; pointer-events: none; }
+.coaster.is-ride .cz-board{
+  position: absolute; inset: 0; border-radius: 0;
+  clip-path: circle(calc(var(--iris, 0) * var(--iris-r, 150vmax)) at var(--iris-x, 30%) var(--iris-y, 55%));
+}
+.coaster.is-ride .cz-board.is-open{ pointer-events: auto; }
+.coaster.is-ride .cz-board-in{ padding: 96px var(--gut) 32px; }   /* clear of the sticky top bar */
+
+/* The world. Sizes are ride units (px before the camera's scale). */
+.coaster-world > *{ position: absolute; }
+.cz-ground{ height: 1400px; background: var(--tint); border-top: 3px solid var(--ink); }
+.cz-ground::after{   /* a footpath through the park */
+  content:""; position: absolute; inset: 44px 0 auto; height: 5px;
+  background: repeating-linear-gradient(90deg, var(--hair) 0 34px, transparent 34px 64px);
+}
+.cz-track{ left: 0; top: 0; overflow: visible; }
+.cz-track path{ fill: none; stroke-linejoin: round; }
+.cz-supports{ stroke: var(--ink); stroke-width: 3; opacity: .2; }
+.cz-ties{ stroke: var(--ink-soft); stroke-width: 24; stroke-dasharray: 4 12; }
+.cz-rails{ stroke: color-mix(in srgb, var(--ink) 26%, var(--paper)); stroke-width: 12; }
+.cz-fill path{ stroke-width: 12; }   /* index.js draws it in, stretch by stretch */
+.cz-gap{ stroke: var(--paper); stroke-width: 5; }   /* splits the rail stroke into two rails */
+
+.cz-cart{ left: -70px; top: -122px; width: 140px; height: 116px; transform-origin: 70px 122px; will-change: transform; }
+.cz-cart svg, .cz-cart img{ display: block; width: 100%; height: 100%; overflow: visible; }
+.cz-ink{ fill: var(--ink); }
+.cz-arms{
+  fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round;
+  transform-box: fill-box; transform-origin: 50% 100%; animation: cz-wave .45s ease-in-out infinite alternate;
+}
+.cz-rider:nth-child(2) .cz-arms{ animation-delay: -.2s; }
+.cz-rider:nth-child(3) .cz-arms{ animation-delay: -.35s; }
+@keyframes cz-wave{ from{ transform: rotate(-8deg); } to{ transform: rotate(8deg); } }
+
+/* The gate: a marquee sign, bulbs and all */
+.cz-gate{ left: -100px; top: -345px; width: 300px; border-inline: 7px solid var(--ink); }
+.cz-gate-sign{
+  position: absolute; left: -27px; right: -27px; top: 0; padding: 20px 22px 22px; text-align: center;
+  background: var(--ink); color: var(--paper); border-radius: 14px; box-shadow: 8px 8px 0 var(--pink);
+  outline: 4px dotted var(--yellow); outline-offset: -10px;
+}
+.cz-gate-sign b{ display: block; font: 800 34px/1 "Bricolage Grotesque", sans-serif; letter-spacing: -.03em; text-wrap: balance; }
+.cz-gate-sign span{ display: block; margin-top: 10px; font: 500 14px/1.4 "JetBrains Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--yellow); }
+
+/* A stop: striped awning on posts, a platform, and the sign that pops when the cart pulls in */
+.cz-stop{ top: 0; }
+.cz-roof{
+  position: absolute; left: -120px; top: -212px; width: 240px; height: 52px;
+  border: 3px solid var(--ink); border-radius: 12px 12px 4px 4px;
+  background: repeating-linear-gradient(90deg, var(--accent) 0 24px, var(--card) 24px 48px);
+}
+.cz-roof::before, .cz-roof::after{ content:""; position: absolute; top: 100%; width: 6px; height: calc(var(--ground) + 157px); background: var(--ink); }
+.cz-roof::before{ left: 8px; }
+.cz-roof::after{ right: 8px; }
+.cz-deck{ position: absolute; left: -135px; top: 14px; width: 270px; height: 14px; border-radius: 3px; background: var(--ink); }
+.cz-sign{
+  position: absolute; left: -145px; bottom: 222px; width: 290px; padding: 12px 16px 14px;
+  background: var(--card); border: 3px solid var(--ink); border-radius: 12px;
+  box-shadow: 6px 6px 0 var(--accent); transform-origin: 50% 100%;
+}
+.cz-sign span{ display: block; font: 500 13px/1.3 "JetBrains Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+.cz-sign b{ display: block; margin-top: 6px; font: 800 26px/1.05 "Bricolage Grotesque", sans-serif; letter-spacing: -.03em; }
+
+/* The park: photo frames (riso placeholders until RIDE_PICS has a photo), a big wheel, tents, bunting, balloons */
+.cz-pic{ margin: 0; padding: 7px; background: var(--card); border: 3px solid var(--ink); border-radius: 8px; rotate: var(--tilt, 0deg); }
+.cz-pic .ph{ width: 100%; height: 100%; border-radius: 3px; }
+.cz-pic::after{ content:""; position: absolute; left: 50%; top: 100%; width: 6px; height: var(--post, 0px); margin-left: -3px; background: var(--ink); }
+.cz-float{ width: 150px; animation: cz-bob 3s ease-in-out var(--d, 0s) infinite alternate; }
+.cz-float svg{ display: block; width: 150px; height: 200px; }
+.cz-float .cz-pic{ position: relative; width: 120px; height: 96px; margin: -3px auto 0; }
+@keyframes cz-bob{ to{ transform: translateY(-16px); } }
+.cz-wheel{ width: 330px; height: 360px; }
+.cz-wheel > svg{ position: absolute; inset: 0; width: 100%; height: 100%; }
+.cz-spin{ position: absolute; left: -5px; top: -5px; width: 340px; height: 340px; animation: cz-spin 40s linear infinite; }
+.cz-spin svg{ display: block; width: 100%; height: 100%; overflow: visible; }
+@keyframes cz-spin{ to{ transform: rotate(1turn); } }
+.cz-tent{ width: 270px; height: 220px; overflow: visible; }
+.cz-flags{ width: 320px; height: 260px; overflow: visible; }
+
+@media (max-width: 760px){
+  .cz-board-in{ grid-template-columns: minmax(0, 1fr); align-content: start; gap: 26px; }
+  .cz-ticket{ grid-template-columns: 40px minmax(0, 1fr); }
+  .cz-pics{ height: auto; display: flex; justify-content: center; gap: 4%; padding-top: 8px; }
+  .cz-polaroid{ position: relative; width: 29%; padding: 6px 6px 18px; }
+  .cz-polaroid:nth-child(n){ inset: auto; }
+  .cz-polaroid::before{ top: -8px; width: 44px; height: 14px; margin-left: -22px; }
+  .coaster.is-ride .cz-board-in{ padding-top: 84px; }
+}
+/* short phones: no room for the photos under the ticket */
+@media (max-width: 760px) and (max-height: 740px){
+  .coaster.is-ride .cz-pics{ display: none; }
+}
+
+.job{ padding: clamp(20px, 3vw, 32px); }
 .job-top{ display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
 .job-when{ font-family: "JetBrains Mono", monospace; font-size: .74rem; color: var(--ink-faint); }
 .now{ font-family: "JetBrains Mono", monospace; font-size: .64rem; text-transform: uppercase; letter-spacing: .1em; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--mint); color: var(--mint); }

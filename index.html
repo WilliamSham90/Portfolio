@@ -292,18 +292,23 @@
       </div>
     </div>
 
-    <div class="shell block">
-      <section class="sec">
+    <section class="block coaster" id="coaster" aria-labelledby="exp-title">
+      <div class="shell">
         <div class="sec-head">
           <div>
             <span class="label"><b>[03]</b> <span data-i18n="exp.eyebrow">Experience</span></span>
-            <h2 data-split data-i18n="exp.title">Where I've been</h2>
+            <h2 id="exp-title" data-split data-i18n="exp.title">Where I've been</h2>
           </div>
           <a class="arrow-link" href="mailto:williamsham90@gmail.com?subject=CV%20request"><span data-i18n="cta.cv">Ask for my CV</span><span>→</span></a>
         </div>
-        <div class="tl"><span class="tl-line" aria-hidden="true"></span><div id="timeline"></div></div>
-      </section>
-    </div>
+      </div>
+      <!-- The Career Coaster (index.js, COASTER): pinned while the cart rides
+           from stop to stop; each stop's board opens out of the cart -->
+      <div class="coaster-stage">
+        <div class="coaster-world" id="cz-world" aria-hidden="true"></div>
+        <div class="cz-boards" id="cz-boards"></div>
+      </div>
+    </section>
 
     <div class="tinted-2">
       <div class="shell">
