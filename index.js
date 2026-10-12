@@ -85,7 +85,7 @@
     "skills.eyebrow":"Vaardighede","skills.title":"Waarmee ek werk",
     "exp.eyebrow":"Ervaring","exp.title":"Waar ek al gewerk het",
     "ride.title":"Die Loopbaan-tuimeltrein","ride.sub":"Hou jou arms binne die waentjie · blaai om te ry ↓",
-    "ride.stop":"Halte","ride.admit":"Toegang vir een",
+    "ride.stop":"Halte","ride.admit":"Toegang vir een","ride.next":"Word vervolg…",
     "after.eyebrow":"Ná werk","after.title":"Wat ek vir die pret maak",
     "band.aboutTitle":"Nuuskierig oor die kode?",
     "band.aboutText":"Vra my daaroor... Nee, doen dit regtig net. Ek belowe ek sal nie byt nie ;)",
@@ -462,10 +462,24 @@
       ["Figma / UI Design",85],["Adobe Photoshop",80],["Unreal / Unity",75],["Blender / Maya",70]] }
   ];
 
-  /* Each job is a stop on the Career Coaster (COASTER below), in this
-     order. pics: up to three photos for the stop's board, e.g.
+  /* Each job is a stop on the Career Coaster (COASTER below), ridden in
+     this order: oldest first, so the ride ends on the current job.
+     pics: up to three photos for the stop's board, e.g.
      "Images/lkda-1.webp"; an empty slot shows the riso placeholder. */
   const JOBS = [
+    { when:{ en:"2021 — 2022", af:"2021 — 2022" }, accent:"var(--mint)", pics:[],
+      role:{ en:"Freelance Developer", af:"Vryskutontwikkelaar" },
+      where:{ en:"Self-employed", af:"Selfstandig" },
+      d:{ en:"Custom websites and web apps for a range of clients, mostly WordPress, custom themes and online stores.",
+          af:"Pasgemaakte webwerwe en webtoepassings vir verskeie kliënte, meestal WordPress, eie temas en aanlyn winkels." },
+      wins:{ en:[], af:[] } },
+    { when:{ en:"Mar 2023 — Aug 2024", af:"Mrt. 2023 — Aug. 2024" }, accent:"var(--blue)", pics:[],
+      role:{ en:"Web Developer", af:"Webontwikkelaar" },
+      where:"Silverstone Group, Centurion",
+      d:{ en:"Full-stack web work, Perfex CRM modules, business tools and online stores.",
+          af:"Full-stack-webwerk, Perfex CRM-modules, besigheidstoepassings en aanlyn winkels." },
+      wins:{ en:["Developed 15+ custom Perfex CRM modules","Built a WhatsApp chatbot integration"],
+             af:["Meer as 15 pasgemaakte Perfex CRM-modules ontwikkel","'n WhatsApp-kletsbot geïntegreer"] } },
     { when:{ en:"Sept 2024 — Present", af:"Sept. 2024 — Nou" }, now:true, accent:"var(--pink)", pics:[],
       role:{ en:"Senior Web Developer", af:"Senior webontwikkelaar" },
       where:"LKDA — Strategic Creative Advertising, Pretoria",
@@ -476,20 +490,7 @@
                  "Built a plugin that connects to multiple databases"],
              af:["Die herbou van LKDA se wêreldwye digitale biblioteek-app gelei",
                  "Nissan SA se webwerf 5 sekondes vinniger laat laai",
-                 "'n Inprop gebou wat aan verskeie databasisse koppel"] } },
-    { when:{ en:"Mar 2023 — Aug 2024", af:"Mrt. 2023 — Aug. 2024" }, accent:"var(--blue)", pics:[],
-      role:{ en:"Web Developer", af:"Webontwikkelaar" },
-      where:"Silverstone Group, Centurion",
-      d:{ en:"Full-stack web work, Perfex CRM modules, business tools and online stores.",
-          af:"Full-stack-webwerk, Perfex CRM-modules, besigheidstoepassings en aanlyn winkels." },
-      wins:{ en:["Developed 15+ custom Perfex CRM modules","Built a WhatsApp chatbot integration"],
-             af:["Meer as 15 pasgemaakte Perfex CRM-modules ontwikkel","'n WhatsApp-kletsbot geïntegreer"] } },
-    { when:{ en:"2021 — 2022", af:"2021 — 2022" }, accent:"var(--mint)", pics:[],
-      role:{ en:"Freelance Developer", af:"Vryskutontwikkelaar" },
-      where:{ en:"Self-employed", af:"Selfstandig" },
-      d:{ en:"Custom websites and web apps for a range of clients, mostly WordPress, custom themes and online stores.",
-          af:"Pasgemaakte webwerwe en webtoepassings vir verskeie kliënte, meestal WordPress, eie temas en aanlyn winkels." },
-      wins:{ en:[], af:[] } }
+                 "'n Inprop gebou wat aan verskeie databasisse koppel"] } }
   ];
 
   /* About page, "After hours". If an img is missing, the tile shows a
@@ -521,7 +522,8 @@
      rides the cart along the track (slow over the tops, fast down the
      drops) while the ridden track fills in; at each stop the job's board
      opens out of the cart like an iris, then closes as the ride carries
-     on. The last board stays open and the pin lets go.
+     on. After the last stop the cart rolls on to "To be continued…" and
+     the pin lets go; the track runs on past the edge of any screen.
      The world is in ride units, 1000 = the stage's height, so it scales
      with the screen instead of being rebuilt on resize. y grows down;
      0 is the rail at station height, GROUND is where the posts stand.
@@ -538,16 +540,23 @@
     [["run", 170], ["hill", 640, 300], ["run", 70], ["hill", 380, 190], ["run", 50], ["hill", 320, 110],
      ["run", 90], ["loop", 200], ["run", 260]]
   ];
+  // After the last stop: one more hill, then the cart parks under "To be continued…"
+  const OUTRO = [["run", 170], ["hill", 480, 180], ["run", 420]];
+  const TAIL = 4000;   // track, ground and park carried on this far past both ends, beyond the widest screen
   /* The park along the ride, cycled left to right. pic = a photo on a
      post, balloons = a photo floating on balloons. */
   const PARK = ["pic", "wheel", "pic", "balloons", "tent", "pic", "flags", "pic", "balloons"];
   const PARK_W = { pic: 180, wheel: 330, tent: 270, balloons: 150, flags: 320 };
+  const TENTS = ["pink", "blue", "yellow", "mint"];
   /* Photos for the park's frames, in order, e.g. "Images/park-1.webp".
      A frame without one shows the riso placeholder. */
   const RIDE_PICS = [];
-  /* A picture to use instead of the drawn cart, e.g. "Images/coaster-cart.webp":
-     140 × 116 in shape, facing right, wheels touching the bottom edge. */
-  const CART_IMG = "";
+  /* The drawings (cart, big wheel, tents, bunting, balloons) are SVG
+     files in Images/Coaster/, palette colours baked in. To use your own
+     cart, replace cart.svg or point this elsewhere: 140 × 116 in shape,
+     facing right, wheels touching the bottom edge. */
+  const ART = IMG_BASE + "Coaster/";
+  const CART_IMG = ART + "cart.svg";
 
   const f1 = n => +n.toFixed(1);
   const pad2 = n => String(n).padStart(2, "0");
@@ -623,23 +632,23 @@
       angle: Math.atan2(seg.ys[b] - seg.ys[a], seg.xs[b] - seg.xs[a]) };
   }
 
-  // One stretch of track per job (parts[i] ends at stops[i]), measured once
+  // One stretch of track per job (parts[i] ends at stops[i]) and the outro to `end`, measured once
   const TRACK = (() => {
     const parts = [], stops = [];
     let x = 0;
-    JOBS.forEach((_, i) => {
+    JOBS.concat(null).forEach((_, i) => {
       let d = "M" + f1(x) + ",0";
-      (i ? RIDES[(i - 1) % RIDES.length] : LEAD_IN).forEach(p => { d += trackPiece(p, x); x += pieceW(p); });
+      (i === JOBS.length ? OUTRO : i ? RIDES[(i - 1) % RIDES.length] : LEAD_IN).forEach(p => { d += trackPiece(p, x); x += pieceW(p); });
       parts.push(d);
       stops.push(f1(x));
     });
-    const segs = parts.map(sampleTrack), end = f1(x);
+    const segs = parts.map(sampleTrack), end = stops.pop();
     // the trestle: a post every 48 units from the lowest rail above it to the ground, cross-braced under the hills
     const low = {};
     const mark = (px, py) => { const b = Math.round(px / 48); low[b] = b in low ? Math.max(low[b], py) : py; };
     segs.forEach(s => s.xs.forEach((px, j) => mark(px, s.ys[j])));
-    for (let px = -1200; px < 0; px += 48) mark(px, 0);
-    for (let px = end; px <= end + 1200; px += 48) mark(px, 0);
+    for (let px = -TAIL; px < 0; px += 48) mark(px, 0);
+    for (let px = end; px <= end + TAIL; px += 48) mark(px, 0);
     let supports = "";
     Object.keys(low).map(Number).sort((a, b) => a - b).forEach(b => {
       const top = f1(low[b] + 10);
@@ -648,52 +657,20 @@
         ? "M" + b * 48 + "," + top + "L" + (b + 1) * 48 + "," + GROUND
         : "M" + b * 48 + "," + GROUND + "L" + (b + 1) * 48 + "," + f1(low[b + 1] + 10);
     });
-    return { parts, stops, segs, end, supports, all: "M-1200,0L0,0" + parts.join("") + "L" + f1(end + 1200) + ",0" };
+    return { parts, stops, segs, end, supports, all: "M" + -TAIL + ",0L0,0" + parts.join("") + "L" + f1(end + TAIL) + ",0" };
   })();
 
-  /* ---- the park, the cart, the boards (riso: flat inks, ink outlines) */
-  const INK = 'stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"';
+  /* ---- the park, the cart, the boards */
   const photo = src => '<div class="ph">' + (src ? '<img src="' + esc(src) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : '') + '</div>';
   const inks = i => "--accent:" + ACCENTS[i % 4] + ";--accent-2:" + ACCENTS[(i + 1) % 4];
+  const art = (src, cls, style) => '<img src="' + src + '" alt="" loading="lazy" decoding="async"' +
+    (cls ? ' class="' + cls + '"' : '') + (style ? ' style="' + style + '"' : '') + '>';
 
-  const WHEEL = (() => {
-    let spokes = "", cars = "";
-    for (let a = 0; a < 8; a++){
-      const x = f1(Math.cos(a * Math.PI / 4) * 150), y = f1(Math.sin(a * Math.PI / 4) * 150);
-      spokes += "M0,0L" + x + "," + y;
-      cars += '<circle cx="' + x + '" cy="' + y + '" r="17" fill="' + ACCENTS[a % 4] + '"/>';
-    }
-    return '<svg viewBox="0 0 330 360" fill="none" ' + INK + '><path d="M165 165L55 360M165 165L275 360M90 300H240" stroke-width="7"/></svg>' +
-      '<div class="cz-spin"><svg viewBox="-170 -170 340 340" fill="none" ' + INK + '><circle r="150"/><circle r="116" stroke-width="2"/>' +
-      '<path d="' + spokes + '" stroke-width="2"/>' + cars + '<circle r="15" fill="var(--ink)"/></svg></div>';
-  })();
-  function tentSVG(x, c){
-    let roof = "";
-    for (let s = 0; s < 6; s++) roof += '<path d="M135 24L' + f1(8 + s * 42.33) + ' 112H' + f1(8 + (s + 1) * 42.33) + 'Z" fill="' + (s % 2 ? "var(--card)" : c) + '" stroke="none"/>';
-    return '<svg class="cz-tent" style="left:' + x + 'px;top:' + (GROUND - 220) + 'px" viewBox="0 0 270 220" ' + INK + '>' +
-      '<path d="M26 112H244V220H26Z" fill="var(--card)"/>' +
-      '<path d="M62 114V218M106 114V218M164 114V218M208 114V218" stroke="' + c + '" stroke-width="12" opacity=".45"/>' +
-      '<path d="M108 220V170Q135 140 162 170V220Z" fill="var(--ink)"/>' + roof +
-      '<path d="M135 24L262 112H8Z" fill="none"/><path d="M135 24V2L162 10L135 18" fill="' + c + '"/></svg>';
-  }
-  function flagsSVG(x, i){
-    let flags = "";
-    for (let s = 1; s <= 8; s++){
-      const t = s / 9, u = 1 - t, px = u * u * 10 + 2 * u * t * 160 + t * t * 310, py = u * u * 30 + 2 * u * t * 110 + t * t * 30;
-      flags += '<path d="M' + f1(px - 13) + ' ' + f1(py) + 'H' + f1(px + 13) + 'L' + f1(px) + ' ' + f1(py + 32) + 'Z" fill="' + ACCENTS[(s + i) % 4] + '"/>';
-    }
-    return '<svg class="cz-flags" style="left:' + x + 'px;top:' + (GROUND - 260) + 'px" viewBox="0 0 320 260" ' + INK + '>' +
-      '<path d="M10 260V18M310 260V18" stroke-width="6"/><path d="M10 30Q160 110 310 30" fill="none" stroke-width="2"/>' + flags + '</svg>';
-  }
-  function balloonsSVG(i){
-    return '<svg viewBox="0 0 150 200" ' + INK + '><path d="M40 92L75 200M76 70L75 200M112 96L75 200" fill="none" stroke-width="1.5"/>' +
-      [[40, 56], [76, 34], [112, 60]].map((b, k) =>
-        '<ellipse cx="' + b[0] + '" cy="' + b[1] + '" rx="28" ry="34" fill="' + ACCENTS[(i + k) % 4] + '"/>').join("") + '</svg>';
-  }
   function parkHTML(){
-    let html = "", x = -1100, pics = 0, hit;
-    const clear = [[-150, 250]].concat(TRACK.stops.map(s => [s - 165, s + 165]));   // nothing behind the gate or a stop's sign
-    for (let i = 0; x < TRACK.end + 900; i++){
+    let html = "", x = -TAIL + 400, pics = 0, tents = 0, hit;
+    // nothing behind the gate, a stop's sign or "To be continued…"
+    const clear = [[-150, 250], [TRACK.end - 150, TRACK.end + 260]].concat(TRACK.stops.map(s => [s - 165, s + 165]));
+    for (let i = 0; x < TRACK.end + TAIL - 400; i++){
       const kind = PARK[i % PARK.length];
       while ((hit = clear.find(c => x < c[1] && x + PARK_W[kind] > c[0]))) x = hit[1] + 40;
       if (kind === "pic"){
@@ -701,51 +678,33 @@
         html += '<figure class="cz-pic" style="left:' + x + 'px;top:' + (GROUND - post - h) + 'px;width:' + w + 'px;height:' + h +
           'px;--post:' + post + 'px;--tilt:' + (i % 2 ? 3 : -2) + 'deg;' + inks(i) + '">' + photo(RIDE_PICS[pics++]) + '</figure>';
       } else if (kind === "balloons"){
-        html += '<div class="cz-float" style="left:' + x + 'px;top:' + (GROUND - 590) + 'px;--d:' + -(i % 3) + 's">' + balloonsSVG(i) +
+        html += '<div class="cz-float" style="left:' + x + 'px;top:' + (GROUND - 590) + 'px;--d:' + -(i % 3) + 's">' + art(ART + "balloons.svg") +
           '<figure class="cz-pic" style="' + inks(i + 1) + '">' + photo(RIDE_PICS[pics++]) + '</figure></div>';
-      } else if (kind === "wheel") html += '<div class="cz-wheel" style="left:' + x + 'px;top:' + (GROUND - 360) + 'px">' + WHEEL + '</div>';
-      else if (kind === "tent") html += tentSVG(x, ACCENTS[i % 4]);
-      else html += flagsSVG(x, i);
+      } else if (kind === "wheel"){
+        html += '<div class="cz-wheel" style="left:' + x + 'px;top:' + (GROUND - 360) + 'px">' + art(ART + "wheel-stand.svg") +
+          '<div class="cz-spin">' + art(ART + "wheel.svg") + '</div></div>';
+      } else html += kind === "tent"
+        ? art(ART + "tent-" + TENTS[tents++ % TENTS.length] + ".svg", "cz-tent", "left:" + x + "px;top:" + (GROUND - 220) + "px")
+        : art(ART + "flags.svg", "cz-flags", "left:" + x + "px;top:" + (GROUND - 260) + "px");
       x += PARK_W[kind] + 70;
     }
     return html;
   }
 
-  /* Three riders, arms up (they wave: .cz-arms in index.css), in a pink
-     cart misprinted in blue. 140 × 116, wheels on the bottom edge. */
-  const CART_SVG = (() => {
-    const riders = [[30, "var(--blue)", "var(--yellow)", "var(--ink)"], [68, "var(--mint)", "var(--yellow)", "var(--pink)"],
-                    [104, "var(--yellow)", "var(--mint)", "var(--blue)"]].map(r => {
-      const x = r[0];
-      return '<g class="cz-rider"><path class="cz-arms" d="M' + (x - 8) + ' 56L' + (x - 17) + ' 22M' + (x + 8) + ' 56L' + (x + 17) + ' 22"/>' +
-        '<rect x="' + (x - 12) + '" y="44" width="24" height="26" rx="9" fill="' + r[1] + '"/>' +
-        '<circle cx="' + x + '" cy="34" r="11" fill="' + r[2] + '"/>' +
-        '<path d="M' + (x - 11) + ' 32a11 11 0 0 1 22 0q-11-6-22 0z" fill="' + r[3] + '"/>' +
-        '<g class="cz-ink"><circle cx="' + (x - 4) + '" cy="34" r="1.7"/><circle cx="' + (x + 4) + '" cy="34" r="1.7"/>' +
-        '<ellipse cx="' + x + '" cy="40.5" rx="2.6" ry="3.2"/></g></g>';
-    }).join("");
-    const body = "M8 62H110Q134 60 134 84Q134 100 118 100H20Q8 100 8 88Z";
-    return '<svg viewBox="0 0 140 116">' + riders +
-      '<path d="' + body + '" fill="var(--blue)" opacity=".6" transform="translate(4 4)" style="mix-blend-mode:multiply"/>' +
-      '<path d="' + body + '" fill="var(--pink)" ' + INK + '/>' +
-      '<path d="M15 80H126" stroke="var(--card)" stroke-width="4" stroke-linecap="round"/>' +
-      '<g class="cz-ink"><circle cx="32" cy="106" r="9"/><circle cx="108" cy="106" r="9"/></g>' +
-      '<g fill="var(--card)"><circle cx="32" cy="106" r="3"/><circle cx="108" cy="106" r="3"/></g></svg>';
-  })();
-
   function coasterWorldHTML(){
     const t = TRACK;
-    return '<div class="cz-ground" style="left:-2400px;width:' + (t.end + 4800) + 'px;top:' + GROUND + 'px"></div>' + parkHTML() +
+    return '<div class="cz-ground" style="left:' + (-TAIL - 400) + 'px;width:' + (t.end + 2 * TAIL + 800) + 'px;top:' + GROUND + 'px"></div>' + parkHTML() +
       '<div class="cz-gate" style="height:' + (345 + GROUND) + 'px"><div class="cz-gate-sign"><b>' + esc(T("ride.title", "The Career Coaster")) +
         '</b><span>' + esc(T("ride.sub", "Keep your arms inside the cart · scroll to ride ↓")) + '</span></div></div>' +
       t.stops.map((x, i) => '<div class="cz-stop" style="left:' + x + 'px;--accent:' + JOBS[i].accent + '"><i class="cz-roof"></i><i class="cz-deck"></i>' +
         '<div class="cz-sign"><span>' + esc(T("ride.stop", "Stop")) + ' ' + pad2(i + 1) + ' · ' + esc(JOBS[i].when[LANG]) + '</span>' +
         '<b>' + esc(JOBS[i].role[LANG]) + '</b></div></div>').join("") +
+      '<div class="cz-end" style="left:' + (t.end + 60) + 'px"><div class="cz-gate-sign"><b>' + esc(T("ride.next", "To be continued…")) + '</b></div></div>' +
       '<svg class="cz-track" width="1" height="1"><path class="cz-supports" d="' + t.supports + '"/>' +
         '<path class="cz-ties" d="' + t.all + '"/><path class="cz-rails" d="' + t.all + '"/>' +
-        '<g class="cz-fill">' + t.parts.map((d, i) => '<path d="' + d + '" style="stroke:' + JOBS[i].accent + '"/>').join("") + '</g>' +
+        '<g class="cz-fill">' + t.parts.map((d, i) => '<path d="' + d + '" style="stroke:' + (JOBS[i] ? JOBS[i].accent : "var(--yellow)") + '"/>').join("") + '</g>' +
         '<path class="cz-gap" d="' + t.all + '"/></svg>' +
-      '<div class="cz-cart" id="cz-cart">' + (CART_IMG ? '<img src="' + esc(CART_IMG) + '" alt="">' : CART_SVG) + '</div>';
+      '<div class="cz-cart" id="cz-cart">' + art(CART_IMG) + '</div>';
   }
 
   // Each job on a ride ticket, with three taped-on photos
@@ -775,6 +734,8 @@
     if (!root) return;
     root.classList.add("is-ride");
     const stage = $(".coaster-stage", root), world = $("#cz-world", root), cart = $("#cz-cart", root);
+    // the ride's drawings all at once (nine small files), so nothing pops in mid-ride; park photos stay lazy
+    $$('img[src^="' + ART + '"]', world).forEach(img => { img.loading = "eager"; });
     const fills = $$(".cz-fill path", root), boards = $$(".cz-board", root), signs = $$(".cz-sign", root);
     const segs = TRACK.segs, last = segs.length - 1;
     const lens = fills.map(p => p.getTotalLength()), drawn = lens.slice();
@@ -782,10 +743,11 @@
     const state = { pos: 0, push: 0 }, open = boards.map(() => ({ v: 0, drawn: 0 }));
     let W, H, k, ax, ay, shown = -1;
 
-    // Where the camera keeps the cart on screen, and the circle each board opens out of (the cart)
+    // Where the camera keeps the cart on screen (further in on phones, so a stop's sign fits on its
+    // left), and the circle each board opens out of (the cart)
     function measure(){
       W = stage.clientWidth; H = stage.clientHeight; k = H / 1000;
-      ax = W * (W < 760 ? .26 : .34); ay = H * .6;
+      ax = W * (W < 760 ? .42 : .34); ay = H * .6;
       const cy = ay - 60 * k;
       stage.style.setProperty("--iris-x", ax + "px");
       stage.style.setProperty("--iris-y", cy + "px");
@@ -798,8 +760,11 @@
         if (off !== drawn[s]) el.style.strokeDashoffset = drawn[s] = off;
       });
       cart.style.transform = "translate(" + p.x.toFixed(1) + "px," + p.y.toFixed(1) + "px) rotate(" + p.angle.toFixed(3) + "rad)";
-      const z = k * (1 + state.push * .3);
-      world.style.transform = "translate(" + (ax - p.cam * z).toFixed(1) + "px," + ay.toFixed(1) + "px) scale(" + z.toFixed(4) + ")";
+      // The camera holds still while the cart loops back, but never lets it leave the screen: the further
+      // behind it the cart gets, the more it follows, easing (tanh) to at most D units behind
+      const z = k * (1 + state.push * .3), D = Math.max(40, ax / z - 80), back = p.cam - p.x;
+      const cam = back > 0 ? p.x + D * Math.tanh(back / D) : p.cam;
+      world.style.transform = "translate(" + (ax - cam * z).toFixed(1) + "px," + ay.toFixed(1) + "px) scale(" + z.toFixed(4) + ")";
       let showing = -1;
       open.forEach((o, j) => {
         if (o.v > 0) showing = j;
@@ -814,7 +779,8 @@
     }
 
     // Per stop, in screens of scrolling: ride there; arrive (the sign pops, the camera pushes in, the
-    // board opens out of the cart); the ticket and photos land; hold; close and ride on
+    // board opens out of the cart); the ticket and photos land; hold; close and ride on. Then the
+    // outro to "To be continued…".
     const S = { ride: 1.1, arrive: .5, note: .3, drop: .3, hold: .35, leave: .45 };
     const tl = gsap.timeline({ paused: true, defaults: { ease: "none" }, onUpdate: render });
     const irises = [];   // [from, to] of every board opening or closing
@@ -828,14 +794,15 @@
           { opacity: 1, scale: 1, rotation: 0, duration: S.note, ease: "back.out(1.7)" }, t0)
         .fromTo($$(".cz-polaroid", board), { opacity: 0, y: -90, rotation: n => n % 2 ? 12 : -12 },
           { opacity: 1, y: 0, rotation: 0, duration: S.drop, ease: "back.out(1.5)", stagger: .07 }, t0 + S.note * .6);
-      irises.push([at + S.arrive * .2, t0]);
-      if (i < last){
-        const leave = tl.duration() + S.hold;
-        tl.to(open[i], { v: 0, duration: S.leave, ease: "power2.inOut" }, leave)
-          .to(state, { push: 0, duration: S.leave, ease: "power2.inOut" }, leave);
-        irises.push([leave, leave + S.leave]);
-      } else tl.to({}, { duration: S.hold });
+      const leave = tl.duration() + S.hold;
+      tl.to(open[i], { v: 0, duration: S.leave, ease: "power2.inOut" }, leave)
+        .to(state, { push: 0, duration: S.leave, ease: "power2.inOut" }, leave);
+      irises.push([at + S.arrive * .2, t0], [leave, leave + S.leave]);
     });
+    tl.to(state, { pos: last + 1, duration: S.ride * Math.max(.5, segs[last].len / 2000), ease: "sine.inOut" })
+      .fromTo($(".cz-end .cz-gate-sign", root), { opacity: 0, scale: .4 },
+        { opacity: 1, scale: 1, duration: S.note, ease: "back.out(1.7)" }, "-=" + S.note * .6)
+      .to({}, { duration: S.hold });
 
     measure();
     render();

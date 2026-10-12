@@ -863,15 +863,7 @@ button{ font: inherit; color: inherit; }
 .cz-gap{ stroke: var(--paper); stroke-width: 5; }   /* splits the rail stroke into two rails */
 
 .cz-cart{ left: -70px; top: -122px; width: 140px; height: 116px; transform-origin: 70px 122px; will-change: transform; }
-.cz-cart svg, .cz-cart img{ display: block; width: 100%; height: 100%; overflow: visible; }
-.cz-ink{ fill: var(--ink); }
-.cz-arms{
-  fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round;
-  transform-box: fill-box; transform-origin: 50% 100%; animation: cz-wave .45s ease-in-out infinite alternate;
-}
-.cz-rider:nth-child(2) .cz-arms{ animation-delay: -.2s; }
-.cz-rider:nth-child(3) .cz-arms{ animation-delay: -.35s; }
-@keyframes cz-wave{ from{ transform: rotate(-8deg); } to{ transform: rotate(8deg); } }
+.cz-cart img{ display: block; width: 100%; height: 100%; }   /* Images/Coaster/cart.svg: the riders wave inside the file */
 
 /* The gate: a marquee sign, bulbs and all */
 .cz-gate{ left: -100px; top: -345px; width: 300px; border-inline: 7px solid var(--ink); }
@@ -881,6 +873,9 @@ button{ font: inherit; color: inherit; }
   outline: 4px dotted var(--yellow); outline-offset: -10px;
 }
 .cz-gate-sign b{ display: block; font: 800 34px/1 "Bricolage Grotesque", sans-serif; letter-spacing: -.03em; text-wrap: balance; }
+/* "To be continued…": the gate's sign again, hovering over the track where the ride ends */
+.cz-end{ top: -175px; animation: cz-bob 3s ease-in-out infinite alternate; }
+.cz-end .cz-gate-sign{ top: auto; bottom: 0; left: -170px; right: auto; width: 340px; transform-origin: 50% 100%; }
 .cz-gate-sign span{ display: block; margin-top: 10px; font: 500 14px/1.4 "JetBrains Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--yellow); }
 
 /* A stop: striped awning on posts, a platform, and the sign that pops when the cart pulls in */
@@ -907,16 +902,16 @@ button{ font: inherit; color: inherit; }
 .cz-pic .ph{ width: 100%; height: 100%; border-radius: 3px; }
 .cz-pic::after{ content:""; position: absolute; left: 50%; top: 100%; width: 6px; height: var(--post, 0px); margin-left: -3px; background: var(--ink); }
 .cz-float{ width: 150px; animation: cz-bob 3s ease-in-out var(--d, 0s) infinite alternate; }
-.cz-float svg{ display: block; width: 150px; height: 200px; }
+.cz-float img{ display: block; width: 150px; height: 200px; }
 .cz-float .cz-pic{ position: relative; width: 120px; height: 96px; margin: -3px auto 0; }
 @keyframes cz-bob{ to{ transform: translateY(-16px); } }
 .cz-wheel{ width: 330px; height: 360px; }
-.cz-wheel > svg{ position: absolute; inset: 0; width: 100%; height: 100%; }
+.cz-wheel > img{ position: absolute; inset: 0; width: 100%; height: 100%; }
 .cz-spin{ position: absolute; left: -5px; top: -5px; width: 340px; height: 340px; animation: cz-spin 40s linear infinite; }
-.cz-spin svg{ display: block; width: 100%; height: 100%; overflow: visible; }
+.cz-spin img{ display: block; width: 100%; height: 100%; }
 @keyframes cz-spin{ to{ transform: rotate(1turn); } }
-.cz-tent{ width: 270px; height: 220px; overflow: visible; }
-.cz-flags{ width: 320px; height: 260px; overflow: visible; }
+.cz-tent{ width: 270px; height: 220px; }
+.cz-flags{ width: 320px; height: 260px; }
 
 @media (max-width: 760px){
   .cz-board-in{ grid-template-columns: minmax(0, 1fr); align-content: start; gap: 26px; }
