@@ -633,32 +633,56 @@
       angle: Math.atan2(seg.ys[b] - seg.ys[a], seg.xs[b] - seg.xs[a]) };
   }
 
-  // One stretch of track per job (parts[i] ends at stops[i]) and the outro to `end`, measured once
+  /* One stretch of track per job (parts[i] ends at stops[i]) and the outro to `end`, measured once.
+     A stretch is drawn as its pieces (each run, hill and loop a path of its own), so the browser
+     only strokes the pieces near what it's painting, and drawing the fill in redraws one piece. */
   const TRACK = (() => {
     const parts = [], stops = [];
     let x = 0;
     JOBS.concat(null).forEach((_, i) => {
-      let d = "M" + f1(x) + ",0";
-      (i === JOBS.length ? OUTRO : i ? RIDES[(i - 1) % RIDES.length] : LEAD_IN).forEach(p => { d += trackPiece(p, x); x += pieceW(p); });
-      parts.push(d);
+      const pieces = [];
+      (i === JOBS.length ? OUTRO : i ? RIDES[(i - 1) % RIDES.length] : LEAD_IN).forEach(p => {
+        pieces.push("M" + f1(x) + ",0" + trackPiece(p, x));
+        x += pieceW(p);
+      });
+      parts.push(pieces);
       stops.push(f1(x));
     });
-    const segs = parts.map(sampleTrack), end = stops.pop();
+    const segs = parts.map(pieces => sampleTrack(pieces.join(""))), end = stops.pop();
+    /* The ties and the trestle are drawn in chunks CHUNK units wide, one path each, so painting a
+       bit of the screen only touches the track near it: one path the length of the ride (worse, a
+       dashed one) gets worked through in full for every tile the browser paints. */
+    const CHUNK = 1000, chunks = {};
+    const put = (key, x, d) => {
+      const c = chunks[Math.floor(x / CHUNK)] || (chunks[Math.floor(x / CHUNK)] = { ties: "", supports: "" });
+      c[key] += d;
+    };
+    // a tie across the rails every 16 units (every 4th point), square to the track
+    segs.forEach(s => {
+      for (let j = 0; j < s.n; j += 4){
+        const a = Math.max(0, j - 1), b = Math.min(s.n - 1, j + 1), tx = s.xs[b] - s.xs[a], ty = s.ys[b] - s.ys[a];
+        const l = Math.hypot(tx, ty) || 1, nx = -ty / l * 12, ny = tx / l * 12;
+        put("ties", s.xs[j], "M" + f1(s.xs[j] - nx) + "," + f1(s.ys[j] - ny) + "L" + f1(s.xs[j] + nx) + "," + f1(s.ys[j] + ny));
+      }
+    });
+    for (let px = -TAIL; px < 0; px += 16) put("ties", px, "M" + px + ",-12V12");
+    for (let px = end + 16; px <= end + TAIL; px += 16) put("ties", px, "M" + f1(px) + ",-12V12");
     // the trestle: a post every 48 units from the lowest rail above it to the ground, cross-braced under the hills
     const low = {};
     const mark = (px, py) => { const b = Math.round(px / 48); low[b] = b in low ? Math.max(low[b], py) : py; };
     segs.forEach(s => s.xs.forEach((px, j) => mark(px, s.ys[j])));
     for (let px = -TAIL; px < 0; px += 48) mark(px, 0);
     for (let px = end; px <= end + TAIL; px += 48) mark(px, 0);
-    let supports = "";
     Object.keys(low).map(Number).sort((a, b) => a - b).forEach(b => {
-      const top = f1(low[b] + 10);
-      supports += "M" + b * 48 + "," + top + "V" + GROUND;
-      if (top < -40 && (b + 1) in low) supports += b % 2
-        ? "M" + b * 48 + "," + top + "L" + (b + 1) * 48 + "," + GROUND
-        : "M" + b * 48 + "," + GROUND + "L" + (b + 1) * 48 + "," + f1(low[b + 1] + 10);
+      const top = f1(low[b] + 10), x = b * 48;
+      put("supports", x, "M" + x + "," + top + "V" + GROUND);
+      if (top < -40 && (b + 1) in low) put("supports", x, b % 2
+        ? "M" + x + "," + top + "L" + (x + 48) + "," + GROUND
+        : "M" + x + "," + GROUND + "L" + (x + 48) + "," + f1(low[b + 1] + 10));
     });
-    return { parts, stops, segs, end, supports, all: "M" + -TAIL + ",0L0,0" + parts.join("") + "L" + f1(end + TAIL) + ",0" };
+    // the rails: one path per stretch, plus the straight run off past each end
+    const rails = ["M" + -TAIL + ",0L0,0", "M" + end + ",0L" + f1(end + TAIL) + ",0"].concat(...parts);
+    return { parts, stops, segs, end, chunks: Object.keys(chunks).map(k => chunks[k]), rails };
   })();
 
   /* ---- the park, the cart, the boards */
@@ -701,10 +725,17 @@
         '<div class="cz-sign"><span>' + esc(T("ride.stop", "Stop")) + ' ' + pad2(i + 1) + ' · ' + esc(JOBS[i].when[LANG]) + '</span>' +
         '<b>' + esc(JOBS[i].role[LANG]) + '</b></div></div>').join("") +
       '<div class="cz-end" style="left:' + (t.end + 60) + 'px"><div class="cz-gate-sign"><b>' + esc(T("ride.next", "To be continued…")) + '</b></div></div>' +
-      '<svg class="cz-track" width="1" height="1"><path class="cz-supports" d="' + t.supports + '"/>' +
-        '<path class="cz-ties" d="' + t.all + '"/><path class="cz-rails" d="' + t.all + '"/>' +
-        '<g class="cz-fill">' + t.parts.map((d, i) => '<path d="' + d + '" style="stroke:' + (JOBS[i] ? JOBS[i].accent : "var(--yellow)") + '"/>').join("") + '</g>' +
-        '<path class="cz-gap" d="' + t.all + '"/></svg>' +
+      '<svg class="cz-track" width="1" height="1">' +
+        t.chunks.map(c => '<path class="cz-supports" d="' + c.supports + '"/>').join("") +
+        t.chunks.map(c => '<path class="cz-ties" d="' + c.ties + '"/>').join("") +
+        t.rails.map(d => '<path class="cz-rails" d="' + d + '"/>').join("") + '</svg>' +
+      // the ridden track fills in on a layer of its own (a group per stretch, in its stop's ink), so
+      // drawing it repaints nothing else; the paper-coloured gap that splits the rail stroke into two
+      // rails goes on top, on its own still layer
+      '<svg class="cz-track cz-track--fill" width="1" height="1"><g class="cz-fill">' +
+        t.parts.map((pieces, i) => '<g style="stroke:' + (JOBS[i] ? JOBS[i].accent : "var(--yellow)") + '">' +
+          pieces.map(d => '<path d="' + d + '"/>').join("") + '</g>').join("") + '</g></svg>' +
+      '<svg class="cz-track" width="1" height="1">' + t.rails.map(d => '<path class="cz-gap" d="' + d + '"/>').join("") + '</svg>' +
       '<div class="cz-cart" id="cz-cart">' + art(CART_IMG) + '</div><div class="cz-fx cz-fx--front"></div>';
   }
 
@@ -796,12 +827,22 @@
     const stage = $(".coaster-stage", root), world = $("#cz-world", root), cart = $("#cz-cart", root);
     // the ride's drawings all at once (nine small files), so nothing pops in mid-ride; park photos stay lazy
     $$('img[src^="' + ART + '"]', world).forEach(img => { img.loading = "eager"; });
-    const fills = $$(".cz-fill path", root), boards = $$(".cz-board", root), signs = $$(".cz-sign", root);
+    const boards = $$(".cz-board", root), signs = $$(".cz-sign", root);
     const segs = TRACK.segs, last = segs.length - 1;
-    const lens = fills.map(p => p.getTotalLength()), drawn = lens.slice();
-    fills.forEach((p, k) => { p.style.strokeDasharray = lens[k] + " " + (lens[k] + 2); p.style.strokeDashoffset = lens[k]; });
+    // the fill: per stretch, its pieces, each with where it starts along the stretch (all hidden to start)
+    const fills = $$(".cz-fill > g", root).map(g => {
+      let at = 0;
+      return Array.from(g.children, el => {
+        const len = el.getTotalLength(), piece = { el, len, from: at, drawn: len };
+        at += len;
+        el.style.strokeDasharray = len + " " + (len + 2);
+        el.style.strokeDashoffset = len;
+        return piece;
+      });
+    });
+    const fillLen = fills.map(pieces => pieces.reduce((a, q) => a + q.len, 0));
     const state = { pos: 0, push: 0 }, open = boards.map(() => ({ v: 0, drawn: 0 }));
-    let W, H, k, ax, ay, shown = -1, covered = false;
+    let W, H, k, ax, ay, iris = "", irisR = 0, shown = -1, covered = false;
     const view = { x0: 0, x1: 0 }, rider = { x: 0, y: 0, angle: 0 };   // for the effects: what's on screen, where the cart is
 
     // Where the camera keeps the cart on screen (further in on phones, so a stop's sign fits on its
@@ -810,15 +851,19 @@
       W = stage.clientWidth; H = stage.clientHeight; k = H / 1000;
       ax = W * (W < 760 ? .42 : .34); ay = H * .6;
       const cy = ay - 60 * k;
-      stage.style.setProperty("--iris-x", ax + "px");
-      stage.style.setProperty("--iris-y", cy + "px");
-      stage.style.setProperty("--iris-r", Math.ceil(Math.hypot(Math.max(ax, W - ax), Math.max(cy, H - cy))) + 2 + "px");
+      iris = "px at " + ax.toFixed(1) + "px " + cy.toFixed(1) + "px)";
+      irisR = Math.ceil(Math.hypot(Math.max(ax, W - ax), Math.max(cy, H - cy))) + 2;
+      open.forEach(o => { o.drawn = -1; });   // a new size: redraw the circles
     }
     function render(){
       const i = Math.min(Math.floor(state.pos), last), p = rideAt(segs[i], state.pos - i);
-      fills.forEach((el, s) => {
-        const off = s < i ? 0 : s > i ? lens[s] : lens[s] * (1 - p.f);
-        if (off !== drawn[s]) el.style.strokeDashoffset = drawn[s] = off;
+      // only the piece under the cart changes, frame to frame
+      fills.forEach((pieces, s) => {
+        const along = s < i ? Infinity : s > i ? 0 : p.f * fillLen[s];
+        pieces.forEach(q => {
+          const off = q.len - Math.min(q.len, Math.max(0, along - q.from));
+          if (off !== q.drawn) q.el.style.strokeDashoffset = q.drawn = off;
+        });
       });
       cart.style.transform = "translate(" + p.x.toFixed(1) + "px," + p.y.toFixed(1) + "px) rotate(" + p.angle.toFixed(3) + "rad)";
       // The camera holds still while the cart loops back, but never lets it leave the screen: the further
@@ -831,10 +876,13 @@
       let showing = -1;
       open.forEach((o, j) => {
         if (o.v > 0) showing = j;
-        if (o.v !== o.drawn) boards[j].style.setProperty("--iris", o.drawn = o.v);
+        // The circle the board opens through. Set directly (a custom property would restyle everything on
+        // the board each frame); none once it's fully open, so a full board needs no mask at all.
+        if (o.v !== o.drawn) boards[j].style.clipPath = (o.drawn = o.v) >= 1 ? "none" : o.v > 0 ? "circle(" + (o.v * irisR).toFixed(1) + iris : "";
       });
+      // (the world stays visible under a full board: hiding it would throw its painted tiles away, and
+      // repainting the whole screen of it when the board closes was the worst frame of the ride)
       covered = showing > -1 && open[showing].v >= 1;
-      world.style.visibility = covered ? "hidden" : "";   // nothing to paint under a full board
       if (showing !== shown){
         if (shown > -1) boards[shown].classList.remove("is-open");
         if (showing > -1) boards[showing].classList.add("is-open");
@@ -926,6 +974,9 @@
     stage.addEventListener("click", onClick);
     const io = new IntersectionObserver(entries => { onScreen = entries[0].isIntersecting; });
     io.observe(stage);
+    // the park's wheels and balloons only turn and bob near the screen (index.css)
+    const near = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("is-near", e.isIntersecting)), { rootMargin: "0px 300px" });
+    $$(".cz-spin, .cz-float, .cz-end", world).forEach(el => near.observe(el));
     // fetch and decode the sheets ahead of time, once the browser has a quiet moment
     const warm = setTimeout(() => { if (!lite) (window.requestIdleCallback || (f => f()))(() => FX_SHEETS.forEach(sheet)); }, 1200);
 
@@ -933,12 +984,12 @@
       gsap.ticker.remove(tick);
       stage.removeEventListener("click", onClick);
       io.disconnect();
+      near.disconnect();
       clearTimeout(warm);
       $$(".cz-fx", root).forEach(l => { l.textContent = ""; });
       root.classList.remove("is-ride");
-      world.style.transform = world.style.visibility = "";
-      ["--iris-x", "--iris-y", "--iris-r"].forEach(n => stage.style.removeProperty(n));
-      boards.forEach(b => { b.style.removeProperty("--iris"); b.classList.remove("is-open"); });
+      world.style.transform = "";
+      boards.forEach(b => { b.style.clipPath = ""; b.classList.remove("is-open"); });
     };
   }
 

@@ -788,7 +788,7 @@ button{ font: inherit; color: inherit; }
    stacked down the page. With it the stage is pinned and the world
    (park, track and cart, in ride units: 1000 = the stage's height) is
    moved like a camera; each board opens out of the cart through a
-   circle clip: --iris (0–1) of --iris-r around --iris-x/y.
+   circle clip (clip-path, set by index.js; closed until then).
    =============================================================== */
 .coaster-world{ display: none; }
 .cz-boards{ display: grid; gap: clamp(18px, 2.4vw, 28px); max-width: 1280px; margin-inline: auto; padding-inline: var(--gut); }
@@ -847,9 +847,10 @@ button{ font: inherit; color: inherit; }
 .coaster.is-ride .cz-boards{ position: absolute; inset: 0; display: block; max-width: none; padding: 0; pointer-events: none; }
 .coaster.is-ride .cz-board{
   position: absolute; inset: 0; border-radius: 0;
-  clip-path: circle(calc(var(--iris, 0) * var(--iris-r, 150vmax)) at var(--iris-x, 30%) var(--iris-y, 55%));
+  clip-path: circle(0);
 }
-.coaster.is-ride .cz-board.is-open{ pointer-events: auto; }
+/* its own layer while it's showing: opening and closing then redraw only the circle, not the board */
+.coaster.is-ride .cz-board.is-open{ pointer-events: auto; will-change: transform; }
 .coaster.is-ride .cz-board-in{ padding: 96px var(--gut) 32px; }   /* clear of the sticky top bar */
 
 /* The world. Sizes are ride units (px before the camera's scale). */
@@ -861,10 +862,11 @@ button{ font: inherit; color: inherit; }
 }
 .cz-track{ left: 0; top: 0; overflow: visible; }
 .cz-track path{ fill: none; stroke-linejoin: round; }
-.cz-supports{ stroke: var(--ink); stroke-width: 3; opacity: .2; }
-.cz-ties{ stroke: var(--ink-soft); stroke-width: 24; stroke-dasharray: 4 12; }
+.cz-track--fill{ will-change: transform; }   /* its own layer: index.js redraws the fill every frame of the ride */
+.cz-supports{ stroke: var(--ink); stroke-width: 3; stroke-opacity: .2; }
+.cz-ties{ stroke: var(--ink-soft); stroke-width: 4; }   /* bars across the rails (index.js, TRACK) */
 .cz-rails{ stroke: color-mix(in srgb, var(--ink) 26%, var(--paper)); stroke-width: 12; }
-.cz-fill path{ stroke-width: 12; }   /* index.js draws it in, stretch by stretch */
+.cz-fill path{ stroke-width: 12; }   /* index.js draws it in, piece by piece */
 .cz-gap{ stroke: var(--paper); stroke-width: 5; }   /* splits the rail stroke into two rails */
 
 .cz-cart{ left: -70px; top: -122px; width: 140px; height: 116px; transform-origin: 70px 122px; will-change: transform; }
@@ -917,6 +919,11 @@ button{ font: inherit; color: inherit; }
 .cz-spin{ position: absolute; left: -5px; top: -5px; width: 340px; height: 340px; animation: cz-spin 40s linear infinite; }
 .cz-spin img{ display: block; width: 100%; height: 100%; }
 @keyframes cz-spin{ to{ transform: rotate(1turn); } }
+/* Park animations run only near the screen (index.js marks those .is-near): a running animation is
+   restyled every frame, on screen or not, and the park has a dozen of them */
+.coaster-world .cz-spin:not(.is-near),
+.coaster-world .cz-float:not(.is-near),
+.coaster-world .cz-end:not(.is-near){ animation-play-state: paused; }
 .cz-tent{ width: 270px; height: 220px; }
 .cz-flags{ width: 320px; height: 260px; }
 
