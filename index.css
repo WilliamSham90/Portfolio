@@ -1031,7 +1031,8 @@ button{ font: inherit; color: inherit; }
 .cz-pic .ph{ width: 100%; height: 100%; border-radius: 3px; }
 .cz-pic::after{ content:""; position: absolute; left: 50%; top: 100%; width: 6px; height: var(--post, 0px); margin-left: -3px; background: var(--ink); }
 .cz-float{ width: 150px; animation: cz-bob 3s ease-in-out var(--d, 0s) infinite alternate; }
-.cz-float img{ display: block; width: 150px; height: 200px; }
+/* the balloons drawing only (a direct child), not the picture in the frame they carry */
+.cz-float > img{ display: block; width: 150px; height: 200px; }
 .cz-float .cz-pic{ position: relative; width: 120px; height: 96px; margin: -3px auto 0; }
 @keyframes cz-bob{ to{ transform: translateY(-16px); } }
 .cz-wheel{ width: 330px; height: 360px; }

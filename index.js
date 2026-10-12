@@ -465,23 +465,48 @@
 
   /* Each job is a stop on the Career Coaster (COASTER below), ridden in
      this order: oldest first, so the ride ends on the current job.
-     pics: up to three photos for the stop's board, e.g.
-     "Images/lkda-1.webp"; an empty slot shows the riso placeholder. */
+     pics: up to three photos for the stop's board, { src, en, af } with
+     en/af describing the photo (screen readers and the lightbox caption);
+     an empty slot shows the riso placeholder. Each photo is two files:
+     src (the lightbox, ≤1400px) and src with "-sm" (the polaroid, ~560px):
+       magick in.jpg -auto-orient -strip -resize "1400x1400>" -quality 72 -define webp:method=6 name.webp
+       magick in.jpg -auto-orient -strip -resize "560x560^>" -quality 70 -define webp:method=6 name-sm.webp */
+  const JOB_PICS = IMG_BASE + "About_us/";
   const JOBS = [
-    { when:{ en:"2021 — 2022", af:"2021 — 2022" }, accent:"var(--mint)", pics:[],
+    { when:{ en:"2021 — 2022", af:"2021 — 2022" }, accent:"var(--mint)",
+      pics:[
+        { src:JOB_PICS + "freelance-1.webp", en:"My home setup", af:"My tuisopstelling" },
+        { src:JOB_PICS + "freelance-2.webp", en:"The 3D LaserMonkey online store on screen, with a 3D-printed dragon on the stand",
+          af:"Die 3D LaserMonkey-aanlyn winkel op die skerm, met 'n 3D-gedrukte draak op die staander" },
+        { src:JOB_PICS + "freelance-3.webp", en:"A game menu UI design in Figma",
+          af:"'n Speletjie-kieslysontwerp in Figma" }],
       role:{ en:"Freelance Developer", af:"Vryskutontwikkelaar" },
       where:{ en:"Self-employed", af:"Selfstandig" },
       d:{ en:"Custom websites and web apps for a range of clients, mostly WordPress, custom themes and online stores.",
           af:"Pasgemaakte webwerwe en webtoepassings vir verskeie kliënte, meestal WordPress, eie temas en aanlyn winkels." },
       wins:{ en:[], af:[] } },
-    { when:{ en:"Mar 2023 — Aug 2024", af:"Mrt. 2023 — Aug. 2024" }, accent:"var(--blue)", pics:[],
+    { when:{ en:"Mar 2023 — Aug 2024", af:"Mrt. 2023 — Aug. 2024" }, accent:"var(--blue)",
+      pics:[
+        { src:JOB_PICS + "current-automation-1.webp", en:"A solar power install: Victron inverters on a wall board",
+          af:"'n Sonkraginstallasie: Victron-omsetters op 'n muurpaneel" },
+        // a Street View capture: Google asks for the credit wherever it's shown
+        { src:JOB_PICS + "current-automation-2.webp", en:"The Current Automation offices from the street (Street View image © Google)",
+          af:"Die Current Automation-kantore van die straat af (Street View-beeld © Google)" },
+        { src:JOB_PICS + "current-automation-3.webp", en:"My desk at Current Automation: two monitors and 3D-printed dragons",
+          af:"My lessenaar by Current Automation: twee skerms en 3D-gedrukte drake" }],
       role:{ en:"Web Developer", af:"Webontwikkelaar" },
-      where:"Silverstone Group, Centurion",
-      d:{ en:"Full-stack web work, Perfex CRM modules, business tools and online stores.",
-          af:"Full-stack-webwerk, Perfex CRM-modules, besigheidstoepassings en aanlyn winkels." },
-      wins:{ en:["Developed 15+ custom Perfex CRM modules","Built a WhatsApp chatbot integration"],
-             af:["Meer as 15 pasgemaakte Perfex CRM-modules ontwikkel","'n WhatsApp-kletsbot geïntegreer"] } },
-    { when:{ en:"Sept 2024 — Present", af:"Sept. 2024 — Nou" }, now:true, accent:"var(--pink)", pics:[],
+      where:"Current Automation",
+      d:{ en:"Full-stack web work: Laravel and WordPress projects, Perfex CRM modules, business tools and online stores.",
+          af:"Full-stack-webwerk: Laravel- en WordPress-projekte, Perfex CRM-modules, besigheidstoepassings en aanlyn winkels." },
+      wins:{ en:["Built a WooCommerce store with 3,000+ products","Developed 15+ custom Perfex CRM modules","Built a WhatsApp chatbot integration"],
+             af:["'n WooCommerce-winkel met meer as 3 000 produkte gebou","Meer as 15 pasgemaakte Perfex CRM-modules ontwikkel","'n WhatsApp-kletsbot geïntegreer"] } },
+    { when:{ en:"Sept 2024 — Present", af:"Sept. 2024 — Nou" }, now:true, accent:"var(--pink)",
+      pics:[
+        { src:JOB_PICS + "lkda-1.webp", en:"The LKDA team reviewing packaging designs on the studio wall",
+          af:"Die LKDA-span bekyk verpakkingsontwerpe op die ateljeemuur" },
+        { src:JOB_PICS + "lkda-2.webp", en:"LKDA, the Brave® agency", af:"LKDA, die Brave®-agentskap" },
+        { src:JOB_PICS + "lkda-3.webp", en:"Behind the scenes on a kitchen video shoot",
+          af:"Agter die skerms by 'n kombuis-videoskiet" }],
       role:{ en:"Senior Web Developer", af:"Senior webontwikkelaar" },
       where:"LKDA — Strategic Creative Advertising, Pretoria",
       d:{ en:"Full-stack builds and maintenance, server infrastructure and UI/UX.",
@@ -549,9 +574,15 @@
   const PARK = ["pic", "wheel", "pic", "balloons", "tent", "pic", "flags", "pic", "balloons"];
   const PARK_W = { pic: 180, wheel: 330, tent: 270, balloons: 150, flags: 320 };
   const TENTS = ["pink", "blue", "yellow", "mint"];
-  /* Photos for the park's frames, in order, e.g. "Images/park-1.webp".
-     A frame without one shows the riso placeholder. */
-  const RIDE_PICS = [];
+  /* Pictures for the park's frames, cycled left to right so every frame
+     along the ride gets one: coding-joke warning signs, drawn for this
+     site (Images/Coaster/signs/, 200 × 200; the frames crop them, so
+     keep anything readable inside the middle 28–172 square). Photos work
+     too, e.g. "Images/park-1.webp". An empty list leaves the riso
+     placeholders. */
+  const RIDE_PICS = ["caution-legacy", "works-on-my-machine", "no-friday-deploys", "senior-to-ride", "bug-crossing",
+    "days-without-a-bug", "todo-fix-later", "danger-force-push", "not-a-bug", "semicolons-required",
+    "coffee-in-code-out", "sign-not-found"].map(s => IMG_BASE + "Coaster/signs/" + s + ".svg");
   /* The drawings (cart, big wheel, tents, bunting, balloons) are SVG
      files in Images/Coaster/, palette colours baked in. To use your own
      cart, replace cart.svg or point this elsewhere: 140 × 116 in shape,
@@ -686,10 +717,24 @@
   })();
 
   /* ---- the park, the cart, the boards */
-  const photo = src => '<span class="ph">' + (src ? '<img src="' + esc(src) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : '') + '</span>';
+  const photo = (src, alt) => '<span class="ph">' + (src ? '<img src="' + esc(src) + '" alt="' + esc(alt || "") + '" loading="lazy" decoding="async" onerror="this.remove()">' : '') + '</span>';
   const inks = i => "--accent:" + ACCENTS[i % 4] + ";--accent-2:" + ACCENTS[(i + 1) % 4];
   const art = (src, cls, style) => '<img src="' + src + '" alt="" loading="lazy" decoding="async"' +
     (cls ? ' class="' + cls + '"' : '') + (style ? ' style="' + style + '"' : '') + '>';
+
+  /* Is a box in the world (x0–x1 across, y0–y1 down) clear of the track? The rails and ties
+     reach about 12 units either side of the line, so a bit more than that is kept free. Past
+     both ends the rail runs straight on at 0. The track is drawn over the park, so anything
+     that has to be read (the frames' signs) must sit in a clear box. */
+  function offTrack(x0, x1, y0, y1){
+    const m = 18;
+    x0 -= m; x1 += m; y0 -= m; y1 += m;
+    if ((x0 < 0 || x1 > TRACK.end) && y0 < 0 && y1 > 0) return false;
+    return TRACK.segs.every(s => {
+      for (let j = 0; j < s.n; j++) if (s.xs[j] >= x0 && s.xs[j] <= x1 && s.ys[j] >= y0 && s.ys[j] <= y1) return false;
+      return true;
+    });
+  }
 
   function parkHTML(){
     let html = "", x = -TAIL + 400, pics = 0, tents = 0, hit;
@@ -699,12 +744,19 @@
       const kind = PARK[i % PARK.length];
       while ((hit = clear.find(c => x < c[1] && x + PARK_W[kind] > c[0]))) x = hit[1] + 40;
       if (kind === "pic"){
-        const tall = i % 3 === 0, w = tall ? 130 : 168, h = tall ? 162 : 126, post = [70, 210, 130, 250][i % 4];
+        /* its own post height if that keeps the frame off the track, else the first that does
+           (22 tucks a wide frame in under a flat run), else it moves along and tries again */
+        const tall = i % 3 === 0, w = tall ? 130 : 168, h = tall ? 162 : 126;
+        const post = [[70, 210, 130, 250][i % 4], 70, 130, 210, 250, 300, 22].find(p => offTrack(x, x + w, GROUND - p - h, GROUND - p));
+        if (post === undefined){ x += 40; i--; continue; }
         html += '<figure class="cz-pic" style="left:' + x + 'px;top:' + (GROUND - post - h) + 'px;width:' + w + 'px;height:' + h +
-          'px;--post:' + post + 'px;--tilt:' + (i % 2 ? 3 : -2) + 'deg;' + inks(i) + '">' + photo(RIDE_PICS[pics++]) + '</figure>';
+          'px;--post:' + post + 'px;--tilt:' + (i % 2 ? 3 : -2) + 'deg;' + inks(i) + '">' + photo(RIDE_PICS[pics++ % RIDE_PICS.length]) + '</figure>';
       } else if (kind === "balloons"){
-        html += '<div class="cz-float" style="left:' + x + 'px;top:' + (GROUND - 590) + 'px;--d:' + -(i % 3) + 's">' + art(ART + "balloons.svg") +
-          '<figure class="cz-pic" style="' + inks(i + 1) + '">' + photo(RIDE_PICS[pics++]) + '</figure></div>';
+        // likewise for the frame the balloons carry: it hangs 197–293 under the float's top, bobbing up to 16 higher
+        const top = [590, 530, 650, 470].map(t => GROUND - t).find(t => offTrack(x + 15, x + 135, t + 181, t + 293));
+        if (top === undefined){ x += 40; i--; continue; }
+        html += '<div class="cz-float" style="left:' + x + 'px;top:' + top + 'px;--d:' + -(i % 3) + 's">' + art(ART + "balloons.svg") +
+          '<figure class="cz-pic" style="' + inks(i + 1) + '">' + photo(RIDE_PICS[pics++ % RIDE_PICS.length]) + '</figure></div>';
       } else if (kind === "wheel"){
         html += '<div class="cz-wheel" style="left:' + x + 'px;top:' + (GROUND - 360) + 'px">' + art(ART + "wheel-stand.svg") +
           '<div class="cz-spin">' + art(ART + "wheel.svg") + '</div></div>';
@@ -754,10 +806,18 @@
         (wins.length ? '<ul class="wins">' + wins.map(w => '<li>' + esc(w) + '</li>').join("") + '</ul>' : '') +
         '</div></div>' +
         // a slot places and tilts each photo (CSS); GSAP drops the photo inside it, so the two never share a transform
-        // each photo opens the lightbox, which browses this job's photos (data-lb: the group)
-        '<div class="cz-pics">' + [0, 1, 2].map(k => '<div class="cz-slot"><button type="button" class="cz-polaroid" data-lb="job-' + i +
-          '" data-lb-cap="' + esc(j.role[LANG] + " · " + where) + '" aria-label="' + esc(T("lb.open", "View photo") + " " + (k + 1) + " · " + j.role[LANG]) +
-          '" style="--accent-2: ' + ACCENTS[(a + k + 1) % 4] + '">' + photo(pics[k]) + '</button></div>').join("") + '</div>' +
+        // each photo opens the lightbox, which browses this job's photos (data-lb: the group): the polaroid
+        // loads the small file, the lightbox the full one (data-lb-src)
+        '<div class="cz-pics">' + [0, 1, 2].map(k => {
+          const p = pics[k], about = p ? p[LANG] : String(k + 1);
+          return '<div class="cz-slot"><button type="button" class="cz-polaroid" data-lb="job-' + i + '"' +
+            (p ? ' data-lb-src="' + esc(p.src) + '"' : '') +
+            // the caption is just the photo's own words; the board beside it already names the job
+            ' data-lb-cap="' + esc(p ? p[LANG] : j.role[LANG] + " · " + where) + '"' +
+            ' aria-label="' + esc(T("lb.open", "View photo") + ": " + about + " · " + j.role[LANG]) + '"' +
+            ' style="--accent-2: ' + ACCENTS[(a + k + 1) % 4] + '">' +
+            photo(p && p.src.replace(/\.webp$/, "-sm.webp"), p && p[LANG]) + '</button></div>';
+        }).join("") + '</div>' +
         '</div></article>';
     }).join("");
   }
