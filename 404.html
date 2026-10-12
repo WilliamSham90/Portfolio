@@ -44,6 +44,7 @@
 
   .nf-boss{
     --accent: var(--pink);
+    --red: #F0282D; /* damage numbers only */
     position: relative; display: grid; gap: 12px;
     padding: clamp(20px, 3vw, 32px); border-radius: var(--r-lg);
     background: color-mix(in srgb, var(--accent) 12%, var(--paper));
@@ -66,13 +67,30 @@
   .nf-boss.is-low .sk-bar i{ animation: nf-blink .45s steps(2) infinite; }
 
   .nf-arena{
-    position: relative; overflow: hidden; display: grid; place-items: center;
+    position: relative; overflow: hidden; display: grid; place-items: center; isolation: isolate;
     min-height: clamp(230px, 28vw, 320px); border: 2px solid var(--ink); border-radius: var(--r);
-    background:
-      radial-gradient(circle at 28% 68%, color-mix(in srgb, var(--yellow) 30%, transparent) 0 84px, transparent 85px),
-      radial-gradient(circle at 74% 32%, color-mix(in srgb, var(--blue) 14%, transparent) 0 110px, transparent 111px),
-      var(--card);
+    background: var(--card);
   }
+  /* two riso ink circles drifting behind the boss; multiply overprints
+     them where they cross */
+  .nf-arena::before, .nf-arena::after{
+    content:""; position: absolute; border-radius: 50%; pointer-events: none; mix-blend-mode: multiply;
+  }
+  .nf-arena::before{
+    --s: min(170px, 34vw);
+    width: var(--s); height: var(--s); left: calc(28% - var(--s) / 2); top: calc(66% - var(--s) / 2);
+    background: color-mix(in srgb, var(--yellow) 34%, transparent);
+    animation: nf-drift-a 9s ease-in-out infinite alternate;
+  }
+  .nf-arena::after{
+    --s: min(220px, 42vw);
+    width: var(--s); height: var(--s); left: calc(72% - var(--s) / 2); top: calc(34% - var(--s) / 2);
+    background: color-mix(in srgb, var(--blue) 16%, transparent);
+    animation: nf-drift-b 12s ease-in-out infinite alternate;
+  }
+  /* boss idle: bob and breathe; it pants faster on low HP */
+  .nf-idle{ position: relative; z-index: 1; animation: nf-idle 2.4s ease-in-out infinite; }
+  .is-low .nf-idle{ animation-duration: .9s; }
   .nf-hint{ color: var(--ink-faint); text-align: center; }
 
   /* the boss: ink digits with pink/blue misregistered riso layers.
@@ -96,7 +114,7 @@
   .is-ko .nf-404{ pointer-events: none; }
   .is-ko .nf-404 span{ animation: nf-fall .9s cubic-bezier(.55,0,.8,.2) var(--d, 0s) forwards; }
 
-  /* comic hit burst (spawned per hit) with the damage number above it */
+  /* comic hit burst, spawned where the 404 was hit */
   .nf-pow{
     position: absolute; z-index: 2; pointer-events: none; white-space: nowrap;
     font: 800 clamp(1.3rem, 1rem + 1vw, 1.8rem)/1 "Bricolage Grotesque", system-ui, sans-serif;
@@ -108,13 +126,18 @@
     content:""; position: absolute; inset: -60% -24%; z-index: -1; background: var(--accent);
     clip-path: polygon(50% 0, 58.8% 17.2%, 75% 6.7%, 74% 26%, 93.3% 25%, 82.8% 41.2%, 100% 50%, 82.8% 58.8%, 93.3% 75%, 74% 74%, 75% 93.3%, 58.8% 82.8%, 50% 100%, 41.2% 82.8%, 25% 93.3%, 26% 74%, 6.7% 75%, 17.2% 58.8%, 0 50%, 17.2% 41.2%, 6.7% 25%, 26% 26%, 25% 6.7%, 41.2% 17.2%);
   }
-  .nf-pow::after{
-    content: attr(data-dmg); position: absolute; left: 50%; bottom: 150%; translate: -50% 0;
-    font: 700 .95rem "JetBrains Mono", monospace; color: var(--ink); -webkit-text-stroke: 0;
+  /* video-game damage number: pops up somewhere random on the whole
+     panel (padding included, not clipped by the arena) and floats off */
+  .nf-boss > .nf-dmg{
+    position: absolute; z-index: 3; pointer-events: none; white-space: nowrap;
+    font: 800 clamp(2.8rem, 2rem + 3vw, 4.4rem)/1 "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -.02em;
+    color: var(--red); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill;
+    text-shadow: 4px 4px 0 var(--ink);
+    animation: nf-dmg 1s cubic-bezier(.22,1,.36,1) forwards;
   }
 
   /* K.O. screen, over the empty arena */
-  .nf-ko{ position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 20px; text-align: center; }
+  .nf-ko{ position: absolute; z-index: 1; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 20px; text-align: center; }
   .nf-ko p{ display: grid; justify-items: center; gap: 8px; font-weight: 700; }
   .nf-ko-word{
     font: 800 clamp(3.5rem, 2rem + 6vw, 6rem)/1 "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -.03em;
@@ -136,6 +159,27 @@
     18% { transform: translate(-50%, -50%) rotate(var(--r)) scale(1.25); }
     32% { transform: translate(-50%, -50%) rotate(var(--r)) scale(1); opacity: 1; }
     100%{ transform: translate(-50%, -95%) rotate(var(--r)) scale(.9); opacity: 0; }
+  }
+  @keyframes nf-dmg{
+    0%  { transform: translate(-50%, -50%) rotate(var(--r)) scale(.3); opacity: 0; }
+    15% { transform: translate(-50%, -50%) rotate(var(--r)) scale(1.35); opacity: 1; }
+    30% { transform: translate(-50%, -50%) rotate(var(--r)) scale(1); }
+    70% { opacity: 1; }
+    100%{ transform: translate(-50%, -130%) rotate(var(--r)) scale(.95); opacity: 0; }
+  }
+  @keyframes nf-idle{
+    0%, 100%{ transform: translateY(5px) scale(1.03, .97) rotate(-1deg); }
+    50%     { transform: translateY(-9px) scale(.98, 1.02) rotate(1deg); }
+  }
+  @keyframes nf-drift-a{
+    33% { transform: translate(46px, -28px) scale(1.06); }
+    66% { transform: translate(14px, -58px) scale(.95); }
+    100%{ transform: translate(-30px, -18px) scale(1.04); }
+  }
+  @keyframes nf-drift-b{
+    33% { transform: translate(-50px, 30px) scale(.94); }
+    66% { transform: translate(-16px, 56px) scale(1.07); }
+    100%{ transform: translate(34px, 14px); }
   }
   @keyframes nf-ko{ from{ transform: scale(3) rotate(-20deg); opacity: 0; } }
   @keyframes nf-in{ from{ opacity: 0; transform: translateY(8px); } }
@@ -176,7 +220,7 @@
     </div>
     <span class="sk-bar" id="hp-bar" aria-hidden="true" style="--v: 100%"><i></i></span>
     <div class="nf-arena" id="arena">
-      <button class="nf-404 spawn" id="hit" type="button" aria-label="Hit the 404"><span>4</span><span>0</span><span>4</span></button>
+      <span class="nf-idle"><button class="nf-404 spawn" id="hit" type="button" aria-label="Hit the 404"><span>4</span><span>0</span><span>4</span></button></span>
       <div class="nf-ko" id="ko" hidden>
         <p id="ko-text"><span class="nf-ko-word">K.O.!</span> <span class="nf-ko-msg" data-af="Jy wen. Jou prys: die pad huis toe.">You win. Your prize: the way home.</span></p>
         <button class="ghost" id="rematch" type="button" aria-describedby="ko-text" data-af="Nog 'n rondte">Rematch</button>
@@ -238,6 +282,20 @@
   const replay = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
   let hp = 100;
 
+  /* one-shot decorative text (hit burst / damage number), removed once its animation is done */
+  function fx(host, cls, text, left, top, ms){
+    const el = document.createElement("span");
+    el.className = cls;
+    el.textContent = text;
+    el.setAttribute("aria-hidden", "true");
+    el.style.left = left;
+    el.style.top = top;
+    el.style.setProperty("--r", Math.round(Math.random() * 28 - 14) + "deg");
+    host.appendChild(el);
+    setTimeout(() => el.remove(), ms);
+    return el;
+  }
+
   function setHP(v){
     hp = v;
     $("#hp-num").textContent = v;
@@ -251,18 +309,11 @@
     setHP(Math.max(0, hp - dmg));
 
     const a = arena.getBoundingClientRect(), b = hit.getBoundingClientRect();
-    const pow = document.createElement("span");
-    pow.className = "nf-pow";
-    pow.textContent = pick(WORDS);
-    pow.dataset.dmg = "-" + dmg;
-    pow.setAttribute("aria-hidden", "true");
     /* a keyboard click has no pointer position (detail 0): burst from the middle */
-    pow.style.left = (e.detail ? e.clientX : b.left + b.width / 2) - a.left + "px";
-    pow.style.top  = (e.detail ? e.clientY : b.top + b.height / 2) - a.top + "px";
-    pow.style.setProperty("--accent", pick(ACCENTS));
-    pow.style.setProperty("--r", Math.round(Math.random() * 28 - 14) + "deg");
-    arena.appendChild(pow);
-    setTimeout(() => pow.remove(), 900);
+    const x = (e.detail ? e.clientX : b.left + b.width / 2) - a.left;
+    const y = (e.detail ? e.clientY : b.top + b.height / 2) - a.top;
+    fx(arena, "nf-pow", pick(WORDS), x + "px", y + "px", 900).style.setProperty("--accent", pick(ACCENTS));
+    fx(boss, "nf-dmg", "−" + dmg, 8 + Math.random() * 84 + "%", 10 + Math.random() * 80 + "%", 1000);
 
     if (!reduced){
       replay(hit, "hurt");
