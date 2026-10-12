@@ -307,6 +307,7 @@
       <div class="coaster-stage">
         <div class="coaster-world" id="cz-world" aria-hidden="true"></div>
         <div class="cz-boards" id="cz-boards"></div>
+        <div class="cz-fx cz-fx--click" aria-hidden="true"></div>
       </div>
     </section>
 
@@ -527,6 +528,17 @@
 </footer>
 
 <div id="toast" role="status" aria-live="polite"></div>
+
+<!-- Lightbox (index.js, LIGHTBOX): anything with data-lb="group" opens here -->
+<dialog class="lightbox" id="lightbox">
+  <figure class="lb-card">
+    <div class="lb-media"></div>
+    <figcaption aria-live="polite"><span class="lb-cap"></span><span class="lb-count"></span></figcaption>
+  </figure>
+  <button class="ghost lb-btn lb-prev" type="button">←</button>
+  <button class="ghost lb-btn lb-next" type="button">→</button>
+  <button class="ghost lb-btn lb-close" type="button" autofocus>✕</button>
+</dialog>
 <button id="to-top" class="ghost" type="button" aria-label="Back to top">↑</button>
 
 <script src="Vendor/gsap.min.js"></script>

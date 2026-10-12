@@ -85,7 +85,8 @@
     "skills.eyebrow":"Vaardighede","skills.title":"Waarmee ek werk",
     "exp.eyebrow":"Ervaring","exp.title":"Waar ek al gewerk het",
     "ride.title":"Die Loopbaan-tuimeltrein","ride.sub":"Hou jou arms binne die waentjie · blaai om te ry ↓",
-    "ride.stop":"Halte","ride.admit":"Toegang vir een","ride.next":"Word vervolg…",
+    "ride.stop":"Halte","ride.admit":"Toegang vir een","ride.next":"Word vervolg…","ride.credit":"Pixel-effekte",
+    "lb.title":"Foto's","lb.open":"Bekyk foto","lb.prev":"Vorige foto","lb.next":"Volgende foto","lb.close":"Maak toe",
     "after.eyebrow":"Ná werk","after.title":"Wat ek vir die pret maak",
     "band.aboutTitle":"Nuuskierig oor die kode?",
     "band.aboutText":"Vra my daaroor... Nee, doen dit regtig net. Ek belowe ek sal nie byt nie ;)",
@@ -661,7 +662,7 @@
   })();
 
   /* ---- the park, the cart, the boards */
-  const photo = src => '<div class="ph">' + (src ? '<img src="' + esc(src) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : '') + '</div>';
+  const photo = src => '<span class="ph">' + (src ? '<img src="' + esc(src) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : '') + '</span>';
   const inks = i => "--accent:" + ACCENTS[i % 4] + ";--accent-2:" + ACCENTS[(i + 1) % 4];
   const art = (src, cls, style) => '<img src="' + src + '" alt="" loading="lazy" decoding="async"' +
     (cls ? ' class="' + cls + '"' : '') + (style ? ' style="' + style + '"' : '') + '>';
@@ -693,7 +694,7 @@
 
   function coasterWorldHTML(){
     const t = TRACK;
-    return '<div class="cz-ground" style="left:' + (-TAIL - 400) + 'px;width:' + (t.end + 2 * TAIL + 800) + 'px;top:' + GROUND + 'px"></div>' + parkHTML() +
+    return '<div class="cz-ground" style="left:' + (-TAIL - 400) + 'px;width:' + (t.end + 2 * TAIL + 800) + 'px;top:' + GROUND + 'px"></div><div class="cz-fx cz-fx--back"></div>' + parkHTML() +
       '<div class="cz-gate" style="height:' + (345 + GROUND) + 'px"><div class="cz-gate-sign"><b>' + esc(T("ride.title", "The Career Coaster")) +
         '</b><span>' + esc(T("ride.sub", "Keep your arms inside the cart · scroll to ride ↓")) + '</span></div></div>' +
       t.stops.map((x, i) => '<div class="cz-stop" style="left:' + x + 'px;--accent:' + JOBS[i].accent + '"><i class="cz-roof"></i><i class="cz-deck"></i>' +
@@ -704,7 +705,7 @@
         '<path class="cz-ties" d="' + t.all + '"/><path class="cz-rails" d="' + t.all + '"/>' +
         '<g class="cz-fill">' + t.parts.map((d, i) => '<path d="' + d + '" style="stroke:' + (JOBS[i] ? JOBS[i].accent : "var(--yellow)") + '"/>').join("") + '</g>' +
         '<path class="cz-gap" d="' + t.all + '"/></svg>' +
-      '<div class="cz-cart" id="cz-cart">' + art(CART_IMG) + '</div>';
+      '<div class="cz-cart" id="cz-cart">' + art(CART_IMG) + '</div><div class="cz-fx cz-fx--front"></div>';
   }
 
   // Each job on a ride ticket, with three taped-on photos
@@ -721,10 +722,69 @@
         '<p>' + esc(j.d[LANG]) + '</p>' +
         (wins.length ? '<ul class="wins">' + wins.map(w => '<li>' + esc(w) + '</li>').join("") + '</ul>' : '') +
         '</div></div>' +
-        '<div class="cz-pics">' + [0, 1, 2].map(k => '<figure class="cz-polaroid" style="--accent-2: ' + ACCENTS[(a + k + 1) % 4] + '">' +
-          photo(pics[k]) + '</figure>').join("") + '</div>' +
+        // a slot places and tilts each photo (CSS); GSAP drops the photo inside it, so the two never share a transform
+        // each photo opens the lightbox, which browses this job's photos (data-lb: the group)
+        '<div class="cz-pics">' + [0, 1, 2].map(k => '<div class="cz-slot"><button type="button" class="cz-polaroid" data-lb="job-' + i +
+          '" data-lb-cap="' + esc(j.role[LANG] + " · " + where) + '" aria-label="' + esc(T("lb.open", "View photo") + " " + (k + 1) + " · " + j.role[LANG]) +
+          '" style="--accent-2: ' + ACCENTS[(a + k + 1) % 4] + '">' + photo(pics[k]) + '</button></div>').join("") + '</div>' +
         '</div></article>';
     }).join("");
+  }
+
+  /* ---- pixel effects */
+  const FX = {
+    party:     { w: 128, h: 128, n: 34, sw: 4352, sh: 128, anchor: "b" },
+    hearts:    { w: 128, h: 128, n: 23, sw: 2944, sh: 128, anchor: "b" },
+    coins:     { w: 128, h: 128, n: 31, sw: 3968, sh: 128, anchor: "b" },
+    notes:     { w: 128, h: 128, n: 21, sw: 2688, sh: 128, anchor: "b" },
+    fireworks: { w: 96,  h: 96,  n: 27, sw: 1024, sh: 512, anchor: "c" },
+    sparkle:   { w: 96,  h: 96,  n: 15, sw: 512,  sh: 512, anchor: "c" },
+    bubbles:   { w: 64,  h: 64,  n: 40, sw: 2560, sh: 64,  anchor: "b" }
+  };
+  // A click throws a burst (or two, in different colours) from these: the pack's colours nearest the site's inks
+  const FX_CLICK = { red: ["party", "hearts", "fireworks"], blue: ["party", "notes"], green: ["party", "notes"],
+                     orange: ["hearts"], yellow: ["coins", "fireworks"] };
+  // Idle: fireworks over the park and bubbles off the ground, behind the ride; now and then the riders cheer
+  const FX_BACK = [["sparkle", "pink"], ["sparkle", "blue"], ["fireworks", "blue"], ["fireworks", "yellow"], ["bubbles", "blue"], ["bubbles", "green"]];
+  const FX_CART = [["hearts", "red"], ["notes", "blue"]];
+  const fxURL = (name, color) => "effects/" + name + "-" + color + ".png";
+  const FX_SHEETS = Array.from(new Set(Object.keys(FX_CLICK).flatMap(c => FX_CLICK[c].map(n => fxURL(n, c)))
+    .concat(FX_BACK.concat(FX_CART).map(p => fxURL(p[0], p[1])))));   // 15 sheets, 457 KB
+
+  const sheets = {};   // url → promise of the decoded sheet, shared by every sprite that uses it
+  function sheet(url){
+    if (!sheets[url]){ const img = new Image(); img.src = url; sheets[url] = img.decode().then(() => img); }
+    return sheets[url];
+  }
+  function fxPool(layer, count){
+    return Array.from({ length: count }, () => ({ el: layer.appendChild(document.createElement("i")), on: false, t0: 0, f: -1 }));
+  }
+  // x, y: where it bursts from, in the layer's px. recycle: take the oldest sprite when none is free.
+  function fxPlay(pool, name, color, x, y, scale, delay, recycle){
+    let s = pool.find(p => !p.on);
+    if (!s){ if (!recycle) return; s = pool.reduce((a, b) => (a.t0 < b.t0 ? a : b)); }
+    const fx = FX[name], url = fxURL(name, color), w = fx.w * scale, h = fx.h * scale, st = s.el.style, token = {};
+    Object.assign(s, { on: true, f: -1, fx, scale, t0: Infinity, token });
+    st.display = "none";
+    st.left = (x - w / 2).toFixed(1) + "px";
+    st.top = (y - (fx.anchor === "b" ? h : h / 2)).toFixed(1) + "px";
+    st.width = w + "px"; st.height = h + "px";
+    st.backgroundImage = "url(" + url + ")";
+    st.backgroundSize = fx.sw * scale + "px " + fx.sh * scale + "px";
+    // starts once its sheet is decoded (at once if it already is); a recycled sprite ignores a sheet arriving late
+    sheet(url).then(() => { if (s.token === token) s.t0 = gsap.ticker.time + delay; }, () => { if (s.token === token) s.on = false; });
+  }
+  function fxStep(pool, time){
+    for (const s of pool){
+      if (!s.on || time < s.t0) continue;
+      const fx = s.fx, f = Math.floor((time - s.t0) * 15);
+      if (f >= fx.n){ s.on = false; s.el.style.display = "none"; continue; }
+      if (f === s.f) continue;
+      const cols = Math.floor(fx.sw / fx.w);
+      s.el.style.backgroundPosition = -(f % cols) * fx.w * s.scale + "px " + -Math.floor(f / cols) * fx.h * s.scale + "px";
+      if (s.f < 0) s.el.style.display = "block";
+      s.f = f;
+    }
   }
 
   /* The ride (GSAP only). animatePage calls this inside its context, which
@@ -741,7 +801,8 @@
     const lens = fills.map(p => p.getTotalLength()), drawn = lens.slice();
     fills.forEach((p, k) => { p.style.strokeDasharray = lens[k] + " " + (lens[k] + 2); p.style.strokeDashoffset = lens[k]; });
     const state = { pos: 0, push: 0 }, open = boards.map(() => ({ v: 0, drawn: 0 }));
-    let W, H, k, ax, ay, shown = -1;
+    let W, H, k, ax, ay, shown = -1, covered = false;
+    const view = { x0: 0, x1: 0 }, rider = { x: 0, y: 0, angle: 0 };   // for the effects: what's on screen, where the cart is
 
     // Where the camera keeps the cart on screen (further in on phones, so a stop's sign fits on its
     // left), and the circle each board opens out of (the cart)
@@ -765,12 +826,15 @@
       const z = k * (1 + state.push * .3), D = Math.max(40, ax / z - 80), back = p.cam - p.x;
       const cam = back > 0 ? p.x + D * Math.tanh(back / D) : p.cam;
       world.style.transform = "translate(" + (ax - cam * z).toFixed(1) + "px," + ay.toFixed(1) + "px) scale(" + z.toFixed(4) + ")";
+      view.x0 = cam - ax / z; view.x1 = cam + (W - ax) / z;
+      rider.x = p.x; rider.y = p.y; rider.angle = p.angle;
       let showing = -1;
       open.forEach((o, j) => {
         if (o.v > 0) showing = j;
         if (o.v !== o.drawn) boards[j].style.setProperty("--iris", o.drawn = o.v);
       });
-      world.style.visibility = showing > -1 && open[showing].v >= 1 ? "hidden" : "";   // nothing to paint under a full board
+      covered = showing > -1 && open[showing].v >= 1;
+      world.style.visibility = covered ? "hidden" : "";   // nothing to paint under a full board
       if (showing !== shown){
         if (shown > -1) boards[shown].classList.remove("is-open");
         if (showing > -1) boards[showing].classList.add("is-open");
@@ -822,7 +886,55 @@
       }
     });
 
+    /* Effects. Idle ones play while the ride is on screen and not under a board, and only while frames
+       come in time (avg: a running mean of the frame time, ms): most behind the park, the riders'
+       cheers in front of the cart. A click on the ride bursts in front of it. */
+    const fxBack = fxPool($(".cz-fx--back", world), 6), fxCart = fxPool($(".cz-fx--front", world), 2);
+    const fxClick = fxPool($(".cz-fx--click", root), 6);
+    const lite = !!(navigator.connection && navigator.connection.saveData);   // saving data: no idle effects, sheets load on click
+    const pick = list => list[Math.floor(Math.random() * list.length)];
+    let onScreen = false, nextBack = 0, nextCart = 0, avg = 16.7;
+    function tick(time, dt){
+      avg += (Math.min(dt, 100) - avg) * .05;
+      if (onScreen && !covered && !lite && avg < 24){
+        if (time > nextBack){
+          nextBack = time + gsap.utils.random(.6, 1.3);
+          const b = pick(FX_BACK), x = gsap.utils.random(view.x0 + 60, view.x1 - 60);
+          if (b[0] === "bubbles") fxPlay(fxBack, b[0], b[1], x, GROUND - 4, 2.5, 0);
+          else fxPlay(fxBack, b[0], b[1], x, gsap.utils.random(-470, -320), 2.4, 0);
+        }
+        if (time > nextCart){
+          nextCart = time + gsap.utils.random(2.6, 4.6);
+          const c = pick(FX_CART);
+          if (Math.abs(rider.angle) < .5) fxPlay(fxCart, c[0], c[1], rider.x + gsap.utils.random(-20, 20), rider.y - 92, 1.15, 0);
+        }
+      }
+      fxStep(fxBack, time); fxStep(fxCart, time); fxStep(fxClick, time);
+    }
+    gsap.ticker.add(tick);
+    // One burst, sometimes two in different colours, and only over the ride itself: never while a
+    // job's board is showing (its photos open the lightbox instead)
+    const onClick = e => {
+      if (shown > -1 || e.target.closest(".cz-boards")) return;
+      const r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      const n = Math.random() < .5 && avg < 20 ? 2 : 1, scale = W < 760 ? 1 : 2;
+      const colors = gsap.utils.shuffle(Object.keys(FX_CLICK));
+      for (let i = 0; i < n; i++){
+        fxPlay(fxClick, pick(FX_CLICK[colors[i]]), colors[i], x + (n > 1 ? gsap.utils.random(-50, 50) : 0), y + 20, scale, i * .08, true);
+      }
+    };
+    stage.addEventListener("click", onClick);
+    const io = new IntersectionObserver(entries => { onScreen = entries[0].isIntersecting; });
+    io.observe(stage);
+    // fetch and decode the sheets ahead of time, once the browser has a quiet moment
+    const warm = setTimeout(() => { if (!lite) (window.requestIdleCallback || (f => f()))(() => FX_SHEETS.forEach(sheet)); }, 1200);
+
     return () => {
+      gsap.ticker.remove(tick);
+      stage.removeEventListener("click", onClick);
+      io.disconnect();
+      clearTimeout(warm);
+      $$(".cz-fx", root).forEach(l => { l.textContent = ""; });
       root.classList.remove("is-ride");
       world.style.transform = world.style.visibility = "";
       ["--iris-x", "--iris-y", "--iris-r"].forEach(n => stage.style.removeProperty(n));
@@ -1307,6 +1419,60 @@
   }
   $("#stack").addEventListener("click", shuffleStack);
   $("#shuffle").addEventListener("click", shuffleStack);
+
+  /* =================================================================
+     LIGHTBOX — one for the whole site (#lightbox, a native <dialog>:
+     Esc closes, focus stays inside, the page behind is inert). Anything
+     with data-lb="group" opens it; ← → (keys, buttons or a swipe) browse
+     the rest of that group in page order. The photo is data-lb-src or
+     the element's own <img>; without one, its riso placeholder (.ph) is
+     shown big in the same inks. Caption: data-lb-cap, else the alt text.
+     ================================================================= */
+  const lb = $("#lightbox"), lbCard = $(".lb-card", lb), lbMedia = $(".lb-media", lb);
+  let lbItems = [], lbAt = 0, lbFrom = null, swipeX = null, swiped = false;
+  function lbShow(i, dir){
+    lbAt = (i + lbItems.length) % lbItems.length;
+    const el = lbItems[lbAt], img = $("img", el), src = el.dataset.lbSrc || (img && img.currentSrc) || "";
+    const inks = getComputedStyle($(".ph", el) || el);
+    ["--accent", "--accent-2"].forEach(v => lbCard.style.setProperty(v, inks.getPropertyValue(v)));
+    lbMedia.innerHTML = src ? '<img src="' + esc(src) + '" alt="' + esc(img ? img.alt : "") + '">' : '<div class="ph"></div>';
+    $(".lb-cap", lb).textContent = el.dataset.lbCap || (img && img.alt) || "";
+    $(".lb-count", lb).textContent = pad2(lbAt + 1) + " / " + pad2(lbItems.length);
+    lbCard.style.rotate = (lbAt % 2 ? 1.5 : -1.5) + "deg";
+    if (dir && !reduced) lbCard.animate([{ opacity: 0, transform: "translateX(" + dir * 48 + "px)" }, { opacity: 1, transform: "none" }],
+      { duration: 300, easing: "cubic-bezier(.22,1,.36,1)" });
+  }
+  const lbStep = dir => { if (lbItems.length > 1) lbShow(lbAt + dir, dir); };
+  document.addEventListener("click", e => {
+    const el = e.target.closest("[data-lb]");
+    if (!el || lb.open) return;
+    lbItems = $$('[data-lb="' + CSS.escape(el.dataset.lb) + '"]');
+    lbFrom = el;
+    lb.setAttribute("aria-label", T("lb.title", "Photos"));
+    [["prev", "Previous photo"], ["next", "Next photo"], ["close", "Close"]].forEach(b => $(".lb-" + b[0], lb).setAttribute("aria-label", T("lb." + b[0], b[1])));
+    lb.classList.toggle("lb-single", lbItems.length < 2);
+    lbShow(lbItems.indexOf(el));
+    lb.showModal();
+  });
+  $(".lb-prev", lb).addEventListener("click", () => lbStep(-1));
+  $(".lb-next", lb).addEventListener("click", () => lbStep(1));
+  $(".lb-close", lb).addEventListener("click", () => lb.close());
+  // The page behind stays put: no wheel, no scrolling keys (touch: touch-action in index.css). Blocked
+  // here rather than with overflow: hidden, which would take the scrollbar away and shift the page.
+  lb.addEventListener("wheel", e => e.preventDefault(), { passive: false });
+  lb.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight"){ e.preventDefault(); lbStep(e.key === "ArrowRight" ? 1 : -1); }
+    else if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"].indexOf(e.key) > -1) e.preventDefault();
+  });
+  // a sideways swipe browses; a tap on the dark around the photo closes (but not the end of a swipe)
+  lb.addEventListener("pointerdown", e => { swipeX = e.clientX; swiped = false; });
+  lb.addEventListener("pointerup", e => {
+    const dx = swipeX === null ? 0 : e.clientX - swipeX;
+    swipeX = null;
+    if (Math.abs(dx) > 50){ swiped = true; lbStep(dx < 0 ? 1 : -1); }
+  });
+  lb.addEventListener("click", e => { if (e.target === lb && !swiped) lb.close(); });
+  lb.addEventListener("close", () => { if (lbFrom) lbFrom.focus({ preventScroll: true }); });
 
   /* =================================================================
      BACK TO TOP
