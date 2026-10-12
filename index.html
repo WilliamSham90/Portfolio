@@ -108,7 +108,10 @@
       <div class="hero-grid">
         <div class="hero-copy">
           <span class="status" data-anim="fade"><span class="dot" aria-hidden="true"></span><span data-i18n="hero.status">Open to freelance work</span></span>
-          <h1 data-split>William Sham</h1>
+          <!-- letters are split by hand (as in the loader) for the stamp-in
+               and idle in index.js / index.css; screen readers get the
+               plain name from .sr-only. is-idle is lifted while it lands. -->
+          <h1 class="hero-name is-idle"><span class="sr-only">William Sham</span><span class="nm" aria-hidden="true"><span class="nm-w"><span style="--i:0">W</span><span style="--i:1">i</span><span style="--i:2">l</span><span style="--i:3">l</span><span style="--i:4">i</span><span style="--i:5">a</span><span style="--i:6">m</span></span> <span class="nm-w"><span style="--i:8">S</span><span style="--i:9">h</span><span style="--i:10">a</span><span style="--i:11">m</span></span></span></h1>
           <p class="hero-sub" data-split data-i18n="hero.sub">Full-stack developer. I make the internet look good.</p>
           <p class="hero-sub hero-punch" data-split data-i18n="hero.sub2">You're welcome.</p>
           <div class="hero-cta" data-anim="fade">

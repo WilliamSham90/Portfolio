@@ -1235,6 +1235,24 @@
     pageCtx = gsap.context(() => {
       const EASE = "power3.out";
 
+      /* Hero name (index.css, .hero-name): each letter is stamped in big
+         and spun, lands with a squash, and the hero takes the thud of the
+         last one. Then .is-idle hands over to the CSS idle. */
+      const name = $(".hero-name", scope);
+      if (name){
+        const letters = $$(".nm-w > span", name), STAGGER = .05, FALL = .42;
+        const landed = FALL + (letters.length - 1) * STAGGER;
+        name.classList.remove("is-idle");
+        gsap.timeline({ delay: immediate ? 0 : .15, onComplete: () => name.classList.add("is-idle") })
+          .fromTo(letters,
+            { yPercent: -150, scale: 2.4, rotate: () => gsap.utils.random(-40, 40), opacity: 0 },
+            { yPercent: 0, scale: 1, rotate: 0, opacity: 1, duration: FALL, ease: "power3.in", stagger: STAGGER })
+          .fromTo(letters, { scaleX: 1.28, scaleY: .7 },
+            { scaleX: 1, scaleY: 1, duration: .55, ease: "elastic.out(1, .35)", stagger: STAGGER, immediateRender: false,
+              clearProps: "transform,opacity" }, FALL)
+          .add(() => { $(".hero", scope).animate(SHAKE, { duration: 380, easing: "ease-out" }); }, landed);
+      }
+
       $$("[data-split]", scope).forEach((el, idx) => {
         const spans = splitWords(el);
         if (!spans.length) return;
