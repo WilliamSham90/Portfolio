@@ -52,7 +52,7 @@
     "hero.tag":"Senior webontwikkelaar · Krugersdorp",
     "doodle.hint":"Klik en sleep enige plek hier om te teken","doodle.clear":"Vee uit","doodle.touch":"Tekenmodus: af",
     "portrait.hint":"klik om die agtergrond te verander",
-    "cta.work":"Eregalery","cta.touch":"Klik & Vind Uit","cta.allProjects":"Al 35 projekte",
+    "cta.work":"Eregalery","cta.touch":"Klik & Vind Uit","cta.allProjects":"Al 36 projekte",
     "cta.startChat":"GEE MY DAARDIE KOFFIE →","cta.cv":"Vra my CV aan","cta.ask":"Okay, EK sal jou vra →",
     "cta.hire":"Help My →","cta.idea":"Die Knoppie →",
     "stat.years":"Jaar ervaring in webontwikkeling","stat.projects":"Voltooide projekte",
@@ -90,8 +90,8 @@
     "after.eyebrow":"Ná werk","after.title":"Wat ek vir die pret maak",
     "band.aboutTitle":"Nuuskierig oor die kode?",
     "band.aboutText":"Vra my daaroor... Nee, doen dit regtig net. Ek belowe ek sal nie byt nie ;)",
-    "proj.eyebrow":"Projekte · 2021—2026","proj.title":"Vyf-en-dertig werwe, almal nou aanlyn",
-    "proj.sub":"Korporatiewe platforms, motorwerwe vir verskeie markte, aanlyn winkels, Laravel-stelsels, speletjiemods, Umbraco-werwe, GSAP-webwerwe en meer.",
+    "proj.eyebrow":"Projekte · 2021—2026","proj.title":"Ses-en-dertig werwe, almal nou aanlyn",
+    "sc.prev":"Vorige projek","sc.next":"Volgende projek","sc.of":"van","sc.visit":"Besoek die werf",
     "proj.all":"Die res","proj.none":"Niks in dié kategorie nie — probeer 'n ander filter.",
     "band.projTitle":"Moet Nie Uitmis Nie",
     "band.projText":"Pasop! Jy het FOMO. Kliek die knoppie om ontslae te raak van FOMO",
@@ -199,7 +199,7 @@
         '<path d="M178 244 q22 18 46 0" stroke="#13111A" stroke-width="6" fill="none" stroke-linecap="round"/>' +
         '<path d="M200 350 l0 150" stroke="var(--card)" stroke-width="3" opacity=".5"/></g>' +
       '<rect width="400" height="500" fill="url(#pDots)"/></svg>' +
-      '<img class="photo" src="' + IMG_BASE + 'williampp.jpg" alt="William Sham" ' +
+      '<img class="photo" src="' + IMG_BASE + 'Me/williampp.jpg" alt="William Sham" ' +
       'fetchpriority="high" onerror="this.remove()">';
   }
 
@@ -381,49 +381,52 @@
   };
 
   /* Order here is the order of the "Everything else" grid on the
-     Projects page (featured ones are pulled out and shown above it). */
+     Projects page (featured ones are pulled out and shown above it).
+     Screenshots of the live sites are in Images/Projects/ (see shotHTML). */
   const RAW = [
-    ["Zoom DJs","corp","Zoomdj.webp","https://www.zoomdjs.co.za/",["WordPress","Bookings"],"Website for a local DJ","Webwerf vir 'n plaaslike DJ"],
-    ["LKDA — Strategic Creative Advertising","lara","Lkda.webp","https://www.lkda.co.za/",["Laravel","Umbraco","CMS"],"Creative advertising agency website","Webwerf vir 'n kreatiewe advertensie-agentskap"],
-    ["ATP","corp","ATPsite.webp","https://amplifytradepartners.co.za/",["WordPress","PHP","SEO"],"Amplify Trade Partners website","Webwerf vir Amplify Trade Partners"],
-    ["3D Lazer Monkey","corp","3D%20lasermonkey.webp","https://3dlasermonkey.co.za/",["WordPress","3D"],"3D printing and laser cutting services","3D-druk en lasersnydienste"],
-    ["Nissan South Africa","auto","NissanSA.webp","https://www.nissan.co.za/",["WordPress","PHP","SEO"],"Official Nissan South Africa website","Nissan Suid-Afrika se amptelike webwerf"],
-    ["Nissan Angola","auto","NissanAngola.webp","https://www.nissan.co.ao/",["WordPress","PHP"],"Official Nissan Angola website","Nissan Angola se amptelike webwerf"],
-    ["Nissan Uganda","auto","NissanUganda.webp","https://www.nissan.co.ug/",["WordPress","PHP"],"Official Nissan Uganda website","Nissan Uganda se amptelike webwerf"],
-    ["Chery South Africa","auto","cherry%20South%20africa.webp","https://www.chery.co.za/",["WordPress","PHP"],"Official Chery South Africa website","Chery Suid-Afrika se amptelike webwerf"],
-    ["Afrit","corp","afrit.webp","https://afrit.co.za/",["WordPress","PHP"],"Trailer manufacturer's website","Webwerf vir 'n sleepwavervaardiger"],
-    ["Safal Steel","corp","Safalsteel.webp","https://www.safalsteel.com/",["WordPress","PHP"],"Steel manufacturer's website","Webwerf vir 'n staalvervaardiger"],
-    ["Mega Master SA","shop","Megamaster.webp","https://megamaster.co.za/",["WordPress","E-commerce"],"Online store for BBQ and outdoor gear","Aanlyn winkel vir braai- en buitetoerusting"],
-    ["First 4 Men","corp","First4Men.webp","https://first4men.co.za/",["WordPress","PHP"],"Men's health and wellness website","Webwerf oor mansgesondheid en -welstand"],
-    ["Gridcontrol","energy","Gridcontroll.webp","https://www.gridcontrol.co.za/",["WordPress","PHP"],"Power solutions company website","Webwerf vir 'n kragoplossingsmaatskappy"],
-    ["Blueasset Group","corp","Blueasset.webp","https://blueassetgroup.com/za",["WordPress","PHP"],"Asset management company website","Webwerf vir 'n batebestuursmaatskappy"],
-    ["Pinaroch","lara","Pinaroch.webp","https://pinaroch.co.za/",["Laravel","PHP","Middleware"],"Construction company website","Webwerf vir 'n konstruksiemaatskappy"],
-    ["MyBuildings Africa","lara","My%20buildings%20africa.webp","https://mybuildingsafrica.com/",["Laravel","CMS"],"Property management platform","Eiendomsbestuursplatform"],
-    ["myBuildings EMEA","lara","My%20buildings%20emea.webp","https://mybuildingsemea.com/",["Laravel","CMS"],"Property management platform for EMEA","Eiendomsbestuursplatform vir EMEA"],
-    ["Goscor Group","corp","Goscor%20group.webp","https://goscor.co.za/",["WordPress","Multi-site"],"Industrial equipment group website","Webwerf vir 'n groep in industriële toerusting"],
-    ["Goscor Earth Moving","corp","Goscor%20earth%20moving.webp","https://www.goscorearthmoving.co.za/",["WordPress","PHP"],"Earth-moving equipment website","Webwerf vir grondverskuiwingstoerusting"],
-    ["Goscor Lift Trucks","corp","Goscor%20lift%20trucks.webp","https://goscorlifttrucks.co.za/",["WordPress","PHP"],"Forklift solutions website","Webwerf vir vurkhyseroplossings"],
-    ["Goscor Compressed Air","corp","Goscor%20compressed%20air.webp","https://www.goscorcompressedair.co.za/",["WordPress","PHP"],"Compressed air solutions website","Webwerf vir perslugoplossings"],
-    ["Goscor Cleaning","corp","Goscor%20cleaning.webp","https://goscorcleaning.co.za/",["WordPress","PHP"],"Industrial cleaning equipment website","Webwerf vir industriële skoonmaaktoerusting"],
-    ["CTU Training","corp","CTU%20training.webp","https://ctutraining.ac.za/",["WordPress","Education"],"IT training institution website","Webwerf vir 'n IT-opleidingsinstelling"],
-    ["HEX","corp","Hex.webp","https://hexintegratedsolutions.com/",["WordPress","PHP"],"Integrated solutions company website","Webwerf vir 'n maatskappy in geïntegreerde oplossings"],
-    ["Real Box","corp","Realbox.webp","https://realbox.co.za/",["WordPress","PHP"],"Container solutions website","Webwerf vir houeroplossings"],
-    ["Commercial PV","energy","CommercialPV.webp","https://commercialpv.co.za/",["WordPress","Solar"],"Commercial solar solutions website","Webwerf vir kommersiële sonkragoplossings"],
-    ["Battery Distributors","shop","batterydis.webp","https://batterydistributors.co.za/",["WordPress","E-commerce"],"Online store for batteries","Aanlyn winkel vir batterye"],
-    ["Rectifier","energy","rectifier.webp","https://rectifier.co.za/",["WordPress","PHP"],"Power electronics company website","Webwerf vir 'n kragelektronikamaatskappy"],
-    ["Go4Green","energy","go4green.webp","https://go4greenenergy.co.za/",["WordPress","Green Energy"],"Green energy solutions website","Webwerf vir groenenergie-oplossings"],
-    ["Current Automation","shop","Current%20automation.webp","https://currentautomation.ca/",["WordPress","E-commerce"],"Online store for industrial automation","Aanlyn winkel vir industriële outomatisering"],
-    ["CA's Meanwell","shop","CA%20meanwell.webp","https://meanwell.co.za/",["WordPress","E-commerce"],"Online store for power supplies","Aanlyn winkel vir kragbronne"],
-    ["Solar-Solution","energy","Solar%20solutions.webp","https://solar-solution.co.za/",["WordPress","Solar"],"Solar energy solutions website","Webwerf vir sonkragoplossings"],
-    ["Victron Products","shop","Victron.webp","https://victronproducts.co.za/",["WordPress","E-commerce"],"Online store for Victron energy products","Aanlyn winkel vir Victron-energieprodukte"],
-    ["COD BO3 Crash Bandicoot","game","Crash%20bandicoot.webp","https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",["Radiant","Game Dev"],"Custom zombie map on the Steam Workshop","Pasgemaakte zombiekaart op die Steam Workshop"],
-    ["Forgotten Room 115","game","forgotten%20room%20115.webp","https://steamcommunity.com/sharedfiles/filedetails/?id=3326520485",["Radiant","3D Modeling"],"Custom COD BO3 zombie map with its own mechanics","Pasgemaakte COD BO3-zombiekaart met sy eie meganika"],
-    ["COD BO3 Mod Tools Super","game","discorcod.webp","#",["Mods","3D Models","Scripts"],"Custom COD BO3 zombie mods, scripts and 3D models","Pasgemaakte COD BO3-zombiemods, skripte en 3D-modelle"]
+    ["Butterfly Neck Pillow","shop","Projects/butterfly-neck-pillow.webp","https://butterflyneckpillow.co.za/",["GSAP","WordPress","WooCommerce"],"Online store for the Butterfly Travel Pillow","Aanlyn winkel vir die Butterfly-reiskussing"],
+    ["Zoom DJs","corp","Projects/zoom-djs.webp","https://www.zoomdjs.co.za/",["WordPress","Bookings"],"Website for a local DJ","Webwerf vir 'n plaaslike DJ"],
+    ["LKDA — Strategic Creative Advertising","lara","Projects/lkda.webp","https://www.lkda.co.za/",["Laravel","Umbraco","CMS"],"Creative advertising agency website","Webwerf vir 'n kreatiewe advertensie-agentskap"],
+    ["ATP","corp","Projects/atp.webp","https://amplifytradepartners.co.za/",["WordPress","PHP","SEO"],"Amplify Trade Partners website","Webwerf vir Amplify Trade Partners"],
+    ["3D Lazer Monkey","corp","Projects/3d-lazer-monkey.webp","https://3dlasermonkey.co.za/",["WordPress","3D"],"3D printing and laser cutting services","3D-druk en lasersnydienste"],
+    ["Nissan South Africa","auto","Projects/nissan-south-africa.webp","https://www.nissan.co.za/",["WordPress","PHP","SEO"],"Official Nissan South Africa website","Nissan Suid-Afrika se amptelike webwerf"],
+    ["Nissan Angola","auto","Projects/nissan-angola.webp","https://www.nissan.co.ao/",["WordPress","PHP"],"Official Nissan Angola website","Nissan Angola se amptelike webwerf"],
+    ["Nissan Uganda","auto","Projects/nissan-uganda.webp","https://www.nissan.co.ug/",["WordPress","PHP"],"Official Nissan Uganda website","Nissan Uganda se amptelike webwerf"],
+    ["Chery South Africa","auto","Projects/chery-south-africa.webp","https://www.chery.co.za/",["WordPress","PHP"],"Official Chery South Africa website","Chery Suid-Afrika se amptelike webwerf"],
+    ["Afrit","corp","Projects/afrit.webp","https://afrit.co.za/",["WordPress","PHP"],"Trailer manufacturer's website","Webwerf vir 'n sleepwavervaardiger"],
+    ["Safal Steel","corp","Projects/safal-steel.webp","https://www.safalsteel.com/",["WordPress","PHP"],"Steel manufacturer's website","Webwerf vir 'n staalvervaardiger"],
+    ["Mega Master SA","shop","Projects/mega-master-sa.webp","https://megamaster.co.za/",["WordPress","E-commerce"],"Online store for BBQ and outdoor gear","Aanlyn winkel vir braai- en buitetoerusting"],
+    ["First 4 Men","corp","Projects/first-4-men.webp","https://first4men.co.za/",["WordPress","PHP"],"Men's health and wellness website","Webwerf oor mansgesondheid en -welstand"],
+    ["Gridcontrol","energy","Projects/gridcontrol.webp","https://www.gridcontrol.co.za/",["WordPress","PHP"],"Power solutions company website","Webwerf vir 'n kragoplossingsmaatskappy"],
+    ["Blueasset Group","corp","Projects/blueasset-group.webp","https://blueassetgroup.com/za",["WordPress","PHP"],"Asset management company website","Webwerf vir 'n batebestuursmaatskappy"],
+    ["Pinaroch","lara","Projects/pinaroch.webp","https://pinaroch.co.za/",["Laravel","PHP","Middleware"],"Construction company website","Webwerf vir 'n konstruksiemaatskappy"],
+    ["MyBuildings Africa","lara","Projects/mybuildings-africa.webp","https://mybuildingsafrica.com/",["Laravel","CMS"],"Property management platform","Eiendomsbestuursplatform"],
+    ["myBuildings EMEA","lara","Projects/mybuildings-emea.webp","https://mybuildingsemea.com/",["Laravel","CMS"],"Property management platform for EMEA","Eiendomsbestuursplatform vir EMEA"],
+    ["Goscor Group","corp","Projects/goscor-group.webp","https://goscor.co.za/",["WordPress","Multi-site"],"Industrial equipment group website","Webwerf vir 'n groep in industriële toerusting"],
+    ["Goscor Earth Moving","corp","Projects/goscor-earth-moving.webp","https://www.goscorearthmoving.co.za/",["WordPress","PHP"],"Earth-moving equipment website","Webwerf vir grondverskuiwingstoerusting"],
+    ["Goscor Lift Trucks","corp","Projects/goscor-lift-trucks.webp","https://goscorlifttrucks.co.za/",["WordPress","PHP"],"Forklift solutions website","Webwerf vir vurkhyseroplossings"],
+    ["Goscor Compressed Air","corp","Projects/goscor-compressed-air.webp","https://www.goscorcompressedair.co.za/",["WordPress","PHP"],"Compressed air solutions website","Webwerf vir perslugoplossings"],
+    ["Goscor Cleaning","corp","Projects/goscor-cleaning.webp","https://goscorcleaning.co.za/",["WordPress","PHP"],"Industrial cleaning equipment website","Webwerf vir industriële skoonmaaktoerusting"],
+    ["CTU Training","corp","Projects/ctu-training.webp","https://ctutraining.ac.za/",["WordPress","Education"],"IT training institution website","Webwerf vir 'n IT-opleidingsinstelling"],
+    ["HEX","corp","Projects/hex.webp","https://hexintegratedsolutions.com/",["WordPress","PHP"],"Integrated solutions company website","Webwerf vir 'n maatskappy in geïntegreerde oplossings"],
+    ["Real Box","corp","Projects/real-box.webp","https://realbox.co.za/",["WordPress","PHP"],"Container solutions website","Webwerf vir houeroplossings"],
+    ["Commercial PV","energy","Projects/commercial-pv.webp","https://commercialpv.co.za/",["WordPress","Solar"],"Commercial solar solutions website","Webwerf vir kommersiële sonkragoplossings"],
+    ["Battery Distributors","shop","Projects/battery-distributors.webp","https://batterydistributors.co.za/",["WordPress","E-commerce"],"Online store for batteries","Aanlyn winkel vir batterye"],
+    ["Rectifier","energy","Projects/rectifier.webp","https://rectifier.co.za/",["WordPress","PHP"],"Power electronics company website","Webwerf vir 'n kragelektronikamaatskappy"],
+    ["Go4Green","energy","Projects/go4green.webp","https://go4greenenergy.co.za/",["WordPress","Green Energy"],"Green energy solutions website","Webwerf vir groenenergie-oplossings"],
+    ["Current Automation","shop","Projects/current-automation.webp","https://currentautomation.ca/",["WordPress","E-commerce"],"Online store for industrial automation","Aanlyn winkel vir industriële outomatisering"],
+    ["CA's Meanwell","shop","Projects/ca-meanwell.webp","https://meanwell.co.za/",["WordPress","E-commerce"],"Online store for power supplies","Aanlyn winkel vir kragbronne"],
+    ["Solar-Solution","energy","Projects/solar-solution.webp","https://solar-solution.co.za/",["WordPress","Solar"],"Solar energy solutions website","Webwerf vir sonkragoplossings"],
+    ["Victron Products","shop","Projects/victron-products.webp","https://victronproducts.co.za/",["WordPress","E-commerce"],"Online store for Victron energy products","Aanlyn winkel vir Victron-energieprodukte"],
+    ["COD BO3 Crash Bandicoot","game","Games/crash-bandicoot.webp","https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",["Radiant","Game Dev"],"Custom zombie map on the Steam Workshop","Pasgemaakte zombiekaart op die Steam Workshop"],
+    ["Forgotten Room 115","game","Games/forgotten-room-115.webp","https://steamcommunity.com/sharedfiles/filedetails/?id=3326520485",["Radiant","3D Modeling"],"Custom COD BO3 zombie map with its own mechanics","Pasgemaakte COD BO3-zombiekaart met sy eie meganika"],
+    ["COD BO3 Mod Tools Super","game","Games/cod-mod-tools.webp","#",["Mods","3D Models","Scripts"],"Custom COD BO3 zombie mods, scripts and 3D models","Pasgemaakte COD BO3-zombiemods, skripte en 3D-modelle"]
   ];
 
   const PROJECTS = RAW.map((p, i) => ({ i, t:p[0], cat:p[1], img:p[2], url:p[3], tech:p[4], en:p[5], af:p[6] }));
 
   const FEATURED = [
+    { key:"Butterfly Neck Pillow", note:{ en:"My latest: a GSAP-animated WooCommerce store on WordPress", af:"My nuutste: 'n WooCommerce-winkel op WordPress, geanimeer met GSAP" } },
     { key:"Mega Master SA", note:{ en:"BBQ & outdoor products, built on WordPress", af:"Braai- en buiteprodukte, gebou op WordPress" } },
     { key:"3D Lazer Monkey", note:{ en:"3D printing and laser cutting, start to finish", af:"3D-druk en lasersny, van begin tot einde" } },
     { key:"Current Automation", metric:{ n:1500, unit:"+", en:"products loaded into the store", af:"produkte in die winkel gelaai" } },
@@ -522,16 +525,16 @@
   /* About page, "After hours". If an img is missing, the tile shows a
      riso placeholder instead. dl = file in Images/ offered as a download. */
   const AFTER = [
-    { img:"Crash%20bandicoot.webp", url:"https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",
+    { img:"Games/crash-bandicoot.webp", url:"https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",
       en:["Zombie maps","Crash Bandicoot and Forgotten Room 115, two custom Call of Duty maps on the Steam Workshop."],
       af:["Zombiekaarte","Crash Bandicoot en Forgotten Room 115, twee pasgemaakte Call of Duty-kaarte op die Steam Workshop."] },
-    { img:"3d%20models.png", dl:"PlayStation%202%20-%20Crash%20Twinsanity%20-%20Playable%20Characters%20-%20Crash%20Bandicoot.zip",
+    { img:"After_hours/3d-models.png", dl:"After_hours/PlayStation%202%20-%20Crash%20Twinsanity%20-%20Playable%20Characters%20-%20Crash%20Bandicoot.zip",
       en:["3D models","Blender and Maya, for maps, mods and the odd experiment."],
       af:["3D-modelle","Blender en Maya, vir kaarte, mods en af en toe 'n eksperiment."] },
-    { img:"DigitalartNiko.gif",
+    { img:"After_hours/digital-art-niko.gif",
       en:["Digital art","Textures, sketches and anything else that needs drawing."],
       af:["Digitale kuns","Teksture, sketse en enigiets anders wat geteken moet word."] },
-    { img:"discorcod.webp",
+    { img:"Games/cod-mod-tools.webp",
       en:["Mod tools","Scripts, models and a Discord server for fellow Black Ops III modders."],
       af:["Mod-gereedskap","Skripte, modelle en 'n Discord-bediener vir ander Black Ops III-modders."] }
   ];
@@ -1077,37 +1080,22 @@
   /* =================================================================
      RENDERERS
      ================================================================= */
-  function shotHTML(imgFile, parallax){
+  /* A project's screenshot. Those in Images/Projects/ come as three files:
+     name.webp (1440 × 900, the desktop view), name-720.webp (720 × 450) and
+     name-m.webp (a phone's first screen, 600 × 750). srcset + sizes let the
+     browser fetch just the size the card needs; phone (the showcase's
+     portrait cards) swaps in the phone shot on small screens. */
+  function shotHTML(imgFile, sizes, phone){
+    const src = imgFile ? IMG_BASE + imgFile : "", set = /^Projects\//.test(imgFile || "");
+    const img = '<img src="' + src + '"' +
+      (set ? ' srcset="' + src.replace(/\.webp$/, "-720.webp") + ' 720w, ' + src + ' 1440w" sizes="' + sizes + '"' : '') +
+      ' alt="" loading="lazy" decoding="async" onload="this.classList.add(\'ready\')" onerror="this.remove()">';
     return '<div class="shot">' +
-      '<div class="art"' + (parallax ? '' : ' style="height:100%;margin-top:0"') + '>' + loadingArt(400, 250) + '</div>' +
-      (imgFile ? '<img src="' + IMG_BASE + imgFile + '" alt="" loading="lazy" decoding="async" ' +
-        'onload="this.classList.add(\'ready\')" onerror="this.remove()">' : '') +
+      '<div class="art">' + loadingArt(400, 250) + '</div>' +
+      (!imgFile ? '' : set && phone
+        ? '<picture><source media="(max-width: 760px)" srcset="' + src.replace(/\.webp$/, "-m.webp") + '">' + img + '</picture>'
+        : img) +
       '</div>';
-  }
-
-  function rowHTML(f, idx){
-    const p = PROJECTS.find(x => x.t === f.key);
-    if (!p) return "";
-    const accent = ACCENTS[idx % 4];
-    const num = String(idx + 1).padStart(2, "0");
-    let hi = "";
-    if (f.metric){
-      hi = '<div class="metric"><b data-count="' + f.metric.n + '" data-suffix="' + f.metric.unit + '">' +
-        f.metric.n + f.metric.unit + '</b><span>' + esc(f.metric[LANG]) + '</span></div>';
-    } else if (f.note){
-      hi = '<p class="note">' + esc(f.note[LANG]) + '</p>';
-    }
-    return '<article class="row" style="--accent: ' + accent + '">' +
-      '<div class="row-num">[' + num + ']</div>' +
-      '<div class="row-media">' + shotHTML(p.img, true) + '</div>' +
-      '<div class="row-body">' +
-        '<div class="row-cat">' + esc(CATS[p.cat][LANG]) + '</div>' +
-        '<h3>' + esc(p.t) + '</h3>' +
-        '<p>' + esc(p[LANG]) + '</p>' + hi +
-        '<div class="tags">' + p.tech.map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>' +
-        '<a class="arrow-link" href="' + esc(p.url) + '" target="_blank" rel="noopener">' +
-        '<span>' + (LANG === "af" ? "Besoek die werf" : "Visit site") + '</span><span>↗</span></a>' +
-      '</div></article>';
   }
 
   function cardHTML(p, i){
@@ -1115,7 +1103,7 @@
     const live = p.url && p.url !== "#";
     // no data-anim: animatePage staggers these in with ScrollTrigger.batch
     return '<article class="card" data-cat="' + esc(p.cat) + '" style="--accent: ' + accent + '">' +
-      shotHTML(p.img, false) +
+      shotHTML(p.img, "(max-width: 760px) 46vw, 400px") +
       '<div class="card-body">' +
         '<span class="label">' + esc(CATS[p.cat][LANG]) + '</span>' +
         '<h4>' + esc(p.t) + '</h4>' +
@@ -1133,7 +1121,7 @@
     const url = base + item[1];
     return '<article class="card" style="--accent: ' + accent + '" data-anim="up">' +
       '<div class="shot">' +
-        '<div class="art" style="height:100%;margin-top:0">' + loadingArt(400, 250) + '</div>' +
+        '<div class="art">' + loadingArt(400, 250) + '</div>' +
         '<iframe data-src="' + esc(url) + '" title="' + esc(item[0]) + '" loading="lazy" ' +
         'sandbox="allow-scripts allow-same-origin" tabindex="-1" scrolling="no"></iframe>' +
         '<span class="poster">' + kind + '</span>' +
@@ -1144,6 +1132,160 @@
         '<div class="tags">' + item[2].map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>' +
         '<a class="arrow-link" href="' + esc(url) + '" target="_blank" rel="noopener"><span>' + cta + '</span><span>↗</span></a>' +
       '</div></article>';
+  }
+
+  /* =================================================================
+     SHOWCASE — "Selected work" (home) and the Projects page's hero, after
+     gsap.com/showcase: the FEATURED projects in a strip, the current one
+     big in the middle and its neighbours peeking in at the sides. It loops:
+     one number (pos, counted in slides) is tweened and every slide is
+     placed from it, so the slide that wraps round does so off screen. On a
+     change the old title's words drop out and the new title's rise in; the
+     line under it swaps the other way. The buttons, ← →, a swipe or a click
+     on a neighbour move it; the big card and the title open the site. Its
+     first sight wipes the cards in (animatePage). No autoplay; with reduced
+     motion it just jumps.
+     ================================================================= */
+  const SC = new WeakMap();   // per carousel: { pos, at, tl } — at: the slide it's heading for (unbounded)
+  const wrap = (a, n) => ((a % n) + n) % n;
+  const scMotion = () => GS && !reduced;
+  const ARROW = d => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + (d < 0 ? "M19 12H5M11 6l-6 6 6 6" : "M5 12h14M13 6l6 6-6 6") + '"/></svg>';
+  const scWords = s => s.split(/\s+/).map(w => '<span class="w"><span>' + esc(w) + '</span></span>').join(" ");
+
+  function showcaseHTML(){
+    const items = FEATURED.map(f => ({ f, p: PROJECTS.find(x => x.t === f.key) })).filter(x => x.p), n = items.length;
+    const ink = i => ' style="--accent: ' + ACCENTS[i % 4] + '"';
+    const about = ({ f, p }) => CATS[p.cat][LANG] + " · " +
+      (f.metric ? f.metric.n.toLocaleString("en") + f.metric.unit + " " + f.metric[LANG] : f.note ? f.note[LANG] : p[LANG]);
+    // the card is a mouse/touch shortcut to the site: the title link is the one for keyboards and screen readers
+    return '<div class="sc-stage">' + items.map(({ p }, i) =>
+        '<div class="sc-slide" role="group" aria-roledescription="slide" aria-label="' + (i + 1) + " " + T("sc.of", "of") + " " + n + '"' + ink(i) + '>' +
+        '<a class="sc-media" href="' + esc(p.url) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true" draggable="false">' +
+        shotHTML(p.img, "(max-width: 760px) 76vw, 64vw", true) + '<i class="sc-wipe"></i></a></div>').join("") + '</div>' +
+      '<div class="shell sc-foot">' +
+        '<div class="sc-text">' +
+          '<div class="sc-titles">' + items.map(({ p }, i) => '<h3 class="sc-title"' + ink(i) + '><a href="' + esc(p.url) + '" target="_blank" rel="noopener">' +
+            scWords(p.t) + ' <span class="w sc-arrow" aria-hidden="true"><span>↗</span></span></a></h3>').join("") + '</div>' +
+          '<div class="sc-lines">' + items.map((x, i) => '<p class="sc-line"' + ink(i) + '>' + esc(about(x)) + '</p>').join("") + '</div>' +
+        '</div>' +
+        '<div class="sc-controls">' +
+          '<span class="sc-count" aria-hidden="true"></span>' +
+          '<button class="sc-btn" type="button" data-step="-1" aria-label="' + esc(T("sc.prev", "Previous project")) + '">' + ARROW(-1) + '</button>' +
+          '<button class="sc-btn sc-btn--next" type="button" data-step="1" aria-label="' + esc(T("sc.next", "Next project")) + '">' + ARROW(1) + '</button>' +
+        '</div>' +
+        '<p class="sr-only sc-live" aria-live="polite" aria-atomic="true"></p>' +
+      '</div>';
+  }
+
+  // every slide from pos: offset d slides from the middle (−n/2 ≤ d < n/2), smaller and fainter the further out
+  function scPlace(root){
+    const st = SC.get(root), slides = $$(".sc-slide", root), n = slides.length;
+    if (!n || !slides[0].offsetWidth) return;   // hidden page: placed once it shows (ResizeObserver)
+    const step = slides[0].offsetWidth * .98;   // centre to centre: the neighbours (at .8) peek in at the sides
+    slides.forEach((el, i) => {
+      let d = wrap(i - st.pos, n);
+      if (d >= n / 2) d -= n;
+      const a = Math.min(1, Math.abs(d));
+      el.style.transform = "translate(-50%,-50%) translateX(" + (d * step).toFixed(1) + "px) scale(" + (1 - .2 * a).toFixed(4) + ")";
+      el.style.opacity = (1 - .35 * a).toFixed(3);
+      el.style.zIndex = 9 - Math.round(Math.abs(d) * 2);
+    });
+  }
+
+  // which slide is current: classes, what's focusable and read out, the counter
+  function scState(root){
+    const st = SC.get(root), slides = $$(".sc-slide", root), n = slides.length, at = wrap(st.at, n);
+    slides.forEach((el, i) => { el.classList.toggle("is-active", i === at); el.setAttribute("aria-hidden", String(i !== at)); });
+    $$(".sc-title", root).forEach((el, i) => {
+      el.classList.toggle("is-active", i === at);
+      el.setAttribute("aria-hidden", String(i !== at));
+      $("a", el).tabIndex = i === at ? 0 : -1;
+    });
+    $$(".sc-line", root).forEach((el, i) => el.classList.toggle("is-active", i === at));
+    $(".sc-count", root).textContent = pad2(at + 1) + " / " + pad2(n);
+  }
+
+  // old title's words drop out, the new ones rise in; the line under it goes the other way
+  function scText(root, from, to){
+    const st = SC.get(root), t = $$(".sc-title", root), l = $$(".sc-line", root);
+    if (st.tl) st.tl.progress(1);
+    const leave = [t[from], l[from]];
+    leave.forEach(el => el.classList.add("is-leaving"));
+    st.tl = gsap.timeline({ onComplete: () => leave.forEach(el => el.classList.remove("is-leaving")) })
+      .to($$(".w > span", t[from]), { yPercent: 110, duration: .3, ease: "power2.in", stagger: .02 })
+      .to(l[from], { yPercent: -110, duration: .3, ease: "power2.in" }, 0)
+      .fromTo($$(".w > span", t[to]), { yPercent: 110 }, { yPercent: 0, duration: .6, ease: "power3.out", stagger: .04 }, .25)
+      .fromTo(l[to], { yPercent: -110 }, { yPercent: 0, duration: .5, ease: "power3.out" }, .32);
+  }
+
+  function scGo(root, k){
+    const st = SC.get(root), n = $$(".sc-slide", root).length, from = wrap(st.at, n), to = wrap(k, n);
+    if (to === from) return;
+    st.at = k;
+    scState(root);
+    $(".sc-live", root).textContent = $$(".sc-title", root)[to].textContent.replace("↗", "").trim() + ", " + (to + 1) + " " + T("sc.of", "of") + " " + n;
+    if (!scMotion()){ st.pos = k; scPlace(root); return; }
+    gsap.to(st, { pos: k, duration: .9, ease: "power3.inOut", overwrite: true, onUpdate: () => scPlace(root) });
+    scText(root, from, to);
+  }
+
+  function initShowcase(root){
+    SC.set(root, { pos: 0, at: 0, tl: null });
+    let downX = null, swiped = false;
+    const step = d => scGo(root, SC.get(root).at + d);
+    root.addEventListener("click", e => {
+      const btn = e.target.closest(".sc-btn");
+      if (btn) return step(+btn.dataset.step);
+      const slide = e.target.closest(".sc-slide");
+      if (!slide) return;
+      // a swipe ends in a click: it moved the carousel, it doesn't open the site
+      if (swiped){ e.preventDefault(); swiped = false; return; }
+      const slides = $$(".sc-slide", root), n = slides.length, st = SC.get(root);
+      let d = wrap(slides.indexOf(slide) - wrap(st.at, n), n);
+      if (d > n / 2) d -= n;
+      if (d){ e.preventDefault(); step(d); }   // a neighbour comes to the middle; the middle one opens its site
+    });
+    root.addEventListener("keydown", e => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      step(e.key === "ArrowRight" ? 1 : -1);
+    });
+    // swipe (touch, pen or a mouse drag): sideways past 50px moves it; .sc-stage lets vertical scrolling through
+    root.addEventListener("pointerdown", e => { swiped = false; if (e.target.closest(".sc-stage")) downX = e.clientX; });
+    root.addEventListener("dragstart", e => e.preventDefault());   // a mouse drag swipes; it doesn't drag the picture
+    root.addEventListener("pointerup", e => {
+      if (downX === null) return;
+      const dx = e.clientX - downX;
+      downX = null;
+      if (Math.abs(dx) > 50){ swiped = true; step(dx < 0 ? 1 : -1); }
+    });
+    root.addEventListener("pointercancel", () => { downX = null; });
+    // the flair: each button's fill grows from (and shrinks back to) where the pointer crossed its edge
+    const flair = e => {
+      const b = e.target.closest(".sc-btn");
+      if (!b || b.contains(e.relatedTarget)) return;
+      const r = b.getBoundingClientRect();
+      b.style.setProperty("--fx", (e.clientX - r.left) + "px");
+      b.style.setProperty("--fy", (e.clientY - r.top) + "px");
+    };
+    root.addEventListener("pointerover", flair);
+    root.addEventListener("pointerout", flair);
+    // sizes itself from the slide width: again on resize, and when its page goes from hidden to shown
+    new ResizeObserver(() => scPlace(root)).observe(root);
+  }
+
+  // (re)build every carousel — at boot and on a language switch — keeping the slide each one was on
+  function showcaseRender(){
+    $$("[data-showcase]").forEach(root => {
+      if (!SC.has(root)) initShowcase(root);
+      const st = SC.get(root);
+      if (GS){ gsap.killTweensOf(st); if (st.tl) st.tl.kill(); }
+      st.tl = null;
+      st.pos = st.at;
+      root.innerHTML = showcaseHTML();
+      scState(root);
+      scPlace(root);
+    });
   }
 
   let frameObserver = null;
@@ -1171,8 +1313,7 @@
   }
 
   function renderAll(){
-    $("#featured-rows").innerHTML   = FEATURED.map(rowHTML).join("");
-    $("#featured-rows-2").innerHTML = FEATURED.map(rowHTML).join("");
+    showcaseRender();
 
     const featuredKeys = FEATURED.map(f => f.key);
     const rest = PROJECTS.filter(p => featuredKeys.indexOf(p.t) === -1);
@@ -1359,11 +1500,6 @@
       const pw = $('[data-anim="portrait"]', scope);
       if (pw) gsap.from(pw, { scale: .94, opacity: 0, duration: 1.1, ease: EASE, delay: .1 });
 
-      $$(".row-media .art", scope).forEach(inner => {
-        gsap.fromTo(inner, { yPercent: -7 }, { yPercent: 7, ease: "none",
-          scrollTrigger: { trigger: inner.parentElement, start: "top bottom", end: "bottom top", scrub: true, invalidateOnRefresh: true } });
-      });
-
       $$(".embed-host", scope).forEach(el => {
         gsap.from(el, { y: 40, opacity: 0, duration: .9, ease: EASE,
           scrollTrigger: { trigger: el, start: "top 92%", once: true } });
@@ -1383,6 +1519,26 @@
         gsap.to(obj, { v: end, duration: 1.4, ease: "power2.out",
           onUpdate(){ el.textContent = Math.round(obj.v) + suffix; },
           scrollTrigger: { trigger: el, start: "top 94%", once: true } });
+      });
+
+      /* Showcase (SHOWCASE): its first sight pulls each card's accent cover
+         off towards its slanted edge, the middle card first, then the
+         title rises in and the controls follow. Reverting the context puts
+         everything back, so each visit replays it. */
+      $$("[data-showcase]", scope).forEach(root => {
+        const n = $$(".sc-slide", root).length, at = wrap(SC.get(root).at, n);
+        const wipes = $$(".sc-wipe", root).map((el, i) => [el, Math.min(wrap(i - at, n), wrap(at - i, n))])
+          .sort((a, b) => a[1] - b[1]).map(x => x[0]);
+        const words = $$(".sc-title.is-active .w > span", root), line = $(".sc-line.is-active", root), ctrls = $(".sc-controls", root);
+        gsap.set(wipes, { scaleX: 1 });
+        gsap.set(words, { yPercent: 110 });
+        gsap.set(line, { yPercent: -110 });
+        gsap.set(ctrls, { opacity: 0, y: 16 });
+        gsap.timeline({ scrollTrigger: { trigger: root, start: "top 70%", once: true }, defaults: { ease: "power3.out" } })
+          .to(wipes, { scaleX: 0, duration: .9, ease: "power3.inOut", stagger: .12 })
+          .to(words, { yPercent: 0, duration: .7, stagger: .05 }, .35)
+          .to(line, { yPercent: 0, duration: .6 }, .5)
+          .to(ctrls, { opacity: 1, y: 0, duration: .6 }, .55);
       });
 
       /* Projects → "Everything else": GSAP's "stagger items in on scroll"
@@ -1542,13 +1698,7 @@
      drag — coarse pointers are excluded since there's no hover there.
      Shared by the contact page background and the Skills section.
      ================================================================= */
-  /* fullBleed: host already spans the full viewport width (.fx-bleed in
-     index.css), so listening on `page` — still only as wide as the
-     1280px .shell — would miss pointer moves out in the margins. Listen
-     on the document instead and gate bursts by the host's own vertical
-     bounds, which still track the section correctly since only its
-     width broke out of the shell, not its height. */
-  function initShapeFx(host, page, fullBleed){
+  function initShapeFx(host, page){
     if (!host || !page || !GS || reduced || coarse) return;
 
     const SHAPES = ["fx-circle", "fx-square", "fx-triangle", "fx-diamond"];
@@ -1586,12 +1736,8 @@
         .to(el, { y: "+=" + gsap.utils.random(40, 80), opacity: 0, duration: .7, ease: "power1.in" }, .15);
     }
 
-    (fullBleed ? document : page).addEventListener("pointermove", e => {
+    page.addEventListener("pointermove", e => {
       if (e.pointerType !== "mouse") return;
-      if (fullBleed){
-        const b = host.getBoundingClientRect();
-        if (e.clientY < b.top || e.clientY > b.bottom) return;
-      }
       if (isInteractive(e.target)) return;
       if (Math.hypot(e.clientX - lastX, e.clientY - lastY) < 26) return;
       lastX = e.clientX; lastY = e.clientY;
@@ -1864,8 +2010,6 @@
   startFooterBounce();
   initShapeFx($("#contact-fx"), $("#page-contact"));
   initShapeFx($("#skills-fx"), $("#skills-tinted"));
-  initShapeFx($("#work-fx"), $("#work-live"), true);
-  initShapeFx($("#proj-live-fx"), $("#proj-live"), true);
   $$(".band-fx").forEach(fx => initShapeFx(fx, fx.closest(".band")));
 
   /* Loader: lift once the page has loaded, but not before 0.7s from
