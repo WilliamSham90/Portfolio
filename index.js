@@ -1556,6 +1556,7 @@
          with the steps already open) recorded "open" as where they start:
          all three stayed open and the last one covered the others. */
       const proc = $("#process", scope);
+      let undoProcess = null;
       if (proc){
         proc.classList.add("is-pinned");
         const steps = $$(".pr-step", proc), intro = $(".pr-intro-in", proc), bars = $$(".pr-bars b", proc);
@@ -1573,9 +1574,10 @@
           gsap.set(num(s), { yPercent: 30, opacity: 0 });
           gsap.set(bars[i], { scaleX: 0 });
         });
-        /* the schedule, in timeline seconds: FILL the statement, a BEAT on it while the kicker stamps
-           in, then each step: in, its words settle (+.7), DWELL while it drifts, the next one comes in */
-        const FILL = 1, BEAT = .3, DWELL = .5, STAMP = FILL * .9, at = [];
+        /* the schedule, in timeline seconds: FILL the statement, a BEAT on it (about a screen of
+           scrolling, so the kicker can stamp in before the first panel comes), then each step: in, its
+           words settle (+.7), DWELL while it drifts, the next one comes in */
+        const FILL = 1, BEAT = 1, DWELL = .5, STAMP = FILL * .9, at = [];
         let stamp = null;
         const tl = gsap.timeline({ paused: true, defaults: { ease: "none", immediateRender: false },
           onUpdate(){
@@ -1593,7 +1595,7 @@
         tl.fromTo(words, { opacity: .18 }, { opacity: 1, duration: .1, stagger: { amount: FILL - .1 } }, 0);
         let t0 = FILL + BEAT;
         steps.forEach((s, i) => {
-          const last = i === steps.length - 1, prev = steps[i - 1];
+          const prev = steps[i - 1];
           const settle = t0 + (i ? 1 : 1.15);           // its photo has settled in
           at[i] = t0 + (i ? .6 : .8);                    // its words start to come in
           const next = at[i] + .7 + DWELL;               // the next step comes in (or, for the last, the pin ends)
@@ -1621,6 +1623,8 @@
         // pinSpacing spelled out: .page is a flex column, and for a pin in a flex parent GSAP leaves it off
         ScrollTrigger.create({ trigger: proc, animation: tl, start: "top top", end: () => "+=" + Math.round(innerHeight * tl.duration() * .95),
           pin: true, pinSpacing: true, scrub: 1, anticipatePin: 1, refreshPriority: 1 });
+        // the stamp runs outside this context: stop it when the context reverts
+        undoProcess = () => { if (stamp) stamp.kill(); };
       }
 
       $$("[data-count]", scope).forEach(el => {
@@ -1685,8 +1689,9 @@
         ScrollTrigger.create({ trigger: skills, start: "top 85%", once: true, onEnter: () => skills.classList.add("is-live") });
       }
 
-      // the Career Coaster (About only); its cleanup runs when this context reverts
-      return initCoaster(scope);
+      // the Career Coaster (About only); both cleanups run when this context reverts
+      const undoCoaster = initCoaster(scope);
+      return () => { if (undoProcess) undoProcess(); if (undoCoaster) undoCoaster(); };
     }, scope);
 
     ScrollTrigger.refresh();
