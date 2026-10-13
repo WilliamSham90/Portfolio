@@ -165,7 +165,7 @@ button{ font: inherit; color: inherit; }
 .brand:hover .brand-icon > *{ transform: rotate(-8deg) scale(1.08); }
 /* the resting mark: the favicon's pink dot */
 .brand-icon > .brand-dot{ inset: 7px; width: auto; height: auto; border-radius: 50%; background: var(--pink); }
-/* Idle: it morphs circle → square → triangle → hexagon → diamond → ✦ → circle
+/* Idle: it morphs circle → square → triangle → hexagon → diamond → circle
    through the four inks, holding each shape a beat. Every outline is the
    same 24 points, one every 15° around the centre (corners land on them),
    so each point just slides in or out along its ray. clip-path and colour
@@ -177,19 +177,17 @@ button{ font: inherit; color: inherit; }
     --triangle: polygon(50% 3%,59.9% 20.1%,65.6% 30%,69.8% 37.2%,73.4% 43.5%,77% 49.8%,81.2% 57%,86.9% 66.9%,96.8% 84%,77% 84%,65.6% 84%,57.2% 84%,50% 84%,42.8% 84%,34.4% 84%,23% 84%,3.2% 84%,13.1% 66.9%,18.8% 57%,23% 49.8%,26.6% 43.5%,30.2% 37.2%,34.4% 30%,40.1% 20.1%);
     --hexagon: polygon(50% 0%,61.6% 6.7%,71.7% 12.5%,81.7% 18.3%,93.3% 25%,93.3% 38.4%,93.3% 50%,93.3% 61.6%,93.3% 75%,81.7% 81.7%,71.7% 87.5%,61.6% 93.3%,50% 100%,38.4% 93.3%,28.3% 87.5%,18.3% 81.7%,6.7% 75%,6.7% 61.6%,6.7% 50%,6.7% 38.4%,6.7% 25%,18.3% 18.3%,28.3% 12.5%,38.4% 6.7%);
     --diamond: polygon(50% 0%,60.6% 10.6%,68.3% 18.3%,75% 25%,81.7% 31.7%,89.4% 39.4%,100% 50%,89.4% 60.6%,81.7% 68.3%,75% 75%,68.3% 81.7%,60.6% 89.4%,50% 100%,39.4% 89.4%,31.7% 81.7%,25% 75%,18.3% 68.3%,10.6% 60.6%,0% 50%,10.6% 39.4%,18.3% 31.7%,25% 25%,31.7% 18.3%,39.4% 10.6%);
-    --sparkle: polygon(50% 0%,57.3% 22.9%,60.2% 32.3%,62% 38%,67.7% 39.8%,77.1% 42.7%,100% 50%,77.1% 57.3%,67.7% 60.2%,62% 62%,60.2% 67.7%,57.3% 77.1%,50% 100%,42.7% 77.1%,39.8% 67.7%,38% 62%,32.3% 60.2%,22.9% 57.3%,0% 50%,22.9% 42.7%,32.3% 39.8%,38% 38%,39.8% 32.3%,42.7% 22.9%);
     border-radius: 0; clip-path: var(--circle);
-    animation: brand-morph 12s ease-in-out infinite;
+    animation: brand-morph 10s ease-in-out infinite;
   }
 }
-/* six 2s steps: hold 1.4s, morph .6s */
+/* five 2s steps: hold 1.4s, morph .6s */
 @keyframes brand-morph{
-  0%, 11.667%, 100%{ clip-path: var(--circle);   background: var(--pink); }
-  16.667%, 28.333% { clip-path: var(--square);   background: var(--blue); }
-  33.333%, 45%     { clip-path: var(--triangle); background: var(--yellow); }
-  50%, 61.667%     { clip-path: var(--hexagon);  background: var(--mint); }
-  66.667%, 78.333% { clip-path: var(--diamond);  background: var(--pink); }
-  83.333%, 95%     { clip-path: var(--sparkle);  background: var(--blue); }
+  0%, 14%, 100%{ clip-path: var(--circle);   background: var(--pink); }
+  20%, 34%     { clip-path: var(--square);   background: var(--blue); }
+  40%, 54%     { clip-path: var(--triangle); background: var(--yellow); }
+  60%, 74%     { clip-path: var(--hexagon);  background: var(--mint); }
+  80%, 94%     { clip-path: var(--diamond);  background: var(--pink); }
 }
 .brand-text{ white-space: nowrap; line-height: 1.25; }
 /* the rotating word (index.js, BRAND): brand pink, uppercase to match the name */
@@ -1072,7 +1070,15 @@ button{ font: inherit; color: inherit; }
    restyled every frame, on screen or not, and the park has a dozen of them */
 .coaster-world .cz-spin:not(.is-near),
 .coaster-world .cz-float:not(.is-near),
-.coaster-world .cz-end:not(.is-near){ animation-play-state: paused; }
+.coaster-world .cz-end:not(.is-near),
+.coaster-world .cz-cloud:not(.is-near){ animation-play-state: paused; }
+/* The sky (index.js, skyHTML): its own layer, since the camera moves it every frame for the parallax;
+   each cloud drifts to and fro on the wind (--dx over --t, from a random phase --d). translate, not
+   transform, so a flipped cloud (scale: -1 1) still drifts the right way. */
+.cz-sky{ left: 0; top: 0; will-change: transform; }
+/* max-width: none, or the global img cap sizes them to the sky layer, which has no width of its own */
+.cz-cloud{ position: absolute; height: auto; max-width: none; pointer-events: none; animation: cz-drift var(--t, 60s) ease-in-out var(--d, 0s) infinite alternate; }
+@keyframes cz-drift{ to{ translate: var(--dx, 140px) 0; } }
 .cz-tent{ width: 270px; height: 220px; }
 .cz-flags{ width: 320px; height: 260px; }
 

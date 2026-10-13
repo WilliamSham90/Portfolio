@@ -768,9 +768,27 @@
     return html;
   }
 
+  /* The sky: clouds along the whole ride, high up but clear of the sticky
+     header over the top of the stage (−425…−485 stays below it on screens
+     600px tall and up), behind everything else. Each drifts
+     on the wind (index.css, cz-drift: its own distance, speed and phase);
+     the layer as a whole lags the camera for parallax (initCoaster, SKY). */
+  function skyHTML(){
+    const r = (a, b) => a + Math.random() * (b - a);
+    let html = "";
+    for (let x = -TAIL + r(0, 400), i = 0; x < TRACK.end + TAIL; x += r(480, 820), i++){
+      const w = Math.round(r(110, 200)), t = Math.round(r(45, 80));
+      html += art(ART + (i % 3 ? "cloud-a.svg" : "cloud-b.svg"), "cz-cloud",
+        "left:" + Math.round(x) + "px;top:" + Math.round(r(-485, -425)) + "px;width:" + w + "px;--t:" + t + "s;--d:" + -Math.round(r(0, t)) +
+        "s;--dx:" + Math.round(r(90, 220)) + "px" + (i % 2 ? ";scale:-1 1" : ""));
+    }
+    return '<div class="cz-sky">' + html + '</div>';
+  }
+
   function coasterWorldHTML(){
     const t = TRACK;
-    return '<div class="cz-ground" style="left:' + (-TAIL - 400) + 'px;width:' + (t.end + 2 * TAIL + 800) + 'px;top:' + GROUND + 'px"></div><div class="cz-fx cz-fx--back"></div>' + parkHTML() +
+    return '<div class="cz-ground" style="left:' + (-TAIL - 400) + 'px;width:' + (t.end + 2 * TAIL + 800) + 'px;top:' + GROUND + 'px"></div>' +
+      skyHTML() + '<div class="cz-fx cz-fx--back"></div>' + parkHTML() +
       '<div class="cz-gate" style="height:' + (345 + GROUND) + 'px"><div class="cz-gate-sign"><b>' + esc(T("ride.title", "The Career Coaster")) +
         '</b><span>' + esc(T("ride.sub", "Keep your arms inside the cart · scroll to ride ↓")) + '</span></div></div>' +
       t.stops.map((x, i) => '<div class="cz-stop" style="left:' + x + 'px;--accent:' + JOBS[i].accent + '"><i class="cz-roof"></i><i class="cz-deck"></i>' +
@@ -884,8 +902,10 @@
     const root = $("#coaster", scope);
     if (!root) return;
     root.classList.add("is-ride");
-    const stage = $(".coaster-stage", root), world = $("#cz-world", root), cart = $("#cz-cart", root);
-    // the ride's drawings all at once (nine small files), so nothing pops in mid-ride; park photos stay lazy
+    const stage = $(".coaster-stage", root), world = $("#cz-world", root), cart = $("#cz-cart", root), sky = $(".cz-sky", world);
+    // the sky moves this much less than the park as the camera rides along, so the clouds read as far off
+    const SKY = .3;
+    // the ride's drawings all at once (a handful of small files), so nothing pops in mid-ride; park photos stay lazy
     $$('img[src^="' + ART + '"]', world).forEach(img => { img.loading = "eager"; });
     const boards = $$(".cz-board", root), signs = $$(".cz-sign", root);
     const segs = TRACK.segs, last = segs.length - 1;
@@ -931,6 +951,7 @@
       const z = k * (1 + state.push * .3), D = Math.max(40, ax / z - 80), back = p.cam - p.x;
       const cam = back > 0 ? p.x + D * Math.tanh(back / D) : p.cam;
       world.style.transform = "translate(" + (ax - cam * z).toFixed(1) + "px," + ay.toFixed(1) + "px) scale(" + z.toFixed(4) + ")";
+      sky.style.transform = "translateX(" + (cam * SKY).toFixed(1) + "px)";
       view.x0 = cam - ax / z; view.x1 = cam + (W - ax) / z;
       rider.x = p.x; rider.y = p.y; rider.angle = p.angle;
       let showing = -1;
@@ -1034,9 +1055,9 @@
     stage.addEventListener("click", onClick);
     const io = new IntersectionObserver(entries => { onScreen = entries[0].isIntersecting; });
     io.observe(stage);
-    // the park's wheels and balloons only turn and bob near the screen (index.css)
+    // the park's wheels, balloons and clouds only turn, bob and drift near the screen (index.css)
     const near = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("is-near", e.isIntersecting)), { rootMargin: "0px 300px" });
-    $$(".cz-spin, .cz-float, .cz-end", world).forEach(el => near.observe(el));
+    $$(".cz-spin, .cz-float, .cz-end, .cz-cloud", world).forEach(el => near.observe(el));
     // fetch and decode the sheets ahead of time, once the browser has a quiet moment
     const warm = setTimeout(() => { if (!lite) (window.requestIdleCallback || (f => f()))(() => FX_SHEETS.forEach(sheet)); }, 1200);
 
@@ -1048,7 +1069,7 @@
       clearTimeout(warm);
       $$(".cz-fx", root).forEach(l => { l.textContent = ""; });
       root.classList.remove("is-ride");
-      world.style.transform = "";
+      world.style.transform = sky.style.transform = "";
       boards.forEach(b => { b.style.clipPath = ""; b.classList.remove("is-open"); });
     };
   }
