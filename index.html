@@ -15,11 +15,27 @@
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='%23E0206A'/%3E%3C/svg%3E">
 
-<!-- fonts are self-hosted (see @font-face in index.css); preload the two
-     the first screen needs so text doesn't reflow when they arrive -->
+<!-- fonts are self-hosted (Fonts/, see @font-face in index.css); all three are on
+     every first screen (the header's name is in the mono), so preload them all
+     and text doesn't reflow when they arrive -->
 <link rel="preload" href="Fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="Fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="Fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <script>
+  /* Opened on another page (#about, #projects…): hide the home page from
+     the first layout (.boot-away, index.css), before index.js picks the
+     page, so the home page's photos aren't fetched for nothing. On the home
+     page, fetch the hero photo now: it's the LCP, but index.js inserts it. */
+  (function(){
+    var d = document.documentElement, r = location.hash.slice(1).split(/[?&\/]/)[0].toLowerCase();
+    d.classList.add("booting");   // the page stays hidden under the loader until it lifts (index.css, index.js)
+    if (["about", "projects", "play", "contact"].indexOf(r) > -1) d.classList.add("boot-away");
+    else {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "image"; l.href = "Images/Me/williampp.webp"; l.fetchPriority = "high";
+      document.head.appendChild(l);
+    }
+  })();
   /* Loader + page-wipe colour: one of the five :root[data-wipe] sets in
      index.css, never the same twice in a row (sessionStorage carries the
      last one across reloads). Inline here so the loader's first frame is
@@ -35,8 +51,6 @@
   pickWipe();
 </script>
 <link rel="stylesheet" href="index.css">
-<!-- hero photo is the LCP element but is inserted by index.js, so let the browser fetch it now -->
-<link rel="preload" as="image" href="Images/Me/williampp.jpg" fetchpriority="high">
 </head>
 <body>
 
@@ -55,10 +69,11 @@
     <!-- the pink dot is the resting mark; click: the comic icons spin
          through to Batman, then it settles back on the dot (index.js,
          BRAND). The 96px webps are all in the DOM so every swap is already
-         decoded. -->
-    <button class="brand" id="brand" type="button" aria-label="William Sham">
+         decoded. Its name is its visible text, so voice control users can
+         say what they see. -->
+    <button class="brand" id="brand" type="button">
       <span class="brand-icon" aria-hidden="true">
-        <i class="brand-dot on"></i>
+        <i class="brand-dot morph on"></i>
         <img src="Images/Navimages/exclamation.webp" alt="" width="34" height="34">
         <img src="Images/Navimages/pow.webp" alt="" width="34" height="34">
         <img src="Images/Navimages/smash.webp" alt="" width="34" height="34">
@@ -66,7 +81,7 @@
         <img src="Images/Navimages/yeah.webp" alt="" width="34" height="34">
         <img src="Images/Navimages/batman.webp" alt="" width="34" height="34">
       </span>
-      <span class="brand-text" aria-hidden="true"><span>WILLIAM&nbsp;SHAM,</span> <span class="brand-is">IS <span class="brand-mask"><span id="brand-word">A Programmer</span></span></span></span>
+      <span class="brand-text"><span>WILLIAM&nbsp;SHAM,</span> <span class="brand-is">IS <span class="brand-mask"><span id="brand-word">A Programmer</span></span></span></span>
     </button>
     <span class="bat-bubble" id="bat-bubble" role="status"></span>
     <nav class="nav" id="nav" aria-label="Primary">
@@ -114,7 +129,7 @@
           <!-- letters are split by hand (as in the loader) for the stamp-in
                and idle in index.js / index.css; screen readers get the
                plain name from .sr-only. is-idle is lifted while it lands. -->
-          <h1 class="hero-name is-idle"><span class="sr-only">William Sham</span><span class="nm" aria-hidden="true"><span class="nm-w"><span style="--i:0">W</span><span style="--i:1">i</span><span style="--i:2">l</span><span style="--i:3">l</span><span style="--i:4">i</span><span style="--i:5">a</span><span style="--i:6">m</span></span> <span class="nm-w"><span style="--i:8">S</span><span style="--i:9">h</span><span style="--i:10">a</span><span style="--i:11">m</span></span></span></h1>
+          <h1 class="hero-name stamp is-idle"><span class="sr-only">William Sham</span><span class="nm" aria-hidden="true"><span class="nm-w"><span style="--i:0">W</span><span style="--i:1">i</span><span style="--i:2">l</span><span style="--i:3">l</span><span style="--i:4">i</span><span style="--i:5">a</span><span style="--i:6">m</span></span> <span class="nm-w"><span style="--i:8">S</span><span style="--i:9">h</span><span style="--i:10">a</span><span style="--i:11">m</span></span></span></h1>
           <p class="hero-sub" data-split data-i18n="hero.sub">Full-stack developer. I make the internet look good.</p>
           <p class="hero-sub hero-punch" data-split data-i18n="hero.sub2">You're welcome.</p>
           <div class="hero-cta" data-anim="fade">
@@ -167,38 +182,65 @@
       <div class="sc" data-showcase></div>
     </section>
 
-    <div class="tinted">
-      <div class="shell">
-        <section class="sec">
-          <p class="statement" data-statement data-i18n="home.statement">Stuck on a broken site? From layouts that completely shatter on mobile devices to mysterious performance drops, I've seen it all. Let me untangle the code and get your platform performing exactly the way it should.</p>
-        </section>
-        <section class="sec">
-          <div class="sec-head">
-            <div>
-              <span class="label"><b>[02]</b> <span data-i18n="home.processEyebrow">How I work</span></span>
-              <h2 data-split data-i18n="home.processTitle">Boring process. Great website.</h2>
-            </div>
+    <!-- How I work: a pinned scroll story (index.js, PROCESS). The statement
+         fills in word by word in the middle of the screen, then each step
+         takes the whole screen over its photo: 01 opens out of a frame in the
+         centre, 02 and 03 wipe in from the right. Without GSAP or with
+         reduced motion it is simply the statement and three full-height
+         panels, one after the other. Photos: Images/Process/ (placeholders). -->
+    <section class="process" id="process" aria-labelledby="process-title">
+      <div class="pr-stage">
+        <div class="pr-intro">
+          <div class="shell pr-intro-in">
+            <!-- data-letters: split into letters by index.js (splitLetters) for the hop -->
+            <h2 class="pr-heading" id="process-title" data-i18n="home.processEyebrow" data-letters>How I work</h2>
+            <p class="statement pr-statement" data-i18n="home.statement">Stuck on a broken site? From layouts that completely shatter on mobile devices to mysterious performance drops, I've seen it all. Let me untangle the code and get your platform performing exactly the way it should.</p>
+            <!-- .stamp: the hero name's entrance and idle (index.js stampIn, index.css) -->
+            <p class="pr-kicker stamp is-idle" data-i18n="home.processTitle" data-letters>Boring process. Great website.</p>
           </div>
-          <div class="cols3">
-            <div class="col" style="--accent: var(--pink)" data-anim="up">
-              <span class="col-n" data-i18n="step.1n">01 / SCOPE</span>
-              <h3 data-i18n="step.1t">Understand before building</h3>
-              <p data-i18n="step.1p">Questions first, then a clickable sketch and a written scope. You approve the shape of the thing before anyone writes a migration.</p>
-            </div>
-            <div class="col" style="--accent: var(--mint)" data-anim="up">
-              <span class="col-n" data-i18n="step.2n">02 / BUILD</span>
-              <h3 data-i18n="step.2t">Ship in slices</h3>
-              <p data-i18n="step.2p">Two-week slices, each one deployable. You get a staging link early and never wonder what I've been doing.</p>
-            </div>
-            <div class="col" style="--accent: var(--blue)" data-anim="up">
-              <span class="col-n" data-i18n="step.3n">03 / HAND OVER</span>
-              <h3 data-i18n="step.3t">Leave it runnable</h3>
-              <p data-i18n="step.3p">Tests, a README that works on a fresh laptop, CI that deploys on merge, and a walkthrough for whoever inherits it.</p>
-            </div>
+        </div>
+        <article class="pr-step" style="--accent: var(--pink)">
+          <!-- phones get a portrait crop (-m); elsewhere the photo covers the screen, so on a screen
+               taller than 3:2 it's as wide as 150vh, not 100vw (sizes) -->
+          <picture>
+            <source media="(max-width: 760px)" srcset="Images/Process/scope-m.webp">
+            <img class="pr-bg" src="Images/Process/scope.webp" srcset="Images/Process/scope-960.webp 960w, Images/Process/scope.webp 1920w" sizes="(max-aspect-ratio: 3/2) 150vh, 100vw" alt="" loading="lazy" decoding="async">
+          </picture>
+          <span class="pr-num" aria-hidden="true">01</span>
+          <div class="shell pr-copy">
+            <span class="pr-n"><i class="morph" aria-hidden="true"></i><span data-i18n="step.1n">01 / SCOPE</span></span>
+            <h3 class="pr-title" data-i18n="step.1t" data-letters>Understand before building</h3>
+            <p data-i18n="step.1p">Questions first, then a clickable sketch and a written scope. You approve the shape of the thing before anyone writes a migration.</p>
           </div>
-        </section>
+        </article>
+        <article class="pr-step" style="--accent: var(--mint)">
+          <picture>
+            <source media="(max-width: 760px)" srcset="Images/Process/build-m.webp">
+            <img class="pr-bg" src="Images/Process/build.webp" srcset="Images/Process/build-960.webp 960w, Images/Process/build.webp 1920w" sizes="(max-aspect-ratio: 3/2) 150vh, 100vw" alt="" loading="lazy" decoding="async">
+          </picture>
+          <span class="pr-num" aria-hidden="true">02</span>
+          <div class="shell pr-copy">
+            <span class="pr-n"><i class="morph" aria-hidden="true"></i><span data-i18n="step.2n">02 / BUILD</span></span>
+            <h3 class="pr-title" data-i18n="step.2t" data-letters>Ship in slices</h3>
+            <p data-i18n="step.2p">Two-week slices, each one deployable. You get a staging link early and never wonder what I've been doing.</p>
+          </div>
+        </article>
+        <article class="pr-step" style="--accent: var(--blue)">
+          <picture>
+            <source media="(max-width: 760px)" srcset="Images/Process/handover-m.webp">
+            <img class="pr-bg" src="Images/Process/handover.webp" srcset="Images/Process/handover-960.webp 960w, Images/Process/handover.webp 1920w" sizes="(max-aspect-ratio: 3/2) 150vh, 100vw" alt="" loading="lazy" decoding="async">
+          </picture>
+          <span class="pr-num" aria-hidden="true">03</span>
+          <div class="shell pr-copy">
+            <span class="pr-n"><i class="morph" aria-hidden="true"></i><span data-i18n="step.3n">03 / HAND OVER</span></span>
+            <h3 class="pr-title" data-i18n="step.3t" data-letters>Leave it runnable</h3>
+            <p data-i18n="step.3p">Tests, a README that works on a fresh laptop, CI that deploys on merge, and a walkthrough for whoever inherits it.</p>
+          </div>
+        </article>
+        <!-- how far through the three steps you are (only while pinned) -->
+        <div class="pr-bars" aria-hidden="true"><i><b></b></i><i><b></b></i><i><b></b></i></div>
       </div>
-    </div>
+    </section>
 
     <div class="shell block">
       <section class="sec">
@@ -261,15 +303,15 @@
           <div class="stack-wrap" data-anim="up">
             <div class="stack" id="stack">
               <figure class="snap" data-pos="0" style="--accent: var(--pink); --accent-2: var(--yellow)">
-                <div class="ph"><img src="Images/Me/williampp.jpg" alt="William Sham" loading="lazy" decoding="async" onerror="this.remove()"></div>
+                <div class="ph"><img src="Images/Me/williampp.webp" alt="William Sham" loading="lazy" decoding="async" onerror="this.remove()"></div>
                 <figcaption data-i18n="about.snap1">Hi, that's me, all dressed up</figcaption>
               </figure>
               <figure class="snap" data-pos="1" style="--accent: var(--blue); --accent-2: var(--yellow)">
-                <div class="ph"><img src="Images/Me/about-us-2.jpeg" alt="William Sham on a Ferris wheel at a fair" loading="lazy" decoding="async" onerror="this.remove()"></div>
+                <div class="ph"><img src="Images/Me/about-us-2.webp" alt="William Sham on a Ferris wheel at a fair" loading="lazy" decoding="async" onerror="this.remove()"></div>
                 <figcaption data-i18n="about.snap2">Best seat at the fair</figcaption>
               </figure>
               <figure class="snap" data-pos="2" style="--accent: var(--mint); --accent-2: var(--pink)">
-                <div class="ph"><img src="Images/Me/about-us-3.jpeg" alt="William Sham outdoors in a garden" loading="lazy" decoding="async" onerror="this.remove()"></div>
+                <div class="ph"><img src="Images/Me/about-us-3.webp" alt="William Sham outdoors in a garden" loading="lazy" decoding="async" onerror="this.remove()"></div>
                 <figcaption data-i18n="about.snap3">Fresh air, no screens</figcaption>
               </figure>
             </div>
@@ -476,13 +518,13 @@
 
           <div>
             <span class="label" data-i18n="contact.direct">Direct lines</span>
-            <div class="lines" style="margin-top:14px">
+            <dl class="lines" style="margin-top:14px; margin-bottom:0">
               <div class="line"><dt data-i18n="contact.email">Email</dt><dd><a href="mailto:williamsham90@gmail.com">williamsham90@gmail.com</a></dd></div>
               <div class="line"><dt data-i18n="contact.loc">Location</dt><dd data-i18n="contact.locVal">Krugersdorp, Gauteng, South Africa</dd></div>
               <div class="line"><dt>GitHub</dt><dd><a href="https://github.com/WilliamSham90" target="_blank" rel="noopener">github.com/WilliamSham90</a></dd></div>
               <div class="line"><dt>CodePen</dt><dd><a href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener">codepen.io/WilliamSham90</a></dd></div>
               <div class="line"><dt data-i18n="contact.tz">Time zone</dt><dd>SAST · UTC+2</dd></div>
-            </div>
+            </dl>
 
             <span class="label" style="display:block; margin-top:40px" data-i18n="contact.faq">Before you write</span>
             <div style="margin-top:8px">

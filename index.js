@@ -199,8 +199,9 @@
         '<path d="M178 244 q22 18 46 0" stroke="#13111A" stroke-width="6" fill="none" stroke-linecap="round"/>' +
         '<path d="M200 350 l0 150" stroke="var(--card)" stroke-width="3" opacity=".5"/></g>' +
       '<rect width="400" height="500" fill="url(#pDots)"/></svg>' +
-      '<img class="photo" src="' + IMG_BASE + 'Me/williampp.jpg" alt="William Sham" ' +
-      'fetchpriority="high" onerror="this.remove()">';
+      // the LCP on the home page; opened on another page (.boot-away) it waits until the home page is shown
+      '<img class="photo" src="' + IMG_BASE + 'Me/williampp.webp" alt="William Sham" ' +
+      (document.documentElement.classList.contains("boot-away") ? 'loading="lazy" ' : 'fetchpriority="high" ') + 'onerror="this.remove()">';
   }
 
   const portrait = $("#portrait");
@@ -334,8 +335,9 @@
             (coarse ? T("live.hintTouch", "It's live · tap, drag & explore")
                     : T("live.hint", "It's live · click, drag & explore")) +
           '</span></button>' +
+          // no sandbox: the embed is this site's own origin (github.io), where allow-scripts +
+          // allow-same-origin isolates nothing and only earns a console warning per load
           '<iframe data-src="' + esc(src) + '" title="' + esc(label) + ' — live preview" ' +
-            'sandbox="allow-scripts allow-same-origin allow-popups allow-forms" ' +
             'referrerpolicy="no-referrer-when-downgrade"></iframe>' +
         '</div>' +
       '</div>' +
@@ -358,6 +360,7 @@
   }
 
   function initEmbeds(){
+    if (booting) return;   // live previews wait for the loader to lift (it starts them), not compete with the first screen
     $$(".embed-host[data-embed]").forEach(buildEmbed);
   }
   /* Clicking into an iframe moves focus out of this window. That blur is
@@ -402,11 +405,6 @@
     ["Pinaroch","lara","Projects/pinaroch.webp","https://pinaroch.co.za/",["Laravel","PHP","Middleware"],"Construction company website","Webwerf vir 'n konstruksiemaatskappy"],
     ["MyBuildings Africa","lara","Projects/mybuildings-africa.webp","https://mybuildingsafrica.com/",["Laravel","CMS"],"Property management platform","Eiendomsbestuursplatform"],
     ["myBuildings EMEA","lara","Projects/mybuildings-emea.webp","https://mybuildingsemea.com/",["Laravel","CMS"],"Property management platform for EMEA","Eiendomsbestuursplatform vir EMEA"],
-    ["Goscor Group","corp","Projects/goscor-group.webp","https://goscor.co.za/",["WordPress","Multi-site"],"Industrial equipment group website","Webwerf vir 'n groep in industriële toerusting"],
-    ["Goscor Earth Moving","corp","Projects/goscor-earth-moving.webp","https://www.goscorearthmoving.co.za/",["WordPress","PHP"],"Earth-moving equipment website","Webwerf vir grondverskuiwingstoerusting"],
-    ["Goscor Lift Trucks","corp","Projects/goscor-lift-trucks.webp","https://goscorlifttrucks.co.za/",["WordPress","PHP"],"Forklift solutions website","Webwerf vir vurkhyseroplossings"],
-    ["Goscor Compressed Air","corp","Projects/goscor-compressed-air.webp","https://www.goscorcompressedair.co.za/",["WordPress","PHP"],"Compressed air solutions website","Webwerf vir perslugoplossings"],
-    ["Goscor Cleaning","corp","Projects/goscor-cleaning.webp","https://goscorcleaning.co.za/",["WordPress","PHP"],"Industrial cleaning equipment website","Webwerf vir industriële skoonmaaktoerusting"],
     ["CTU Training","corp","Projects/ctu-training.webp","https://ctutraining.ac.za/",["WordPress","Education"],"IT training institution website","Webwerf vir 'n IT-opleidingsinstelling"],
     ["HEX","corp","Projects/hex.webp","https://hexintegratedsolutions.com/",["WordPress","PHP"],"Integrated solutions company website","Webwerf vir 'n maatskappy in geïntegreerde oplossings"],
     ["Real Box","corp","Projects/real-box.webp","https://realbox.co.za/",["WordPress","PHP"],"Container solutions website","Webwerf vir houeroplossings"],
@@ -418,6 +416,12 @@
     ["CA's Meanwell","shop","Projects/ca-meanwell.webp","https://meanwell.co.za/",["WordPress","E-commerce"],"Online store for power supplies","Aanlyn winkel vir kragbronne"],
     ["Solar-Solution","energy","Projects/solar-solution.webp","https://solar-solution.co.za/",["WordPress","Solar"],"Solar energy solutions website","Webwerf vir sonkragoplossings"],
     ["Victron Products","shop","Projects/victron-products.webp","https://victronproducts.co.za/",["WordPress","E-commerce"],"Online store for Victron energy products","Aanlyn winkel vir Victron-energieprodukte"],
+    // the Goscor group's sites together, last of the websites
+    ["Goscor Group","corp","Projects/goscor-group.webp","https://goscor.co.za/",["WordPress","Multi-site"],"Industrial equipment group website","Webwerf vir 'n groep in industriële toerusting"],
+    ["Goscor Earth Moving","corp","Projects/goscor-earth-moving.webp","https://www.goscorearthmoving.co.za/",["WordPress","PHP"],"Earth-moving equipment website","Webwerf vir grondverskuiwingstoerusting"],
+    ["Goscor Lift Trucks","corp","Projects/goscor-lift-trucks.webp","https://goscorlifttrucks.co.za/",["WordPress","PHP"],"Forklift solutions website","Webwerf vir vurkhyseroplossings"],
+    ["Goscor Compressed Air","corp","Projects/goscor-compressed-air.webp","https://www.goscorcompressedair.co.za/",["WordPress","PHP"],"Compressed air solutions website","Webwerf vir perslugoplossings"],
+    ["Goscor Cleaning","corp","Projects/goscor-cleaning.webp","https://goscorcleaning.co.za/",["WordPress","PHP"],"Industrial cleaning equipment website","Webwerf vir industriële skoonmaaktoerusting"],
     ["COD BO3 Crash Bandicoot","game","Games/crash-bandicoot.webp","https://steamcommunity.com/sharedfiles/filedetails/?id=3234555216",["Radiant","Game Dev"],"Custom zombie map on the Steam Workshop","Pasgemaakte zombiekaart op die Steam Workshop"],
     ["Forgotten Room 115","game","Games/forgotten-room-115.webp","https://steamcommunity.com/sharedfiles/filedetails/?id=3326520485",["Radiant","3D Modeling"],"Custom COD BO3 zombie map with its own mechanics","Pasgemaakte COD BO3-zombiekaart met sy eie meganika"],
     ["COD BO3 Mod Tools Super","game","Games/cod-mod-tools.webp","#",["Mods","3D Models","Scripts"],"Custom COD BO3 zombie mods, scripts and 3D models","Pasgemaakte COD BO3-zombiemods, skripte en 3D-modelle"]
@@ -425,8 +429,10 @@
 
   const PROJECTS = RAW.map((p, i) => ({ i, t:p[0], cat:p[1], img:p[2], url:p[3], tech:p[4], en:p[5], af:p[6] }));
 
+  /* The showcase's slides (SHOWCASE). A featured project is left out of
+     the "Everything else" grid, unless grid:true keeps it there too. */
   const FEATURED = [
-    { key:"Butterfly Neck Pillow", note:{ en:"My latest: a GSAP-animated WooCommerce store on WordPress", af:"My nuutste: 'n WooCommerce-winkel op WordPress, geanimeer met GSAP" } },
+    { key:"Butterfly Neck Pillow", grid:true, note:{ en:"My latest: a GSAP-animated WooCommerce store on WordPress", af:"My nuutste: 'n WooCommerce-winkel op WordPress, geanimeer met GSAP" } },
     { key:"Mega Master SA", note:{ en:"BBQ & outdoor products, built on WordPress", af:"Braai- en buiteprodukte, gebou op WordPress" } },
     { key:"3D Lazer Monkey", note:{ en:"3D printing and laser cutting, start to finish", af:"3D-druk en lasersny, van begin tot einde" } },
     { key:"Current Automation", metric:{ n:1500, unit:"+", en:"products loaded into the store", af:"produkte in die winkel gelaai" } },
@@ -531,7 +537,7 @@
     { img:"After_hours/3d-models.png", dl:"After_hours/PlayStation%202%20-%20Crash%20Twinsanity%20-%20Playable%20Characters%20-%20Crash%20Bandicoot.zip",
       en:["3D models","Blender and Maya, for maps, mods and the odd experiment."],
       af:["3D-modelle","Blender en Maya, vir kaarte, mods en af en toe 'n eksperiment."] },
-    { img:"After_hours/digital-art-niko.gif",
+    { img:"After_hours/digital-art-niko.webp",
       en:["Digital art","Textures, sketches and anything else that needs drawing."],
       af:["Digitale kuns","Teksture, sketse en enigiets anders wat geteken moet word."] },
     { img:"Games/cod-mod-tools.webp",
@@ -859,9 +865,9 @@
   // Idle: fireworks over the park and bubbles off the ground, behind the ride; now and then the riders cheer
   const FX_BACK = [["sparkle", "pink"], ["sparkle", "blue"], ["fireworks", "blue"], ["fireworks", "yellow"], ["bubbles", "blue"], ["bubbles", "green"]];
   const FX_CART = [["hearts", "red"], ["notes", "blue"]];
-  const fxURL = (name, color) => "effects/" + name + "-" + color + ".png";
+  const fxURL = (name, color) => "effects/" + name + "-" + color + ".webp";   // lossless: pixel for pixel the original PNGs
   const FX_SHEETS = Array.from(new Set(Object.keys(FX_CLICK).flatMap(c => FX_CLICK[c].map(n => fxURL(n, c)))
-    .concat(FX_BACK.concat(FX_CART).map(p => fxURL(p[0], p[1])))));   // 15 sheets, 457 KB
+    .concat(FX_BACK.concat(FX_CART).map(p => fxURL(p[0], p[1])))));   // 15 sheets, 96 KB
 
   const sheets = {};   // url → promise of the decoded sheet, shared by every sprite that uses it
   function sheet(url){
@@ -1080,15 +1086,15 @@
   /* =================================================================
      RENDERERS
      ================================================================= */
-  /* A project's screenshot. Those in Images/Projects/ come as three files:
-     name.webp (1440 × 900, the desktop view), name-720.webp (720 × 450) and
-     name-m.webp (a phone's first screen, 600 × 750). srcset + sizes let the
-     browser fetch just the size the card needs; phone (the showcase's
+  /* A project's screenshot. Those in Images/Projects/ come as four files:
+     name.webp (1440 × 900, the desktop view), name-720.webp, name-360.webp
+     and name-m.webp (a phone's first screen, 600 × 750). srcset + sizes let
+     the browser fetch just the size the card needs; phone (the showcase's
      portrait cards) swaps in the phone shot on small screens. */
   function shotHTML(imgFile, sizes, phone){
     const src = imgFile ? IMG_BASE + imgFile : "", set = /^Projects\//.test(imgFile || "");
     const img = '<img src="' + src + '"' +
-      (set ? ' srcset="' + src.replace(/\.webp$/, "-720.webp") + ' 720w, ' + src + ' 1440w" sizes="' + sizes + '"' : '') +
+      (set ? ' srcset="' + src.replace(/\.webp$/, "-360.webp") + ' 360w, ' + src.replace(/\.webp$/, "-720.webp") + ' 720w, ' + src + ' 1440w" sizes="' + sizes + '"' : '') +
       ' alt="" loading="lazy" decoding="async" onload="this.classList.add(\'ready\')" onerror="this.remove()">';
     return '<div class="shot">' +
       '<div class="art">' + loadingArt(400, 250) + '</div>' +
@@ -1123,7 +1129,7 @@
       '<div class="shot">' +
         '<div class="art">' + loadingArt(400, 250) + '</div>' +
         '<iframe data-src="' + esc(url) + '" title="' + esc(item[0]) + '" loading="lazy" ' +
-        'sandbox="allow-scripts allow-same-origin" tabindex="-1" scrolling="no"></iframe>' +
+        'tabindex="-1" scrolling="no"></iframe>' +
         '<span class="poster">' + kind + '</span>' +
       '</div>' +
       '<div class="card-body">' +
@@ -1290,6 +1296,7 @@
 
   let frameObserver = null;
   function lazyFrames(){
+    if (booting) return;   // as initEmbeds: the loader starts them as it lifts
     if (frameObserver) frameObserver.disconnect();
     /* Previews load as they near the viewport and are unloaded again once
        scrolled away. They're same-origin, so the browser doesn't throttle
@@ -1314,8 +1321,9 @@
 
   function renderAll(){
     showcaseRender();
+    $$("[data-letters]").forEach(splitLetters);
 
-    const featuredKeys = FEATURED.map(f => f.key);
+    const featuredKeys = FEATURED.filter(f => !f.grid).map(f => f.key);
     const rest = PROJECTS.filter(p => featuredKeys.indexOf(p.t) === -1);
     $("#all-cards").innerHTML = rest.map(cardHTML).join("");
     $("#proj-count").textContent = rest.length + (LANG === "af" ? " werwe" : " sites");
@@ -1429,6 +1437,39 @@
   /* =================================================================
      SPLIT TEXT
      ================================================================= */
+  /* A [data-letters] heading in letters, in the hero name's markup (.nm >
+     .nm-w words > letters with --i, a gap of one between words) for its hop,
+     underline and stamp-in (index.css). Words stay unbroken; screen readers
+     get the plain text. renderAll runs it, so it's redone after applyLang
+     rewrites the heading's text. */
+  function splitLetters(el){
+    const text = el.textContent.trim();
+    let i = 0;
+    el.innerHTML = '<span class="sr-only">' + esc(text) + '</span><span class="nm" aria-hidden="true">' +
+      text.split(/\s+/).map(w => {
+        const html = '<span class="nm-w">' + Array.from(w, c => '<span style="--i:' + i++ + '">' + esc(c) + '</span>').join("") + '</span>';
+        i++;
+        return html;
+      }).join(" ") + '</span>';
+  }
+
+  /* The hero name's entrance, for any .stamp heading: each letter is
+     stamped in big and spun, lands with a squash, and `thud` takes a shake
+     as the last one lands; then .is-idle starts its idle (index.css: the
+     hop and the underline). Returns the timeline. */
+  function stampIn(el, thud, delay){
+    const letters = $$(".nm-w > span", el), STAGGER = .05, FALL = .42;
+    el.classList.remove("is-idle");
+    return gsap.timeline({ delay: delay || 0, onComplete: () => el.classList.add("is-idle") })
+      .fromTo(letters,
+        { yPercent: -150, scale: 2.4, rotate: () => gsap.utils.random(-40, 40), opacity: 0 },
+        { yPercent: 0, scale: 1, rotate: 0, opacity: 1, duration: FALL, ease: "power3.in", stagger: STAGGER })
+      .fromTo(letters, { scaleX: 1.28, scaleY: .7 },
+        { scaleX: 1, scaleY: 1, duration: .55, ease: "elastic.out(1, .35)", stagger: STAGGER, immediateRender: false,
+          clearProps: "transform,opacity" }, FALL)
+      .add(() => { thud.animate(SHAKE, { duration: 380, easing: "ease-out" }); }, FALL + (letters.length - 1) * STAGGER);
+  }
+
   function splitWords(el){
     const raw = el.dataset.raw !== undefined ? el.dataset.raw : (el.dataset.raw = el.textContent);
     const parts = raw.split(/(\s+)/);
@@ -1448,9 +1489,15 @@
   /* =================================================================
      GSAP — one context per route
      ================================================================= */
-  let pageCtx = null;
+  /* Rebuilding the page you're on (the loader lifting, a language switch)
+     keeps your place: reverting takes the pins' scroll room away for a
+     moment, which pulls the scroll up (a refresh on About landed hundreds of
+     pixels higher), so the position is put back once the new pins are in. */
+  let pageCtx = null, pageRoute = null;
   function animatePage(route, immediate){
+    const keep = pageCtx && pageRoute === route ? scrollY : -1;
     if (pageCtx){ pageCtx.revert(); pageCtx = null; }
+    pageRoute = route;
     if (!GS || reduced) return;
     const scope = document.getElementById("page-" + route);
     if (!scope) return;
@@ -1458,23 +1505,9 @@
     pageCtx = gsap.context(() => {
       const EASE = "power3.out";
 
-      /* Hero name (index.css, .hero-name): each letter is stamped in big
-         and spun, lands with a squash, and the hero takes the thud of the
-         last one. Then .is-idle hands over to the CSS idle. */
+      // the hero name stamps in (stampIn) and the hero takes the thud
       const name = $(".hero-name", scope);
-      if (name){
-        const letters = $$(".nm-w > span", name), STAGGER = .05, FALL = .42;
-        const landed = FALL + (letters.length - 1) * STAGGER;
-        name.classList.remove("is-idle");
-        gsap.timeline({ delay: immediate ? 0 : .15, onComplete: () => name.classList.add("is-idle") })
-          .fromTo(letters,
-            { yPercent: -150, scale: 2.4, rotate: () => gsap.utils.random(-40, 40), opacity: 0 },
-            { yPercent: 0, scale: 1, rotate: 0, opacity: 1, duration: FALL, ease: "power3.in", stagger: STAGGER })
-          .fromTo(letters, { scaleX: 1.28, scaleY: .7 },
-            { scaleX: 1, scaleY: 1, duration: .55, ease: "elastic.out(1, .35)", stagger: STAGGER, immediateRender: false,
-              clearProps: "transform,opacity" }, FALL)
-          .add(() => { $(".hero", scope).animate(SHAKE, { duration: 380, easing: "ease-out" }); }, landed);
-      }
+      if (name) stampIn(name, $(".hero", scope), immediate ? 0 : .15);
 
       $$("[data-split]", scope).forEach((el, idx) => {
         const spans = splitWords(el);
@@ -1505,12 +1538,90 @@
           scrollTrigger: { trigger: el, start: "top 92%", once: true } });
       });
 
-      $$("[data-statement]", scope).forEach(el => {
-        const spans = splitWords(el);
-        gsap.set(spans, { opacity: .22 });
-        gsap.to(spans, { opacity: 1, ease: "none", stagger: 1,
-          scrollTrigger: { trigger: el, start: "top 78%", end: "bottom 58%", scrub: true } });
-      });
+      /* How I work (index.html #process): a pinned scroll story, scrubbed
+         (scrub: 1 eases it after the scroll, so it glides rather than jerks).
+         The statement fills in word by word in the middle of the screen and
+         the kicker stamps in under it. Step 01 opens out of a frame in the
+         centre to the full screen while its photo settles; 02 and 03 wipe in
+         from the right as the one before drifts left. As each step opens its
+         words rise in, its number comes up, its bar fills and its title
+         starts to hop (.is-on). It never stands still: while a step is up its
+         photo slowly zooms and pans and its words ease upward, and the next
+         step comes in as soon as they've settled. About seven screens of
+         scrolling. refreshPriority: it pins, so it's measured before the
+         triggers further down the page.
+         Every tween is a fromTo (immediateRender off: gsap.set gives the
+         starting state), so where it starts is fixed in code. A plain to()
+         reads its start off the page, and a refresh mid-section (re-measured
+         with the steps already open) recorded "open" as where they start:
+         all three stayed open and the last one covered the others. */
+      const proc = $("#process", scope);
+      if (proc){
+        proc.classList.add("is-pinned");
+        const steps = $$(".pr-step", proc), intro = $(".pr-intro-in", proc), bars = $$(".pr-bars b", proc);
+        const words = splitWords($(".pr-statement", proc)), kicker = $(".pr-kicker", proc), kLetters = $$(".nm-w > span", kicker);
+        const copy = s => $$(".pr-copy > *", s), bg = s => $(".pr-bg", s), num = s => $(".pr-num", s);
+        gsap.set(words, { opacity: .18 });
+        // the kicker waits, hidden, to be stamped in (stampIn) once the statement has filled
+        kicker.classList.remove("is-idle");
+        gsap.set(kLetters, { opacity: 0 });
+        // each step's clip: index.css builds it from these (centre frame for 01, a wipe from the right for 02 and 03)
+        steps.forEach((s, i) => {
+          gsap.set(s, i ? { "--cy": "0%", "--cx": "0%", "--cw": "100%", "--cr": "0px" } : { "--cy": "50%", "--cx": "50%", "--cw": "0%", "--cr": "24px" });
+          gsap.set(bg(s), { scale: i ? 1.12 : 1.3, xPercent: i ? 12 : 0 });
+          gsap.set(copy(s), { x: 0, y: 30, opacity: 0 });   // rising from 30px: from further, a phone's low text would brush the back-to-top button
+          gsap.set(num(s), { yPercent: 30, opacity: 0 });
+          gsap.set(bars[i], { scaleX: 0 });
+        });
+        /* the schedule, in timeline seconds: FILL the statement, a BEAT on it while the kicker stamps
+           in, then each step: in, its words settle (+.7), DWELL while it drifts, the next one comes in */
+        const FILL = 1, BEAT = .3, DWELL = .5, STAMP = FILL * .9, at = [];
+        let stamp = null;
+        const tl = gsap.timeline({ paused: true, defaults: { ease: "none", immediateRender: false },
+          onUpdate(){
+            const t = this.time();
+            steps.forEach((s, i) => s.classList.toggle("is-on", t >= at[i] && !(t >= at[i + 1])));
+            // played (in real time, not scrubbed) as the scroll passes STAMP; scrolling back above it resets it to replay
+            if (t >= STAMP && !stamp) stamp = stampIn(kicker, $(".pr-intro", proc));
+            else if (t < STAMP && stamp){
+              stamp.kill(); stamp = null;
+              kicker.classList.remove("is-idle");
+              gsap.set(kLetters, { clearProps: "transform" });
+              gsap.set(kLetters, { opacity: 0 });
+            }
+          } });
+        tl.fromTo(words, { opacity: .18 }, { opacity: 1, duration: .1, stagger: { amount: FILL - .1 } }, 0);
+        let t0 = FILL + BEAT;
+        steps.forEach((s, i) => {
+          const last = i === steps.length - 1, prev = steps[i - 1];
+          const settle = t0 + (i ? 1 : 1.15);           // its photo has settled in
+          at[i] = t0 + (i ? .6 : .8);                    // its words start to come in
+          const next = at[i] + .7 + DWELL;               // the next step comes in (or, for the last, the pin ends)
+          if (!i){
+            tl.fromTo(s, { "--cy": "50%", "--cx": "50%" }, { "--cy": "26%", "--cx": "24%", duration: .45, ease: "power2.out" }, t0)
+              .fromTo(s, { "--cy": "26%", "--cx": "24%", "--cr": "24px" }, { "--cy": "0%", "--cx": "0%", "--cr": "0px", duration: .7, ease: "power2.inOut" }, t0 + .45)
+              .fromTo(intro, { scale: 1, opacity: 1 }, { scale: .9, opacity: 0, duration: .8, ease: "power1.in" }, t0 + .25)
+              .fromTo(bg(s), { scale: 1.3, xPercent: 0 }, { scale: 1, xPercent: 0, duration: settle - t0, ease: "power2.out" }, t0);
+          } else {
+            tl.fromTo(s, { "--cw": "100%" }, { "--cw": "0%", duration: .9, ease: "power2.inOut" }, t0)
+              .fromTo(bg(s), { scale: 1.12, xPercent: 12 }, { scale: 1, xPercent: 0, duration: settle - t0, ease: "power2.out" }, t0)
+              // the one before slides away left under the wipe, its words going with it
+              .fromTo(bg(prev), { xPercent: -3 }, { xPercent: -13, duration: .9, ease: "power2.inOut" }, t0)
+              .fromTo(copy(prev), { x: 0, opacity: 1 }, { x: -80, opacity: 0, duration: .5, ease: "power2.in", stagger: .04 }, t0);
+          }
+          // its words, number and bar come in; then everything drifts until the next step takes over
+          tl.fromTo(copy(s), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .5, stagger: .1, ease: "power2.out" }, at[i])
+            .fromTo(num(s), { yPercent: 30, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .6, ease: "power2.out" }, at[i])
+            .fromTo(bars[i], { scaleX: 0 }, { scaleX: 1, duration: .5 }, at[i])
+            .fromTo(bg(s), { scale: 1, xPercent: 0 }, { scale: 1.06, xPercent: -3, duration: next - settle }, settle)
+            .fromTo(copy(s), { y: 0 }, { y: -24, duration: next - at[i] - .7 }, at[i] + .7)
+            .fromTo(num(s), { yPercent: 0 }, { yPercent: -10, duration: next - at[i] - .6 }, at[i] + .6);
+          t0 = next;
+        });
+        // pinSpacing spelled out: .page is a flex column, and for a pin in a flex parent GSAP leaves it off
+        ScrollTrigger.create({ trigger: proc, animation: tl, start: "top top", end: () => "+=" + Math.round(innerHeight * tl.duration() * .95),
+          pin: true, pinSpacing: true, scrub: 1, anticipatePin: 1, refreshPriority: 1 });
+      }
 
       $$("[data-count]", scope).forEach(el => {
         const end = Number(el.dataset.count), suffix = el.dataset.suffix || "";
@@ -1579,6 +1690,7 @@
     }, scope);
 
     ScrollTrigger.refresh();
+    if (keep > -1) scrollTo(0, keep);
   }
 
   let marqueeTween = null;
@@ -1955,11 +2067,20 @@
     contact:["Contact · William Sham","Kontak · William Sham"]
   };
   let current = "portfolio";
+  // until the loader lifts, routes are shown without building their animations (the lift builds them, once)
+  let booting = !!$("#loader");
+  /* A refresh keeps your place, but restored by us (the end of this file), after the page's pins
+     have made their scroll room: the browser's own restore runs before they exist and lands short. */
+  history.scrollRestoration = "manual";
+  addEventListener("pagehide", () => { try { sessionStorage.setItem("ws-scroll", location.hash + "|" + Math.round(scrollY)); } catch (e) {} });
   function setTitle(){ document.title = TITLES[current][LANG === "af" ? 1 : 0]; }
 
   function applyRoute(route){
     current = route;
     ROUTES.forEach(r => { $("#page-" + r).hidden = (r !== route); });
+    document.documentElement.classList.remove("boot-away");   // [hidden] has it from here (index.html head)
+    // the page's lead photo (its LCP) loads now rather than waiting on the lazy-load check
+    $$('.sc-slide.is-active img, .snap[data-pos="0"] img', $("#page-" + route)).forEach(img => { img.loading = "eager"; img.fetchPriority = "high"; });
     $$("[data-route]").forEach(a => {
       if (a.dataset.route === route) a.setAttribute("aria-current", "page");
       else a.removeAttribute("aria-current");
@@ -1968,7 +2089,7 @@
     if (route === "portfolio") requestAnimationFrame(sizeDoodle);
     lazyFrames();
     initEmbeds();
-    animatePage(route);
+    if (!booting) animatePage(route);   // at boot the loader builds it as it lifts (see the end of this file)
   }
   /* Page wipe (#wipe in index.css): direction follows the nav order, and
      the route swaps (and the page jumps to the top) only while the panel
@@ -1990,20 +2111,29 @@
       .set(wipe, { visibility: "hidden" });
   }
 
+  /* The route in the address bar: "#About", "#contact?x=1", an old or
+     mistyped link — anything that isn't a page is the home page, and the
+     address bar is corrected (replaceState: no new history entry, no
+     hashchange) so a refresh or a shared link lands where you are. */
+  function routeFromHash(){
+    const r = location.hash.slice(1).split(/[?&/]/)[0].toLowerCase(), route = ROUTES.indexOf(r) > -1 ? r : "portfolio";
+    if (location.hash && location.hash !== "#" + route) history.replaceState(history.state, "", location.pathname + location.search + "#" + route);
+    return route;
+  }
+
   function go(route, scroll){
-    if (ROUTES.indexOf(route) === -1) route = "portfolio";
     if (GS && !reduced && route !== current) return wipeTo(route, scroll);
     if (scroll) scrollTo({ top: 0, behavior: "auto" });
     if (document.startViewTransition && !reduced) document.startViewTransition(() => applyRoute(route));
     else applyRoute(route);
   }
-  addEventListener("hashchange", () => go((location.hash || "#portfolio").replace("#",""), true));
+  addEventListener("hashchange", () => go(routeFromHash(), true));
 
   /* =================================================================
      BOOT
      ================================================================= */
   applyLang();
-  applyRoute((location.hash || "#portfolio").replace("#",""));
+  applyRoute(routeFromHash());
   sizeDoodle();
   startMarquee();
   startProgress();
@@ -2012,21 +2142,39 @@
   initShapeFx($("#skills-fx"), $("#skills-tinted"));
   $$(".band-fx").forEach(fx => initShapeFx(fx, fx.closest(".band")));
 
-  /* Loader: lift once the page has loaded, but not before 0.7s from
+  /* Loader: lift once the fonts are in (and on the home page the hero
+     photo, its LCP) — not every last file — but not before 0.7s from
      navigation (a beat, not a flicker) and never after 2.5s (one slow
-     asset shouldn't hold the page hostage). The intro replays as it
-     lifts, so it isn't spent behind the panel. */
+     asset shouldn't hold the page hostage). The page's animations are
+     built as it lifts, once, so the intro isn't spent behind the panel;
+     then a refresh (or a return with Back) is put back where it was. */
   const loader = $("#loader");
-  if (loader){
+  if (!loader) document.documentElement.classList.remove("booting");
+  else {
     let lifted = false;
     const lift = () => {
       if (lifted) return;
       lifted = true;
+      booting = false;
+      document.documentElement.classList.remove("booting");
       loader.classList.add("out");
+      lazyFrames();
+      initEmbeds();
       animatePage(current);
+      const nav = performance.getEntriesByType("navigation")[0];
+      let saved = null;
+      try { saved = sessionStorage.getItem("ws-scroll"); sessionStorage.removeItem("ws-scroll"); } catch (e) {}
+      if (saved && nav && (nav.type === "reload" || nav.type === "back_forward")){
+        const i = saved.lastIndexOf("|");
+        if (saved.slice(0, i) === location.hash) scrollTo(0, +saved.slice(i + 1));
+      }
       setTimeout(() => loader.remove(), 900);
     };
-    addEventListener("load", () => setTimeout(lift, Math.max(0, 700 - performance.now())));
+    const hero = current === "portfolio" && $(".photo", portrait);
+    Promise.all([
+      document.fonts ? document.fonts.ready : null,
+      hero && !hero.complete ? new Promise(r => { hero.addEventListener("load", r); hero.addEventListener("error", r); }) : null
+    ]).then(() => setTimeout(lift, Math.max(0, 700 - performance.now())));
     setTimeout(lift, 2500);
   }
 

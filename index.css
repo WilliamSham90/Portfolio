@@ -26,6 +26,13 @@
 html{ -webkit-text-size-adjust: 100%; }
 img{ max-width: 100%; }
 [hidden]{ display: none !important; }
+/* opened on another page: the home page stays out of the first layout (index.html head, index.js applyRoute) */
+.boot-away #page-portfolio{ display: none; }
+/* Under the loader the page settles unseen (fonts swapping in, pins measuring): hidden, not just
+   covered, so none of it counts as layout shift. Shown as the loader lifts (index.js); boot-show
+   shows it anyway after 4s, with the loader's own bail, if index.js never runs. */
+.booting body > :not(#loader){ visibility: hidden; animation: boot-show 0s 4s forwards; }
+@keyframes boot-show{ to{ visibility: visible; } }
 /* read by screen readers, never shown */
 .sr-only{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
@@ -52,6 +59,10 @@ img{ max-width: 100%; }
   --blue:   #2B4BFF;
   --yellow: #E09200;
   --mint:   #00967F;
+  /* pink and mint deepened for small text: 4.5:1 (WCAG AA) on every background here
+     (pink with a margin, so the header word still passes mid-fade between words) */
+  --pink-ink: #B31D58;
+  --mint-ink: #057365;
 
   --on-accent: #FFFFFF;
   --invert-bg: #13111A;
@@ -108,7 +119,8 @@ button{ font: inherit; color: inherit; }
   letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint);
   display: inline-flex; align-items: center; gap: .6em;
 }
-.label b{ color: var(--accent, var(--pink)); font-weight: 500; }
+/* small text, so the accent is deepened with a little ink to read at 4.5:1 */
+.label b{ color: color-mix(in srgb, var(--accent, var(--pink)) 74%, var(--ink)); font-weight: 500; }
 
 /* ===============================================================
    VERTICAL RHYTHM
@@ -163,15 +175,17 @@ button{ font: inherit; color: inherit; }
 .brand-icon > *{ position: absolute; inset: 0; width: 100%; height: 100%; visibility: hidden; transition: transform .25s cubic-bezier(.22,1,.36,1); }
 .brand-icon > .on{ visibility: visible; }
 .brand:hover .brand-icon > *{ transform: rotate(-8deg) scale(1.08); }
-/* the resting mark: the favicon's pink dot */
-.brand-icon > .brand-dot{ inset: 7px; width: auto; height: auto; border-radius: 50%; background: var(--pink); }
-/* Idle: it morphs circle → square → triangle → hexagon → diamond → circle
+/* the resting mark: the favicon's pink dot, morphing (.morph) */
+.brand-icon > .brand-dot{ inset: 7px; width: auto; height: auto; }
+/* .morph — the nav's resting mark and the process steps' labels. A pink
+   dot that morphs circle → square → triangle → hexagon → diamond → circle
    through the four inks, holding each shape a beat. Every outline is the
    same 24 points, one every 15° around the centre (corners land on them),
    so each point just slides in or out along its ray. clip-path and colour
-   only: hover and the click spin own the transform. */
+   only: in the nav, hover and the click spin own the transform. */
+.morph{ display: inline-block; border-radius: 50%; background: var(--pink); }
 @media (prefers-reduced-motion: no-preference){
-  .brand-icon > .brand-dot{
+  .morph{
     --circle: polygon(50% 0%,62.9% 1.7%,75% 6.7%,85.4% 14.6%,93.3% 25%,98.3% 37.1%,100% 50%,98.3% 62.9%,93.3% 75%,85.4% 85.4%,75% 93.3%,62.9% 98.3%,50% 100%,37.1% 98.3%,25% 93.3%,14.6% 85.4%,6.7% 75%,1.7% 62.9%,0% 50%,1.7% 37.1%,6.7% 25%,14.6% 14.6%,25% 6.7%,37.1% 1.7%);
     --square: polygon(50% 10%,60.7% 10%,73.1% 10%,90% 10%,90% 26.9%,90% 39.3%,90% 50%,90% 60.7%,90% 73.1%,90% 90%,73.1% 90%,60.7% 90%,50% 90%,39.3% 90%,26.9% 90%,10% 90%,10% 73.1%,10% 60.7%,10% 50%,10% 39.3%,10% 26.9%,10% 10%,26.9% 10%,39.3% 10%);
     --triangle: polygon(50% 3%,59.9% 20.1%,65.6% 30%,69.8% 37.2%,73.4% 43.5%,77% 49.8%,81.2% 57%,86.9% 66.9%,96.8% 84%,77% 84%,65.6% 84%,57.2% 84%,50% 84%,42.8% 84%,34.4% 84%,23% 84%,3.2% 84%,13.1% 66.9%,18.8% 57%,23% 49.8%,26.6% 43.5%,30.2% 37.2%,34.4% 30%,40.1% 20.1%);
@@ -193,7 +207,7 @@ button{ font: inherit; color: inherit; }
 /* the rotating word (index.js, BRAND): brand pink, uppercase to match the name */
 .brand-is{ color: var(--ink-faint); }
 .brand-mask{ display: inline-block; overflow: hidden; vertical-align: bottom; padding-block: .1em; margin-block: -.1em; }
-#brand-word{ display: inline-block; color: var(--pink); text-transform: uppercase; }
+#brand-word{ display: inline-block; color: var(--pink-ink); text-transform: uppercase; }
 /* with the nav links on screen there isn't room for the longest word on
    one line, so the word list drops under the name */
 @media (max-width: 1199px){
@@ -348,9 +362,11 @@ button{ font: inherit; color: inherit; }
 
 .hero h1{ font-size: clamp(2.6rem, 1.5rem + 5.2vw, 5.6rem); margin-block: 20px 0; }
 
-/* The name: index.js (animatePage) stamps each letter in big and spun,
-   it lands with a squash and the hero takes the thud. Once it has
-   landed, .is-idle loops one 6s cycle: a bounce runs through the letters,
+/* Letter headings (.nm > .nm-w > letters with --i; the hero name's markup,
+   or index.js splitLetters for [data-letters]). .stamp ones — the hero name,
+   "Boring process. Great website." — get index.js stampIn: each letter is
+   stamped in big and spun, lands with a squash, and the block around it
+   takes the thud. Once landed, .is-idle loops one 6s cycle: a bounce runs through the letters,
    then a pink underline draws in from the left and wipes off to the right,
    then the bounce again. Both share the cycle length, so they stay in step.
    The bounce uses translate, not transform, so it never fights GSAP's
@@ -364,8 +380,8 @@ button{ font: inherit; color: inherit; }
 .nm-w{ display: inline-block; white-space: nowrap; }
 .nm-w > span{ display: inline-block; }
 @media (prefers-reduced-motion: no-preference){
-  .hero-name.is-idle .nm-w > span{ animation: nm-hop 6s ease-in-out calc(var(--i) * 60ms + .1s) infinite; }
-  .hero-name.is-idle .nm{ animation: nm-line 6s cubic-bezier(.65,0,.35,1) .1s infinite; }
+  .stamp.is-idle .nm-w > span{ animation: nm-hop 6s ease-in-out calc(var(--i) * 60ms + .1s) infinite; }
+  .stamp.is-idle .nm{ animation: nm-line 6s cubic-bezier(.65,0,.35,1) .1s infinite; }
 }
 /* hop up, land, a small rebound (the first ~.6s of the cycle per letter) */
 @keyframes nm-hop{
@@ -467,7 +483,7 @@ button{ font: inherit; color: inherit; }
 .stat:nth-child(1) b{ color: var(--pink); }
 .stat:nth-child(2) b{ color: var(--blue); }
 .stat:nth-child(3) b{ color: var(--mint); }
-.stat:nth-child(4) b{ color: var(--yellow); }
+.stat:nth-child(4) b{ color: color-mix(in srgb, var(--yellow) 83%, var(--ink)); }   /* yellow on paper is 2:1; this is 3:1, the large-text minimum */
 
 /* ===============================================================
    MARQUEE
@@ -721,13 +737,72 @@ button{ font: inherit; color: inherit; }
   font-size: clamp(1.45rem, 3.3vw, 2.6rem); line-height: 1.28;
   letter-spacing: -.025em; max-width: 24ch;
 }
-.cols3{ display: grid; grid-template-columns: repeat(3, 1fr); }
-.col{ padding: 0 30px 0 0; border-right: 1px solid var(--hair-soft); }
-.col:not(:first-child){ padding-left: 30px; }
-.col:last-child{ border-right: 0; }
-.col-n{ font-family: "JetBrains Mono", monospace; font-size: .72rem; color: var(--accent, var(--pink)); letter-spacing: .1em; }
-.col h3{ font-size: clamp(1.15rem,1.05rem + .5vw,1.4rem); margin-block: 14px 10px; }
-.col p{ color: var(--ink-soft); font-size: .92rem; }
+
+/* How I work (index.html #process, index.js PROCESS). By default: the
+   statement, then three full-height panels, each a step over its photo.
+   .is-pinned (the scroll story) stacks them all in one pinned screen and
+   index.js opens one after another as you scroll. */
+.process{ background: var(--tint); border-block: 1px solid var(--hair-soft); }
+.pr-intro{ display: grid; align-items: center; min-height: 100svh; }
+.pr-intro-in{ display: grid; justify-items: center; gap: clamp(18px, 3vh, 30px); text-align: center; padding-block: var(--v); }
+/* sizes also follow the screen's height (min(… vh)), so the whole intro fits a short laptop screen while pinned */
+.pr-heading{ font-size: clamp(2.4rem, min(1.4rem + 4.2vw, 9vh), 5.2rem); }
+.pr-statement{ font-size: clamp(1.5rem, min(1rem + 2.4vw, 5.6vh), 3.2rem); max-width: 32ch; }
+.pr-kicker{
+  font: 800 clamp(1.7rem, min(1.2rem + 2.4vw, 6vh), 3.2rem)/1.02 "Bricolage Grotesque", "Manrope", system-ui, sans-serif;
+  letter-spacing: -.03em; text-wrap: balance;
+}
+
+.pr-step{
+  position: relative; overflow: hidden; min-height: 100svh;
+  display: grid; align-items: center; color: var(--card); background: var(--ink);
+}
+.pr-bg{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* ink from the left so the words always read, plus the riso dot screen */
+.pr-step::before{
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background:
+    radial-gradient(rgba(252,251,248,.07) 1px, transparent 1.3px) 0 0 / 6px 6px,
+    linear-gradient(90deg, rgba(19,17,26,.88) 0%, rgba(19,17,26,.62) 48%, rgba(19,17,26,.18) 100%);
+}
+/* the big outlined number: whole, clear of the bottom edge (and the bars there) */
+.pr-num{
+  position: absolute; z-index: 1; right: 4vw; bottom: clamp(30px, 8vh, 80px); pointer-events: none;
+  font: 800 clamp(8rem, min(26vw, 42vh), 24rem)/.8 "Bricolage Grotesque", sans-serif; letter-spacing: -.06em;
+  color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.pr-copy{ position: relative; z-index: 2; display: grid; justify-items: start; gap: 18px; padding-block: var(--v); }
+.pr-copy > *{ max-width: 34rem; }
+.pr-n{ display: inline-flex; align-items: center; gap: .7em; font-family: "JetBrains Mono", monospace; font-size: .78rem; letter-spacing: .14em; }
+.pr-n .morph{ width: 1.1em; height: 1.1em; flex: none; }   /* the nav's morphing dot */
+.pr-title{ font-size: clamp(2.4rem, 1.4rem + 4.6vw, 5.4rem); max-width: 12ch; }
+.pr-copy p{ font-size: clamp(1.02rem, .95rem + .4vw, 1.3rem); line-height: 1.5; color: rgba(252,251,248,.86); }
+
+/* "How I work" always, each step's title once its step is showing: the hero name's hop (nm-hop) */
+@media (prefers-reduced-motion: no-preference){
+  .pr-heading .nm-w > span,
+  .process:not(.is-pinned) .pr-title .nm-w > span,
+  .pr-step.is-on .pr-title .nm-w > span{ animation: nm-hop 6s ease-in-out calc(var(--i) * 45ms + .4s) infinite; }
+}
+
+.pr-bars{ display: none; }
+/* the scroll story: one screen, pinned (index.js), everything stacked in it */
+.process.is-pinned .pr-stage{ position: relative; height: 100svh; overflow: hidden; }
+.process.is-pinned .pr-intro,
+.process.is-pinned .pr-step{ position: absolute; inset: 0; min-height: 0; }
+/* index.js tweens these numbers, never the clip-path string itself: a browser
+   shortens an inset() whose sides match (inset(50% 50% 50% 50%) reads back as
+   inset(50%)), which throws a string tween's numbers out of line */
+.process.is-pinned .pr-step{
+  will-change: clip-path;
+  clip-path: inset(var(--cy, 0%) var(--cx, 0%) var(--cy, 0%) calc(var(--cx, 0%) + var(--cw, 0%)) round var(--cr, 0px));
+}
+.process.is-pinned .pr-bg{ will-change: transform; }
+.process.is-pinned .pr-bars{
+  display: flex; gap: 8px; position: absolute; z-index: 3; left: 50%; bottom: clamp(18px, 4vh, 34px); translate: -50% 0;
+}
+.pr-bars i{ width: 46px; height: 4px; border-radius: 2px; background: rgba(252,251,248,.28); overflow: hidden; }
+.pr-bars b{ display: block; height: 100%; background: var(--card); transform: scaleX(0); transform-origin: left; }
 
 /* CTA card design, a different accent per page (set via --accent inline
    on each .band). Background is the hero's own pale-wash formula —
@@ -767,9 +842,9 @@ button{ font: inherit; color: inherit; }
   font-family: "JetBrains Mono", monospace; font-size: .76rem; line-height: 1.8;
   overflow-x: auto; white-space: pre; margin: 0; tab-size: 2;
 }
-.codeblock .k{ color: var(--pink); }
+.codeblock .k{ color: var(--pink-ink); }
 .codeblock .p{ color: var(--blue); }
-.codeblock .s{ color: var(--mint); }
+.codeblock .s{ color: var(--mint-ink); }
 
 /* Riso stand-in for a photo that hasn't been added yet: two ink
    circles overprinted (multiply) under a dot screen, in the tile's own
@@ -1375,13 +1450,21 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
   /* on phones the hero is a square-cornered band right under the header */
   .page > .hero.block:first-child{ margin-top: 0; }
   .hero{ border-radius: 0; }
+  /* the process steps: words sit low, over ink rising from the bottom */
+  .pr-step{ align-items: end; }
+  .pr-step::before{
+    background:
+      radial-gradient(rgba(252,251,248,.07) 1px, transparent 1.3px) 0 0 / 6px 6px,
+      linear-gradient(0deg, rgba(19,17,26,.92) 0%, rgba(19,17,26,.66) 55%, rgba(19,17,26,.3) 100%);
+  }
+  .pr-num{ top: 12vh; bottom: auto; }
+  /* clear of the bars and the back-to-top button below it, and an iPhone's home bar */
+  .process.is-pinned .pr-copy{ padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .process.is-pinned .pr-bars{ bottom: calc(26px + env(safe-area-inset-bottom, 0px)); }
   .stats{ grid-template-columns: repeat(2,1fr); }
   .stat{ padding: 22px 18px 22px 0; border-bottom: 1px solid var(--hair-soft); }
   .stat:nth-child(2n){ border-right: 0; }
   .stat:nth-child(n+3){ border-bottom: 0; }
-  .cols3{ grid-template-columns: 1fr; }
-  .col{ padding: 24px 0; border-right: 0; border-top: 1px solid var(--hair-soft); }
-  .col:not(:first-child){ padding-left: 0; }
   .sec-head{ grid-template-columns: 1fr; align-items: start; }
   .gallery{ grid-template-columns: 1fr; }
   .tile:nth-child(n){ grid-column: auto; }
