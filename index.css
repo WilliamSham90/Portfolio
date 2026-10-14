@@ -322,45 +322,135 @@ button{ font: inherit; color: inherit; }
 .arrow-link:hover::before{ width: 38px; }
 
 /* ===============================================================
-   HERO
+   HERO — the badge (index.html #ly-hero, index.js HERO)
+   William's ID badge hangs from a strap printed with his stack (so
+   the stack needs no marquee) on a little rope simulation: grab it and
+   throw it, scroll and it bounces, click it to turn it over to the
+   stats. The pink dot is the full stop after "Sham"; on each visit,
+   once the name has stamped in and "You're welcome." has been
+   underlined (once), it jumps off and bounces round the hero. Its
+   floor is the wave at the foot of the hero, which is the split into
+   "Selected work" and ripples where it lands. Flat colour; one soft
+   shadow, under the badge, because it's an object in the air.
    =============================================================== */
-/* Overrides .page > .block:first-child's thin clamp(18px,3vw,40px) —
-   that value assumes a transparent hero flowing under the nav, but
-   once a tint is active this is a visible card and needs the same
-   breathing room top and bottom, not a cramped top edge. */
-.page > .hero.block:first-child{ padding-top: var(--v); margin-top: var(--v); }
-.hero{
-  position: relative; border-radius: var(--r-lg);
-  background: color-mix(in srgb, var(--yellow) 16%, var(--paper));
-  transition: background-color .5s ease;
+.ly{
+  --ease: cubic-bezier(.22,1,.36,1);
+  --floor: clamp(64px, 9vh, 104px);   /* the wave at the foot of the hero */
+  position: relative; isolation: isolate; overflow: clip;
+  min-height: calc(100svh - 66px);
 }
-/* Pale washes only — light enough that every doodle ink colour and all
-   existing --ink/--ink-soft/--ink-faint text keeps its contrast. Yellow
-   is the resting default (no data-tint) — the click cycle cycles the
-   other three and back. */
-.hero[data-tint="1"]{ background: color-mix(in srgb, var(--pink) 16%, var(--paper)); }
-.hero[data-tint="2"]{ background: color-mix(in srgb, var(--blue) 16%, var(--paper)); }
-.hero[data-tint="3"]{ background: color-mix(in srgb, var(--mint) 16%, var(--paper)); }
-#doodle{
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  display: block; z-index: 0; cursor: crosshair; border: 0; border-radius: 0;
-  background: transparent; touch-action: pan-y;
+.ly-copy{
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  min-height: calc(100svh - 66px);
+  padding-block: clamp(28px, 5vh, 60px) calc(clamp(20px, 3vh, 40px) + var(--floor));
 }
-.hero-grid{
-  position: relative; z-index: 1; display: grid;
-  grid-template-columns: minmax(0,1.35fr) minmax(0,.65fr);
-  gap: clamp(28px, 5vw, 72px); align-items: end; pointer-events: none;
+/* the copy lets the pointer through to the hero (a click there adds a dot); links and buttons keep it */
+.ly-copy, .ly-copy *{ pointer-events: none; }
+.ly-copy :is(a, button){ pointer-events: auto; }
+.ly-name{ font-size: clamp(3.4rem, min(10.5vw, 17vh), 10.5rem); line-height: .9; user-select: none; }
+.ly-name .nm-w{ display: block; width: fit-content; }
+/* the full stop: the dot's home (the dot itself is drawn in the field, behind the copy) */
+.ly-stop{ display: inline-block; width: .2em; height: 0; }
+/* words the dot can hit (split by index.js) */
+.ly-w{ display: inline-block; }
+/* "You're welcome.": the name's pink underline (.nm), drawn and wiped off once, on entry */
+.ly-ul{
+  background: linear-gradient(var(--pink), var(--pink)) no-repeat;
+  background-size: 0% .07em; background-position: 0 calc(100% - .11em);
 }
-.hero-grid > *{ pointer-events: auto; }
-/* the whole copy column is drawable-through: only links and buttons keep
-   their own hit areas. (Its rows used to be hit-testable edge to edge, so
-   the empty space beside the buttons was a dead spot for drawing.) */
-.hero-grid .hero-copy, .hero-grid .hero-copy *{ pointer-events: none; }
-.hero-grid .hero-copy :is(a, button){ pointer-events: auto; }
-.hero-grid .hero-copy > h1,
-.hero-grid .hero-copy > .hero-sub{ user-select: none; }
+.ly-ul.is-drawn{ animation: ly-ul 2.3s cubic-bezier(.65,0,.35,1) forwards; }
+@keyframes ly-ul{
+  0%  { background-size: 0% .07em; background-position-x: 0; }
+  30% { background-size: 100% .07em; background-position-x: 0; }
+  68% { background-size: 100% .07em; background-position-x: 100%; }
+  100%{ background-size: 0% .07em; background-position-x: 100%; }
+}
+.ly-cta{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(24px, 3.6vh, 36px); }
+.ly-copy .socials{ margin-top: 16px; }
+.ly-hint{
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: clamp(22px, 3.4vh, 34px);
+  font-family: "JetBrains Mono", monospace; font-size: .72rem; color: var(--ink-faint);
+}
+.ly-hint .morph{ width: 12px; height: 12px; flex: none; animation: none; }   /* still: the header's mark already morphs */
+.ly-bops b{ font-weight: 500; color: var(--pink-ink); font-variant-numeric: tabular-nums; }
+.ly-bops::before{ content: "·"; margin-right: 10px; }
 
-.hero h1{ font-size: clamp(2.6rem, 1.5rem + 5.2vw, 5.6rem); margin-block: 20px 0; }
+/* the floor: the split. A wave in the header's colour, with the footer wave's hairline,
+   that "Selected work" grows out of; index.js makes it ripple */
+.ly-floor{ position: absolute; left: 0; right: 0; bottom: 0; z-index: 0; width: 100%; height: var(--floor); pointer-events: none; }
+.ly-floor path{ fill: var(--shell); stroke: var(--hair); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+/* "Selected work" carries on in the floor's colour; tucked up a pixel, so no seam shows between them */
+.ly + .showcase{ background: var(--shell); margin-top: -1px; }
+
+/* the dot. The outer moves it (index.js); the inner is the shape (the .morph shapes, one per
+   hit) and takes the squash and the pop, so the two never fight over one transform. --d is
+   set from the name's size. */
+.ly-field{ position: absolute; inset: 0; z-index: 0; pointer-events: none; --d: 28px; }
+.ly-ball{ position: absolute; left: 0; top: 0; width: var(--d); height: var(--d); margin: calc(var(--d) / -2) 0 0 calc(var(--d) / -2); will-change: transform; }
+.ly-ball b{
+  display: block; width: 100%; height: 100%;
+  background: var(--c, var(--pink)); clip-path: var(--shape);
+  transition: clip-path .3s var(--ease), background-color .3s;
+}
+.ly-bit{ position: absolute; left: 0; top: 0; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%; opacity: 0; }
+
+/* the strap and the badge */
+.ly-rig{ position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.ly-strap{ position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ly-band{ fill: none; stroke: var(--pink); stroke-width: 26; }
+.ly-print{ fill: var(--card); font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; }
+
+.ly-badge{
+  --w: clamp(244px, 19.5vw, 290px);   /* 244px: any narrower and the front can't fit the role and the status */
+  position: absolute; left: 0; top: 0; width: var(--w); aspect-ratio: .68;
+  pointer-events: auto; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+  perspective: 1100px;   /* the flip turns over in 3D */
+  container-type: inline-size;
+  will-change: transform;
+}
+.ly-badge.is-held{ cursor: grabbing; }
+/* the metal clip the strap hangs from */
+.ly-badge::before{
+  content: ""; position: absolute; left: 50%; top: -30px; width: 34px; height: 40px; margin-left: -17px; z-index: -1;
+  border-radius: 9px 9px 6px 6px; background: linear-gradient(90deg, #8E8A99, #D9D6DE 45%, #8E8A99);
+}
+.ly-flip{ position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .8s var(--ease); }
+.ly-badge.is-flipped .ly-flip{ transform: rotateY(180deg); }
+.ly-face{
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  display: flex; flex-direction: column; padding: 14px 16px 16px; border-radius: 18px; overflow: hidden;
+  background: var(--card);
+  box-shadow: 0 30px 50px -30px rgba(19,17,26,.55);   /* the badge is an object, hanging off the page */
+}
+.ly-back{ transform: rotateY(180deg); background: var(--ink); color: var(--paper); }
+/* front: the punched slot, the pass type, the photo, who, where, and a barcode */
+.ly-head{ display: flex; align-items: center; justify-content: space-between; }
+.ly-slot{ width: 46px; height: 9px; border-radius: 9px; background: var(--paper); box-shadow: inset 0 1px 2px rgba(19,17,26,.25); }
+.ly-pass{ font-family: "JetBrains Mono", monospace; font-size: .58rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--card); background: var(--pink); padding: 3px 8px; border-radius: 999px; }
+.ly-photo{ display: block; width: 100%; height: auto; aspect-ratio: 1; margin-top: 12px; border-radius: 12px; object-fit: cover; object-position: 50% 22%; background: var(--shell); pointer-events: none; }
+.ly-who{ margin-top: 12px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 1.55em; line-height: 1; letter-spacing: -.03em; }
+.ly-role{ margin-top: 6px; font-family: "JetBrains Mono", monospace; font-size: .62rem; color: var(--ink-soft); }
+.ly-foot{ margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.ly-face .status{ padding: 4px 9px; font-size: .55rem; letter-spacing: .06em; }
+.ly-bars{ width: 74px; height: 24px; flex: none; color: var(--ink); }
+/* a narrow badge (phones, tablets): a shorter crop, so the role and the status still fit on the front */
+@container (max-width: 262px){ .ly-photo{ aspect-ratio: 4 / 3.3; } }
+/* back: the stats */
+.ly-stats{ list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+.ly-stats b{ display: block; font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 2.5em; line-height: .9; letter-spacing: -.04em; }
+.ly-stats li:nth-child(1) b{ color: var(--pink); }
+.ly-stats li:nth-child(2) b{ color: #6F86FF; }      /* the site's blue, lifted to read on ink */
+.ly-stats li:nth-child(3) b{ color: #2FC7AE; }      /* mint, lifted */
+.ly-stats li:nth-child(4) b{ color: #F5B800; }
+.ly-stats span{ display: block; margin-top: 6px; font-size: .68rem; line-height: 1.3; color: rgba(245,243,238,.72); }
+.ly-back .ly-head{ color: rgba(245,243,238,.6); font-family: "JetBrains Mono", monospace; font-size: .58rem; letter-spacing: .14em; text-transform: uppercase; }
+.ly-note{ margin-top: auto; font-family: "JetBrains Mono", monospace; font-size: .58rem; color: rgba(245,243,238,.55); }
+/* the keyboard (and screen reader) way to turn it over */
+.ly-turn{ position: absolute; right: -6px; bottom: -14px; z-index: 2; height: 30px; padding-inline: 11px; font-size: .64rem; transform: translateZ(1px); }
+/* until index.js has hung it on its strap (or if it never runs): the badge simply sits, no strap */
+.ly:not(.is-rigged) .ly-strap{ display: none; }
+.ly:not(.is-rigged) .ly-badge{ left: auto; right: max(var(--gut), calc((100% - 1280px) / 2 + var(--gut))); top: 14%; rotate: 2deg; }
 
 /* Letter headings (.nm > .nm-w > letters with --i; the hero name's markup,
    or index.js splitLetters for [data-letters]). .stamp ones — the hero name,
@@ -405,8 +495,6 @@ button{ font: inherit; color: inherit; }
 }
 /* the punchline: same size as the sub, but in the name's weight and ink */
 .hero-sub.hero-punch{ margin-top: 4px; font-weight: 800; letter-spacing: -.03em; color: var(--ink); }
-.hero-cta{ display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
-
 .status{
   display: inline-flex; align-items: center; gap: 9px;
   font-family: "JetBrains Mono", monospace; font-size: .74rem;
@@ -418,48 +506,6 @@ button{ font: inherit; color: inherit; }
 .dot::after{ content:""; display: block; width: 100%; height: 100%; border-radius: 50%; background: var(--mint); animation: ping 2.2s cubic-bezier(0,0,.2,1) infinite; }
 @keyframes ping{ 70%,100%{ transform: scale(2.6); opacity: 0; } }
 
-.doodle-bar{
-  position: relative; z-index: 2;
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  margin-top: 30px; padding-top: 22px; border-top: 1px dashed var(--hair);
-  font-family: "JetBrains Mono", monospace; font-size: .7rem;
-  color: var(--ink-faint); max-width: 48ch;
-}
-.doodle-bar .swatches{ display: flex; gap: 6px; }
-.doodle-bar .sw{
-  width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--hair);
-  cursor: pointer; padding: 0; transition: transform .18s;
-}
-.doodle-bar .sw[aria-pressed="true"]{ transform: scale(1.2); border-color: var(--ink); }
-
-/* profile card */
-.portrait-wrap{ perspective: 900px; }
-.portrait{
-  position: relative; aspect-ratio: 4/5; max-width: 100%;
-  border-radius: var(--r-lg); overflow: hidden;
-  border: 1px solid var(--hair); background: var(--card);
-  transform-style: preserve-3d; will-change: transform; cursor: pointer;
-  box-shadow: 0 1px 2px rgba(19,17,26,.05); transition: box-shadow .3s;
-}
-.portrait:hover{ box-shadow: 0 18px 40px -24px rgba(19,17,26,.4); }
-.portrait svg{ width: 100%; height: 100%; display: block; }
-.portrait .photo{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-.portrait-tag{
-  position: absolute; left: 14px; bottom: 14px; right: 14px;
-  background: color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter: blur(8px);
-  border: 1px solid var(--hair); border-radius: 999px; padding: 8px 14px;
-  font-family: "JetBrains Mono", monospace; font-size: .68rem;
-  display: flex; align-items: center; gap: 8px; color: var(--ink-soft);
-  transform: translateZ(28px);
-}
-.portrait-hint{
-  position: absolute; top: 12px; right: 12px;
-  font-family: "JetBrains Mono", monospace; font-size: .6rem;
-  background: var(--ink); color: var(--paper); padding: 4px 9px; border-radius: 999px;
-  opacity: 0; transition: opacity .25s; transform: translateZ(28px); pointer-events: none;
-}
-.portrait:hover .portrait-hint{ opacity: 1; }
-
 .socials{ display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
 .soc{
   height: 40px; padding-inline: 15px; border-radius: 999px;
@@ -470,31 +516,18 @@ button{ font: inherit; color: inherit; }
 }
 .soc:hover{ border-color: var(--ink); color: var(--ink); transform: translateY(-2px); }
 
-.stats{ display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid var(--hair); }
-.stat{ padding: 28px 24px 28px 0; border-right: 1px solid var(--hair-soft); }
-.stat:last-child{ border-right: 0; }
-.stat:not(:first-child){ padding-left: 24px; }
-.stat b{
-  display: block; font-family: "Bricolage Grotesque", sans-serif; font-weight: 800;
-  font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -.04em; line-height: 1;
-  font-variant-numeric: tabular-nums;
+/* phones: the badge hangs first, at the top, and the copy follows under it. --top is set by
+   index.js (the strap, the clip and the badge); the fallback here is the same sum. */
+@media (max-width: 760px){
+  .ly-badge{ --w: min(62vw, 250px); }
+  .ly-copy{ min-height: 0; padding-top: var(--top, calc(144px + min(62vw, 250px) / .68)); padding-bottom: calc(28px + var(--floor)); }
+  .ly-hint{ align-items: flex-start; }
+  .ly-hint .morph{ margin-top: 3px; }
+  .ly-hint-text{ flex: 1 1 0; min-width: 0; }
+  .ly-bops{ flex-basis: 100%; padding-left: 22px; }
+  .ly-bops::before{ content: none; }
+  .ly:not(.is-rigged) .ly-badge{ right: auto; left: 50%; top: 24px; translate: -50% 0; rotate: none; }
 }
-.stat span{ display: block; margin-top: 10px; font-size: .82rem; color: var(--ink-faint); }
-.stat:nth-child(1) b{ color: var(--pink); }
-.stat:nth-child(2) b{ color: var(--blue); }
-.stat:nth-child(3) b{ color: var(--mint); }
-.stat:nth-child(4) b{ color: color-mix(in srgb, var(--yellow) 83%, var(--ink)); }   /* yellow on paper is 2:1; this is 3:1, the large-text minimum */
-
-/* ===============================================================
-   MARQUEE
-   =============================================================== */
-.marquee{ overflow: hidden; padding-block: 20px; background: var(--shell); border-block: 1px solid var(--hair); }
-.marquee-track{ display: flex; gap: 40px; width: max-content; will-change: transform; }
-.marquee-track span{
-  font-family: "JetBrains Mono", monospace; font-size: .82rem;
-  letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; color: var(--ink-faint);
-}
-.marquee-track span::after{ content:" ·"; color: var(--pink); }
 
 /* ===============================================================
    PROJECT SCREENSHOTS
@@ -596,7 +629,6 @@ button{ font: inherit; color: inherit; }
    under it — its infinite animation otherwise keeps repainting unseen */
 .shot:has(.ready) .art,
 .embed-stage:has(> iframe.ready) .embed-fallback{ display: none; }
-.shot .art svg{ width: 100%; height: 100%; display: block; }
 .shot img, .shot iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
 .shot img{ object-fit: cover; object-position: top center; }
 .shot iframe{ opacity: 0; transition: opacity .5s; background: #fff; }
@@ -661,10 +693,17 @@ button{ font: inherit; color: inherit; }
 /* Auto-loads once scrolled near — this is just the loading placeholder
    shown until then, three evenly-spaced pulsing dots (same loadingArt()
    used for every card's own placeholder, for one consistent look). */
-.embed-fallback{ position: absolute; inset: 0; display: grid; place-items: center; padding: 28px; }
-.embed-fallback svg{ position: absolute; inset: 0; width: 100%; height: 100%; }
-/* Shared with .shot .art — loadingArt() is used for both. */
-.pulse-dot{ transform-box: fill-box; transform-origin: center; animation: dotPulse 1.4s ease-in-out infinite; }
+.embed-fallback{ position: absolute; inset: 0; }
+/* Shared with .shot .art — loadingArt() is used for both. The dots cover
+   the box as the SVG they replaced did (sized by whichever side needs the
+   bigger scale); the pulse is transform and opacity only, so the
+   compositor runs it and the page never repaints for it. */
+.loading{ position: absolute; inset: 0; container-type: size; display: flex; align-items: center; justify-content: center; background: var(--card); }
+.pulse-dot{
+  --d: max(10.6cqh, 6.625cqw);
+  flex: none; width: var(--d); height: var(--d); margin-inline: calc((max(9cqw, 14.4cqh) - var(--d)) / 2);
+  border-radius: 50%; background: var(--c); animation: dotPulse 1.4s ease-in-out infinite;
+}
 @keyframes dotPulse{ 0%, 100%{ transform: scale(.7); opacity: .45; } 50%{ transform: scale(1); opacity: 1; } }
 /* "It's live" overlay: visitors didn't realise the frame is interactive.
    Once the site has loaded, a dimmed layer with the message covers the
@@ -1437,9 +1476,6 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
 @media (max-width: 1040px){
   .nav{ display: none; }
   .burger{ display: inline-flex; }
-  .hero-grid{ grid-template-columns: 1fr; align-items: start; }
-  .portrait-wrap{ max-width: 300px; }
-  .portrait{ aspect-ratio: 1; }
   /* minmax(0,…) not 1fr: a bare 1fr won't shrink below its content, so
      the code block's long lines pushed the page sideways on small phones */
   .about-grid{ grid-template-columns: minmax(0,1fr); }
@@ -1447,9 +1483,6 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
   .band{ grid-template-columns: 1fr; }
 }
 @media (max-width: 760px){
-  /* on phones the hero is a square-cornered band right under the header */
-  .page > .hero.block:first-child{ margin-top: 0; }
-  .hero{ border-radius: 0; }
   /* the process steps: words sit low, over ink rising from the bottom */
   .pr-step{ align-items: end; }
   .pr-step::before{
@@ -1461,10 +1494,6 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
   /* clear of the bars and the back-to-top button below it, and an iPhone's home bar */
   .process.is-pinned .pr-copy{ padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
   .process.is-pinned .pr-bars{ bottom: calc(26px + env(safe-area-inset-bottom, 0px)); }
-  .stats{ grid-template-columns: repeat(2,1fr); }
-  .stat{ padding: 22px 18px 22px 0; border-bottom: 1px solid var(--hair-soft); }
-  .stat:nth-child(2n){ border-right: 0; }
-  .stat:nth-child(n+3){ border-bottom: 0; }
   .sec-head{ grid-template-columns: 1fr; align-items: start; }
   .gallery{ grid-template-columns: 1fr; }
   .tile:nth-child(n){ grid-column: auto; }
@@ -1485,7 +1514,6 @@ footer{ position: relative; background: var(--shell); padding-block: 40px; }
 @media (max-width: 560px){
   .two{ grid-template-columns: 1fr; }
   .line{ grid-template-columns: 1fr; gap: 4px; }
-  .portrait-wrap{ max-width: 100%; }
   .cards{ grid-template-columns: 1fr; }
   .device{ max-width: 270px; }
 }

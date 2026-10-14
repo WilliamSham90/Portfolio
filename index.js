@@ -50,8 +50,11 @@
     "hero.status":"Beskikbaar vir vryskutwerk",
     "hero.sub":"Full-stack developer. Ek maak die internet mooi.","hero.sub2":"Plesier",
     "hero.tag":"Senior webontwikkelaar · Krugersdorp",
-    "doodle.hint":"Klik en sleep enige plek hier om te teken","doodle.clear":"Vee uit","doodle.touch":"Tekenmodus: af",
-    "portrait.hint":"klik om die agtergrond te verander",
+    "hero.hint":"Swaai my kaartjie, klik daarop om die agterkant te sien, en slaan die kolletjie rond.",
+    "hero.hintTouch":"Swaai my kaartjie, tik daarop om die agterkant te sien, of tik enige plek vir nog 'n kolletjie.",
+    "hero.hintStill":"Klik op my kaartjie om die agterkant te sien.",
+    "hero.bop":"bons","hero.bops":"bonse",
+    "badge.pass":"Volle toegang","badge.back":"Die agterkant","badge.note":"WS-0036 · geldig oral waar daar Wi-Fi is","badge.flip":"Draai om ↻",
     "cta.work":"Eregalery","cta.touch":"Klik & Vind Uit","cta.allProjects":"Al 36 projekte",
     "cta.startChat":"GEE MY DAARDIE KOFFIE →","cta.cv":"Vra my CV aan","cta.ask":"Okay, EK sal jou vra →",
     "cta.hire":"Help My →","cta.idea":"Die Knoppie →",
@@ -137,6 +140,7 @@
     document.documentElement.lang = LANG;
     setTitle();
     renderAll();
+    HERO.text();
     /* strings inside JS-built markup are repainted by hand, because they
        are created after this pass has already walked the document */
     $$(".embed-host[data-built]").forEach(el => {
@@ -159,150 +163,18 @@
   const ACCENTS = ["var(--pink)", "var(--blue)", "var(--yellow)", "var(--mint)"];
 
 
-  /* Organised loading placeholder for the live embed — three evenly
-     spaced dots, not scattered riso shapes, so it reads as "loading"
-     rather than as another card's cover art. */
-  function loadingArt(w, h){
-    const r = h * .053, gap = w * .09, cy = h / 2, cx0 = w / 2 - gap;
-    const dots = ACCENTS.slice(0, 3).map((c, i) =>
-      '<circle class="pulse-dot" style="animation-delay:' + (i * .16) + 's" cx="' + (cx0 + i * gap).toFixed(1) +
-      '" cy="' + cy.toFixed(1) + '" r="' + r.toFixed(1) + '" fill="' + c + '"/>').join("");
-    return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Loading preview">' +
-      '<rect width="' + w + '" height="' + h + '" fill="var(--card)"/>' + dots + '</svg>';
+  /* Organised loading placeholder (every card's screenshot, the live
+     embed) — three evenly spaced dots, not scattered riso shapes, so it
+     reads as "loading" rather than as another card's cover art. HTML,
+     not SVG: a CSS animation of transform and opacity on an HTML element
+     runs on the compositor, but on SVG shapes it relayouts and repaints
+     the layer it's in every frame. Here that layer was the whole home
+     page (15.6 megapixels): measured, hundreds of invalidations a second
+     while scrolling, and frames of up to 1.5s in "How I work". */
+  function loadingArt(){
+    return '<span class="loading" role="img" aria-label="Loading preview">' + ACCENTS.slice(0, 3).map((c, i) =>
+      '<i class="pulse-dot" style="--c: ' + c + '; animation-delay: ' + (i * .16) + 's"></i>').join("") + '</span>';
   }
-
-  /* ---- interactive portrait plate ---------------------------------- */
-  const PLATES = [
-    { bg:"var(--mint)",   ghost:"var(--pink)",   body:"var(--blue)",  face:"var(--yellow)", hair:"var(--pink)" },
-    { bg:"var(--yellow)", ghost:"var(--blue)",   body:"var(--pink)",  face:"var(--mint)",   hair:"var(--blue)" },
-    { bg:"var(--blue)",   ghost:"var(--yellow)", body:"var(--mint)",  face:"var(--pink)",   hair:"var(--yellow)" },
-    { bg:"var(--pink)",   ghost:"var(--mint)",   body:"var(--yellow)",face:"var(--blue)",   hair:"var(--mint)" }
-  ];
-  let plate = 0;
-
-  function paintPortrait(){
-    const c = PLATES[plate % PLATES.length];
-    $("#portrait-art").innerHTML =
-      '<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Stylised riso-print portrait plate">' +
-      '<defs><pattern id="pDots" width="9" height="9" patternUnits="userSpaceOnUse">' +
-      '<circle cx="4.5" cy="4.5" r="1.8" fill="var(--ink)" opacity=".16"/></pattern></defs>' +
-      '<rect width="400" height="500" fill="var(--card)"/>' +
-      '<g style="mix-blend-mode: multiply"><circle cx="200" cy="236" r="210" fill="' + c.bg + '" opacity=".9"/></g>' +
-      '<g style="mix-blend-mode: multiply" transform="translate(12,10)" opacity=".75">' +
-        '<path d="M46 500 q0-116 154-140 154 24 154 140 z" fill="' + c.ghost + '"/>' +
-        '<circle cx="200" cy="210" r="82" fill="' + c.ghost + '"/></g>' +
-      '<g><path d="M46 500 q0-116 154-140 154 24 154 140 z" fill="' + c.body + '"/>' +
-        '<rect x="178" y="262" width="44" height="56" rx="18" fill="' + c.face + '"/>' +
-        '<circle cx="200" cy="210" r="82" fill="' + c.face + '"/>' +
-        '<path d="M118 210 q2-88 82-88 80 0 82 88 q-16-48-82-48-66 0-82 48z" fill="' + c.hair + '"/>' +
-        '<g id="eyes"><circle cx="175" cy="212" r="7" fill="#13111A"/><circle cx="227" cy="212" r="7" fill="#13111A"/></g>' +
-        '<path d="M178 244 q22 18 46 0" stroke="#13111A" stroke-width="6" fill="none" stroke-linecap="round"/>' +
-        '<path d="M200 350 l0 150" stroke="var(--card)" stroke-width="3" opacity=".5"/></g>' +
-      '<rect width="400" height="500" fill="url(#pDots)"/></svg>' +
-      // the LCP on the home page; opened on another page (.boot-away) it waits until the home page is shown
-      '<img class="photo" src="' + IMG_BASE + 'Me/williampp.webp" alt="William Sham" ' +
-      (document.documentElement.classList.contains("boot-away") ? 'loading="lazy" ' : 'fetchpriority="high" ') + 'onerror="this.remove()">';
-  }
-
-  const portrait = $("#portrait");
-  portrait.insertAdjacentHTML("afterbegin", '<div id="portrait-art" style="position:absolute;inset:0"></div>');
-  paintPortrait();
-
-  let tiltRaf = null;
-  function onPortraitMove(e){
-    const r = portrait.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width  - .5;
-    const py = (e.clientY - r.top)  / r.height - .5;
-    if (tiltRaf) cancelAnimationFrame(tiltRaf);
-    tiltRaf = requestAnimationFrame(() => {
-      portrait.style.transform = "rotateY(" + (px * 11).toFixed(2) + "deg) rotateX(" + (-py * 11).toFixed(2) + "deg)";
-      const eyes = $("#eyes");
-      if (eyes) eyes.setAttribute("transform", "translate(" + (px * 13).toFixed(1) + "," + (py * 9).toFixed(1) + ")");
-    });
-  }
-  function resetPortrait(){
-    portrait.style.transform = "";
-    const eyes = $("#eyes");
-    if (eyes) eyes.setAttribute("transform", "translate(0,0)");
-  }
-  if (!coarse && !reduced){
-    portrait.addEventListener("pointermove", onPortraitMove);
-    portrait.addEventListener("pointerleave", resetPortrait);
-  }
-  /* The click used to re-ink the SVG plate — dead weight now that a real
-     photo sits on top of it. Reused for a hero-background cycle instead. */
-  const hero = $(".hero");
-  const HERO_TINTS = 3;
-  let heroTint = 0;
-  portrait.addEventListener("click", () => {
-    heroTint = (heroTint + 1) % (HERO_TINTS + 1);
-    if (heroTint) hero.dataset.tint = heroTint; else delete hero.dataset.tint;
-  });
-
-  /* =================================================================
-     HERO DOODLE CANVAS
-     ================================================================= */
-  const doodle = $("#doodle"), dctx = doodle.getContext("2d");
-  const INKS = ["#E8266F", "#2B4BFF", "#E09200", "#00967F", "#13111A"];
-  let ink = INKS[0], drawing = false, last = null, touchDraw = false;
-
-  $("#swatches").innerHTML = INKS.map((c, i) =>
-    '<button class="sw" type="button" style="background:' + c + '" data-ink="' + c + '" ' +
-    'aria-pressed="' + (i === 0) + '" aria-label="Ink colour ' + (i + 1) + '"></button>').join("");
-  $("#swatches").addEventListener("click", e => {
-    const b = e.target.closest("[data-ink]");
-    if (!b) return;
-    ink = b.dataset.ink;
-    $$("#swatches .sw").forEach(s => s.setAttribute("aria-pressed", String(s === b)));
-  });
-
-  function sizeDoodle(){
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    const r = doodle.getBoundingClientRect();
-    if (!r.width) return;
-    doodle.width = r.width * dpr; doodle.height = r.height * dpr;
-    dctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    dctx.lineCap = "round"; dctx.lineJoin = "round";
-  }
-  function point(e){
-    const r = doodle.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  }
-  doodle.addEventListener("pointerdown", e => {
-    if (e.pointerType === "touch" && !touchDraw) return;
-    e.preventDefault();
-    drawing = true; last = point(e);
-    doodle.setPointerCapture(e.pointerId);
-    document.body.style.userSelect = "none";
-  });
-  doodle.addEventListener("pointermove", e => {
-    if (!drawing) return;
-    const p = point(e);
-    const d = Math.hypot(p.x - last.x, p.y - last.y);
-    dctx.strokeStyle = ink;
-    dctx.globalAlpha = .82;
-    dctx.lineWidth = Math.max(2.5, 16 - d * .5);
-    dctx.beginPath(); dctx.moveTo(last.x, last.y); dctx.lineTo(p.x, p.y); dctx.stroke();
-    last = p;
-  });
-  ["pointerup","pointercancel","pointerleave"].forEach(ev =>
-    doodle.addEventListener(ev, () => {
-      if (!drawing) return;
-      drawing = false;
-      document.body.style.userSelect = "";
-    }));
-  $("#doodle-clear").addEventListener("click", () => dctx.clearRect(0, 0, doodle.width, doodle.height));
-  if (coarse){
-    const tb = $("#doodle-touch");
-    tb.hidden = false;
-    tb.addEventListener("click", () => {
-      touchDraw = !touchDraw;
-      doodle.style.touchAction = touchDraw ? "none" : "pan-y";
-      tb.textContent = LANG === "af" ? "Tekenmodus: " + (touchDraw ? "aan" : "af")
-                                     : "Draw mode: " + (touchDraw ? "on" : "off");
-    });
-  }
-  addEventListener("resize", sizeDoodle);
 
   /* =================================================================
      LIVE EMBED
@@ -329,7 +201,7 @@
             T("live.open", "Open full size") + ' ↗</a>' +
         '</div>' +
         '<div class="embed-stage">' +
-          '<div class="embed-fallback" aria-hidden="true">' + loadingArt(1200, 760) + '</div>' +
+          '<div class="embed-fallback" aria-hidden="true">' + loadingArt() + '</div>' +
           '<button class="embed-hint" type="button"><span>' +
             '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2v18l5-5 3.5 7 3-1.4-3.4-6.9H20z"/></svg>' +
             (coarse ? T("live.hintTouch", "It's live · tap, drag & explore")
@@ -348,14 +220,30 @@
       frame.parentElement.classList.add("used");
       frame.focus();
     });
+    /* It starts once it's within a screen AND the reader has paused (no
+       scrolling for 300ms, then an idle moment): a whole site starting up
+       in a frame cost the page frames of 200ms+ (measured), a visible
+       hitch mid-scroll; while reading, nobody sees it. On GitHub Pages
+       the embed is this site's own origin, so it even shares this page's
+       main thread. Up to a screen ahead, it's usually ready on arrival. */
+    let started = false, wait = 0;
+    const start = () => {
+      if (started) return;
+      started = true;
+      removeEventListener("scroll", later);
+      revealWhenEmbedded(frame);
+      frame.src = frame.dataset.src;
+    };
+    function later(){
+      clearTimeout(wait);
+      wait = setTimeout(() => "requestIdleCallback" in window ? requestIdleCallback(start, { timeout: 1000 }) : start(), 300);
+    }
     const io = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        io.disconnect();
-        revealWhenEmbedded(frame);
-        frame.src = frame.dataset.src;
-      });
-    }, { rootMargin: "200px 0px" });
+      if (!entries.some(e => e.isIntersecting)) return;
+      io.disconnect();
+      addEventListener("scroll", later, { passive: true });
+      later();
+    }, { rootMargin: "100% 0px" });
     io.observe($(".embed-stage", el));
   }
 
@@ -549,7 +437,590 @@
     "Microsoft Azure","Azure DevOps","Git","Unreal Engine 4","Unity","Radiant","WordPress","Shopify","Wix","Webflow",
     "Perfex CRM","Umbraco","Photoshop","Figma","Blender","Maya","SEO","Search Console","Canva","Spline",
     "GSAP","Locomotive","Without Code","Contentful","Plex","Jellyfin"];
-  $("#marquee").innerHTML = STACK.concat(STACK).map(s => "<span>" + s + "</span>").join("");
+
+  /* =================================================================
+     HERO — the badge (index.html #ly-hero, index.css HERO)
+     William's ID badge hangs from a strap printed with STACK on a little
+     rope simulation: grab it and throw it, scroll and it bounces, click it
+     to turn it over to the stats. The pink dot is the full stop after
+     "Sham": on each visit (enter, from animatePage), once the name has
+     stamped in and "You're welcome." has been underlined (once), it jumps
+     off and bounces round the hero. Letters and words it hits hop, the
+     buttons are bumpers, it knocks the badge swinging (the badge, in your
+     hand, makes a fine bat), and it lands on the floor: the wave at the
+     hero's foot, the split into "Selected work", which ripples. Each hit
+     turns it into the logo's next shape and ink (.morph).
+     It all runs on GSAP's ticker, only while the hero is on screen; the
+     layout is read when the hero gets a size or a new one, never per
+     frame. Measured in Chrome (1440×900, 390×844): 60fps, as before; on a
+     phone slowed 4×, ~40–50fps (the old hero: ~48–57). A device that can't
+     keep up drops into a lighter mode by itself (tick).
+     Reduced motion, or no GSAP: the badge hangs still, the dot stays a
+     full stop and the wave stays still. Gives the rest of this file
+     enter() (animatePage), text() (applyLang) and photo (the loader).
+     ================================================================= */
+  const HERO = (function(){
+    const hero = $("#ly-hero");
+    if (!hero) return { enter(){}, text(){}, photo: null };
+    const copy = $("#ly-copy"), name = $("#ly-name"), sub = $("#ly-sub"), punch = $("#ly-punch");
+    const badge = $("#ly-badge"), turn = $("#ly-turn"), path = $("#ly-path"), tp = $("#ly-tp"), probe = $("#ly-measure");
+    const field = $("#ly-field"), floorEl = $("#ly-floor"), floorPath = $("#ly-floor-path");
+    const hint = $("#ly-hint"), bopsWrap = $("#ly-bops-wrap"), bopsEl = $("#ly-bops"), bopsWord = $("#ly-bops-word");
+    const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const motion = GS && !reduced;
+    const clamp = (a, b, v) => v < a ? a : v > b ? b : v;
+    let W = 0, H = 0, visible = false, ready = false;
+
+    /* ---- the words the dot can hit: the sub and the punchline, a span a word. Redone by
+            text() after every applyLang, which rewrites their text. ---- */
+    function words(el, underline){
+      const html = el.textContent.trim().split(/\s+/).map(w => '<span class="ly-w">' + esc(w) + "</span>").join(" ");
+      el.innerHTML = underline ? '<span class="ly-ul">' + html + "</span>" : html;
+    }
+
+    /* ---- the strap's print. Text on a path is laid out again whenever the path or the
+            offset changes (every frame), at a cost per glyph: so the strap carries only what
+            it can show, and steps along the stack an item at a time (all of it is ~900
+            glyphs, the strap shows ~50; with all of it on, it cost ~2ms a frame). ---- */
+    const ITEMS = STACK.map(s => s + "  ✦  ");
+    let itemW = ITEMS.map(s => s.length * 8.4), first = 0, strapLen = 400, offset = 0, lastO = "";
+    function measurePrint(){
+      const w = ITEMS.map(s => { probe.textContent = s; return probe.getComputedTextLength(); });
+      probe.textContent = "";
+      if (w.every(x => x > 0)) itemW = w;   // (all 0 if the font isn't drawn yet: keep the estimate)
+    }
+    function printWindow(){
+      let s = "", w = 0, i = first;
+      while (w < strapLen + itemW[first % ITEMS.length] && i < first + ITEMS.length * 2){ s += ITEMS[i % ITEMS.length]; w += itemW[i % ITEMS.length]; i++; }
+      tp.textContent = s;
+    }
+
+    /* ---- the rope: Verlet points from a fixed anchor to the badge's clip, then one heavier
+            point at the badge's centre. Each step moves every point by its own momentum plus
+            gravity, then pulls each pair back to its length a few times. The badge's angle is
+            the line from the clip to its centre, so it swings like a real one. ---- */
+    const SEG = 12, G = 1900, DT = 1 / 120, DAMP = .986, CLIP = 30;
+    const ITER = 14;   // passes: the strap stretches ~5% on a hard throw (22 passes: ~4%), for 40% less work
+    let pts = [], links = [], bw = 0, bh = 0, held = false, grab = null, t = 0, tilt = 0, ang = 0, lite = false;
+    function build(){
+      W = hero.clientWidth; H = hero.clientHeight;
+      bw = badge.offsetWidth; bh = badge.offsetHeight;
+      const narrow = W < 760;
+      const ax = narrow ? W / 2 : W * .72;
+      const rope = narrow ? 70 : Math.max(120, H * .26 - 40);
+      strapLen = rope + 60;   // a little spare, for the stretch of a swing
+      // phones: the copy starts under the badge (index.css has the same sum as a fallback)
+      if (narrow){ copy.style.setProperty("--top", (rope + CLIP + bh + 44) + "px"); H = hero.clientHeight; }
+      else copy.style.removeProperty("--top");
+      pts = []; links = [];
+      for (let i = 0; i <= SEG; i++) pts.push({ x: ax, y: -40 + rope * i / SEG, px: ax, py: -40 + rope * i / SEG, w: i ? 1 : 0 });
+      const end = pts[SEG];
+      pts.push({ x: ax, y: end.y + CLIP + bh / 2, px: ax, py: end.y + CLIP + bh / 2, w: .35 });   // the badge: heavier
+      for (let i = 0; i < SEG; i++) links.push([pts[i], pts[i + 1], rope / SEG]);
+      links.push([pts[SEG], pts[SEG + 1], CLIP + bh / 2]);
+    }
+    function step(){
+      t += DT;
+      const g = G * DT * DT, m = pts[SEG + 1];
+      for (const p of pts){
+        if (!p.w || (held && p === m)) continue;
+        const vx = (p.x - p.px) * DAMP, vy = (p.y - p.py) * DAMP;
+        p.px = p.x; p.py = p.y;
+        p.x += vx; p.y += vy + g;
+      }
+      // a little breeze, so it never hangs dead still
+      if (motion && !held && !lite) m.x += (Math.sin(t * .9) * 14 + Math.sin(t * 2.3) * 6) * DT * DT;
+      for (let k = 0; k < ITER; k++){
+        for (const [a, b, len] of links){
+          const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1e-6, diff = (d - len) / d;
+          const wa = held && a === m ? 0 : a.w, wb = held && b === m ? 0 : b.w, ws = wa + wb;
+          if (!ws) continue;
+          a.x += dx * diff * wa / ws; a.y += dy * diff * wa / ws;
+          b.x -= dx * diff * wb / ws; b.y -= dy * diff * wb / ws;
+        }
+        // a soft ceiling: however hard it is thrown, the badge never leaves the hero
+        if (!held && m.y < bh * .55){ m.y += (bh * .55 - m.y) * .5; m.py = m.y; }
+      }
+    }
+    // nothing is written unless it moved (at the precision it's written at): a badge at rest costs nothing
+    let lastD = "", lastT = "";
+    function render(){
+      let moved = false;
+      for (const p of pts) if (Math.abs(p.x - (p.rx || 0)) > .05 || Math.abs(p.y - (p.ry || 0)) > .05){ moved = true; break; }
+      if (!moved) return;
+      for (const p of pts){ p.rx = p.x; p.ry = p.y; }
+      // the strap: a smooth curve through the rope points
+      let d = "M" + pts[0].x.toFixed(1) + " " + pts[0].y.toFixed(1);
+      for (let i = 1; i < SEG; i++){
+        const a = pts[i], b = pts[i + 1];
+        d += "Q" + a.x.toFixed(1) + " " + a.y.toFixed(1) + " " + ((a.x + b.x) / 2).toFixed(1) + " " + ((a.y + b.y) / 2).toFixed(1);
+      }
+      d += "L" + pts[SEG].x.toFixed(1) + " " + pts[SEG].y.toFixed(1);
+      if (d !== lastD){ path.setAttribute("d", d); lastD = d; }
+      // the badge hangs off its clip, turned along the clip-to-centre line; a sideways swing turns it in depth too
+      const c = pts[SEG], m = pts[SEG + 1];
+      ang = Math.atan2(-(m.x - c.x), m.y - c.y);
+      tilt += (clamp(-28, 28, (m.x - m.px) * 3.2) - tilt) * .15;
+      const tf = "translate3d(" + (m.x - bw / 2).toFixed(1) + "px," + (m.y - bh / 2).toFixed(1) + "px,0) rotate(" + ang.toFixed(3) + "rad) perspective(900px) rotateY(" + (motion ? tilt : 0).toFixed(1) + "deg)";
+      if (tf !== lastT){ badge.style.transform = tf; lastT = tf; }
+    }
+
+    /* ---- the dot. Every letter and word is a box (the name's letters by their ink, measured
+            on a canvas); so are the buttons; so is the badge, a box turned by its swing and
+            moving, which the dot bounces off relative to its motion and knocks back. It
+            cruises at one speed (anything faster eases back), and off a wall it usually aims
+            at a word, so the name keeps getting hit. The cursor is a bat; a click adds a dot. ---- */
+    const SHAPES = [   // .morph's five outlines (index.css): 24 points each, so clip-path morphs between them
+      "polygon(50% 0%,62.9% 1.7%,75% 6.7%,85.4% 14.6%,93.3% 25%,98.3% 37.1%,100% 50%,98.3% 62.9%,93.3% 75%,85.4% 85.4%,75% 93.3%,62.9% 98.3%,50% 100%,37.1% 98.3%,25% 93.3%,14.6% 85.4%,6.7% 75%,1.7% 62.9%,0% 50%,1.7% 37.1%,6.7% 25%,14.6% 14.6%,25% 6.7%,37.1% 1.7%)",
+      "polygon(50% 10%,60.7% 10%,73.1% 10%,90% 10%,90% 26.9%,90% 39.3%,90% 50%,90% 60.7%,90% 73.1%,90% 90%,73.1% 90%,60.7% 90%,50% 90%,39.3% 90%,26.9% 90%,10% 90%,10% 73.1%,10% 60.7%,10% 50%,10% 39.3%,10% 26.9%,10% 10%,26.9% 10%,39.3% 10%)",
+      "polygon(50% 3%,59.9% 20.1%,65.6% 30%,69.8% 37.2%,73.4% 43.5%,77% 49.8%,81.2% 57%,86.9% 66.9%,96.8% 84%,77% 84%,65.6% 84%,57.2% 84%,50% 84%,42.8% 84%,34.4% 84%,23% 84%,3.2% 84%,13.1% 66.9%,18.8% 57%,23% 49.8%,26.6% 43.5%,30.2% 37.2%,34.4% 30%,40.1% 20.1%)",
+      "polygon(50% 0%,61.6% 6.7%,71.7% 12.5%,81.7% 18.3%,93.3% 25%,93.3% 38.4%,93.3% 50%,93.3% 61.6%,93.3% 75%,81.7% 81.7%,71.7% 87.5%,61.6% 93.3%,50% 100%,38.4% 93.3%,28.3% 87.5%,18.3% 81.7%,6.7% 75%,6.7% 61.6%,6.7% 50%,6.7% 38.4%,6.7% 25%,18.3% 18.3%,28.3% 12.5%,38.4% 6.7%)",
+      "polygon(50% 0%,60.6% 10.6%,68.3% 18.3%,75% 25%,81.7% 31.7%,89.4% 39.4%,100% 50%,89.4% 60.6%,81.7% 68.3%,75% 75%,68.3% 81.7%,60.6% 89.4%,50% 100%,39.4% 89.4%,31.7% 81.7%,25% 75%,18.3% 68.3%,10.6% 60.6%,0% 50%,10.6% 39.4%,18.3% 31.7%,25% 25%,31.7% 18.3%,39.4% 10.6%)"
+    ];
+    const INKS = ["#E0206A", "#2B4BFF", "#E09200", "#00967F"];   // pink, blue, yellow, mint (as hex: WAAPI animates them)
+    const MAX_SPEED = 1100;
+    let maxBalls = fine ? 5 : 3;   // a phone gets three at most
+    let R = 14, speed = 300, boxes = [], targets = [], stopAt = { x: 0, y: 0 }, bops = 0, live = false;
+    const balls = [], measureCtx = document.createElement("canvas").getContext("2d");
+
+    function measure(){
+      const hr = hero.getBoundingClientRect(), fs = parseFloat(getComputedStyle(name).fontSize);
+      measureCtx.font = "800 " + fs + "px 'Bricolage Grotesque'";
+      boxes = [];
+      // the name: each letter's ink, from its origin and the line's baseline
+      $$(".nm-w", name).forEach(word => {
+        let base = $(".ly-base", word);
+        if (!base){ base = document.createElement("i"); base.className = "ly-base"; base.style.cssText = "display:inline-block;width:0;height:0"; word.appendChild(base); }
+        const y = base.getBoundingClientRect().top - hr.top;
+        $$(":scope > span", word).forEach(el => {
+          const r = el.getBoundingClientRect(), mt = measureCtx.measureText(el.textContent), x = r.left - hr.left;
+          boxes.push({ el, kind: "text", base: "#13111A", x0: x - mt.actualBoundingBoxLeft, x1: x + mt.actualBoundingBoxRight, y0: y - mt.actualBoundingBoxAscent, y1: y + mt.actualBoundingBoxDescent, cool: 0 });
+        });
+      });
+      // the words under it (their line boxes, trimmed top and bottom to the letters)
+      $$(".ly-w", copy).forEach(el => {
+        const r = el.getBoundingClientRect(), trim = r.height * .14;
+        boxes.push({ el, kind: "text", base: getComputedStyle(el).color, x0: r.left - hr.left, x1: r.right - hr.left, y0: r.top - hr.top + trim, y1: r.bottom - hr.top - trim, cool: 0 });
+      });
+      // the bumpers
+      $$(".ly-cta .btn, .soc", copy).forEach(el => {
+        const r = el.getBoundingClientRect();
+        boxes.push({ el, kind: "bump", x0: r.left - hr.left, x1: r.right - hr.left, y0: r.top - hr.top, y1: r.bottom - hr.top, cool: 0 });
+      });
+      targets = boxes.filter(b => b.kind === "text");
+      // the dot is a full stop at the name's size
+      R = clamp(9, 16, fs * .095);
+      field.style.setProperty("--d", R * 2 + "px");
+      balls.forEach(b => { b.r = R; });
+      const s = $("#ly-stop").getBoundingClientRect();
+      stopAt = { x: s.left - hr.left + fs * .1, y: s.top - hr.top - R };
+      speed = clamp(240, 400, W * .26);
+    }
+
+    function shape(b, n){ b.n = n; b.face.style.setProperty("--shape", SHAPES[n % SHAPES.length]); b.face.style.setProperty("--c", INKS[n % INKS.length]); }
+    function place(b){ b.el.style.transform = "translate3d(" + b.x.toFixed(1) + "px," + b.y.toFixed(1) + "px,0)"; }
+    function trim(){
+      while (balls.length > maxBalls){ const old = balls.shift(); gsap.to(old.face, { scale: 0, duration: .25, onComplete: () => old.el.remove() }); }
+    }
+    function makeBall(x, y, vx, vy){
+      const el = document.createElement("i");
+      el.className = "ly-ball";
+      el.innerHTML = "<b></b>";
+      field.appendChild(el);
+      const b = { el, face: el.firstChild, x, y, vx, vy, r: R, n: 0, fCool: 0 };
+      shape(b, balls.length);
+      balls.push(b);
+      place(b);
+      trim();
+      return b;
+    }
+    // the dot sat on its full stop (made if it isn't there yet)
+    function park(){
+      if (!balls.length) makeBall(stopAt.x, stopAt.y, 0, 0);
+      const b = balls[0];
+      b.x = stopAt.x; b.y = stopAt.y; b.vx = b.vy = 0;
+      place(b);
+    }
+
+    // sparks where it hits: a small pool, animated with WAAPI on transform and opacity only, so the
+    // compositor runs them and the main thread pays nothing per frame (GSAP would write their styles)
+    const bits = [];
+    for (let i = 0; i < 20; i++){ const e = document.createElement("i"); e.className = "ly-bit"; field.appendChild(e); bits.push(e); }
+    let bitAt = 0;
+    function spray(x, y, c){
+      for (let i = 0; i < 4; i++){
+        const e = bits[bitAt++ % bits.length], a = Math.random() * Math.PI * 2, d = 14 + Math.random() * 22;
+        e.style.background = c;
+        e.animate([{ transform: "translate(" + x + "px," + y + "px) scale(1)", opacity: 1 },
+                   { transform: "translate(" + (x + Math.cos(a) * d) + "px," + (y + Math.sin(a) * d) + "px) scale(.3)", opacity: 0 }],
+                  { duration: 500, easing: "cubic-bezier(.22,1,.36,1)" });
+      }
+    }
+    function bopsText(){ bopsWord.textContent = bops === 1 ? T("hero.bop", "bop") : T("hero.bops", "bops"); }
+    function hit(b, box, x, y){
+      if (box.cool > 0) return;
+      box.cool = .18;
+      const c = INKS[b.n % INKS.length];
+      shape(b, b.n + 1);
+      spray(x, y, c);
+      if (box.kind === "text"){
+        box.el.animate([{ translate: "0 0", color: c }, { translate: "0 -16%", color: c, offset: .35 }, { translate: "0 0", color: box.base }], { duration: 520, easing: "cubic-bezier(.22,1,.36,1)" });
+        bopsEl.textContent = ++bops;
+        bopsText();
+      } else box.el.animate([{ rotate: "0deg" }, { rotate: "-4deg" }, { rotate: "3deg" }, { rotate: "0deg" }], { duration: 360, easing: "ease-out" });
+    }
+
+    // reflect off a face with normal (nx, ny), if it's heading into it
+    function reflect(b, nx, ny){
+      const vn = b.vx * nx + b.vy * ny;
+      if (vn >= 0) return false;
+      b.vx -= 2 * vn * nx; b.vy -= 2 * vn * ny;
+      return true;
+    }
+    // circle against a box: push it out, bounce off the face it hit
+    function againstBox(b, box){
+      if (b.x + b.r < box.x0 || b.x - b.r > box.x1 || b.y + b.r < box.y0 || b.y - b.r > box.y1) return;
+      const cx = clamp(box.x0, box.x1, b.x), cy = clamp(box.y0, box.y1, b.y);
+      let nx = b.x - cx, ny = b.y - cy;
+      const d2 = nx * nx + ny * ny;
+      if (d2 > b.r * b.r) return;
+      if (d2 > 1e-6){ const d = Math.sqrt(d2); nx /= d; ny /= d; b.x = cx + nx * b.r; b.y = cy + ny * b.r; }
+      else {   // the centre got inside: out of the nearest side
+        const s = [[b.x - box.x0, -1, 0], [box.x1 - b.x, 1, 0], [b.y - box.y0, 0, -1], [box.y1 - b.y, 0, 1]].sort((p, q) => p[0] - q[0])[0];
+        nx = s[1]; ny = s[2];
+        if (nx) b.x = (nx < 0 ? box.x0 : box.x1) + nx * b.r; else b.y = (ny < 0 ? box.y0 : box.y1) + ny * b.r;
+      }
+      if (reflect(b, nx, ny)) hit(b, box, b.x - nx * b.r, b.y - ny * b.r);
+    }
+    // circle against the badge: the same, in the badge's own turned frame, relative to its motion
+    const badgeBox = { cool: 0 };
+    function againstBadge(b){
+      const m = pts[SEG + 1], cos = Math.cos(ang), sin = Math.sin(ang);
+      const dx = b.x - m.x, dy = b.y - m.y, hx = bw / 2, hy = bh / 2;
+      if (Math.abs(dx) > hx + hy + b.r || Math.abs(dy) > hx + hy + b.r) return;   // nowhere near
+      let lx = dx * cos + dy * sin, ly = -dx * sin + dy * cos;
+      const cx = clamp(-hx, hx, lx), cy = clamp(-hy, hy, ly);
+      let nx = lx - cx, ny = ly - cy;
+      const d2 = nx * nx + ny * ny;
+      if (d2 > b.r * b.r) return;
+      if (d2 > 1e-6){ const d = Math.sqrt(d2); nx /= d; ny /= d; lx = cx + nx * b.r; ly = cy + ny * b.r; }
+      else {
+        const s = [[hx - lx, 1, 0], [lx + hx, -1, 0], [hy - ly, 0, 1], [ly + hy, 0, -1]].sort((p, q) => p[0] - q[0])[0];
+        nx = s[1]; ny = s[2];
+        if (nx) lx = nx * (hx + b.r); else ly = ny * (hy + b.r);
+      }
+      // back to the page
+      b.x = m.x + lx * cos - ly * sin; b.y = m.y + lx * sin + ly * cos;
+      const wx = nx * cos - ny * sin, wy = nx * sin + ny * cos;
+      // the badge's own speed (px/s): bounce relative to it, then knock it back
+      const bvx = (m.x - m.px) / DT, bvy = (m.y - m.py) / DT;
+      const rvx = b.vx - bvx, rvy = b.vy - bvy, vn = rvx * wx + rvy * wy;
+      if (vn >= 0) return;
+      b.vx -= 2 * vn * wx; b.vy -= 2 * vn * wy;
+      const v = Math.hypot(b.vx, b.vy);
+      if (v > MAX_SPEED){ b.vx *= MAX_SPEED / v; b.vy *= MAX_SPEED / v; }
+      // a knock for the badge, away from the dot: Verlet velocity is x - px, so moving px towards
+      // the dot (the normal points at it) speeds the badge up away from it
+      if (!held){ const k = -vn * .35 * DT; m.px += wx * k; m.py += wy * k; }
+      if (badgeBox.cool <= 0){
+        badgeBox.cool = .15; shape(b, b.n + 1); spray(b.x - wx * b.r, b.y - wy * b.r, INKS[(b.n + 3) % INKS.length]);
+        // the badge usually sends it back at the words (the right of the hero is mostly open space)
+        if (!held && Math.random() < .7) seek(b, true);
+      }
+    }
+    // off a wall, it usually goes looking for a word (now and then, the badge); `words`: a word, always
+    function seek(b, words){
+      const v = Math.hypot(b.vx, b.vy), heading = Math.atan2(b.vy, b.vx);
+      let a = heading + (Math.random() - .5) * .36;
+      const r = words ? .5 : Math.random();
+      let tx = null, ty = null;
+      if (r < .18){ tx = pts[SEG + 1].x; ty = pts[SEG + 1].y; }
+      else if (r < .82 && targets.length){ const L = targets[Math.floor(Math.random() * targets.length)]; tx = (L.x0 + L.x1) / 2; ty = (L.y0 + L.y1) / 2; }
+      if (tx !== null){
+        const to = Math.atan2(ty - b.y, tx - b.x) + (Math.random() - .5) * .3;
+        if (Math.cos(to - heading) > -.2) a = to;   // only if it doesn't mean turning back into the wall
+      }
+      b.vx = Math.cos(a) * v; b.vy = Math.sin(a) * v;
+    }
+
+    /* ---- the floor: the split into "Selected work". A row of springs, each pulled towards its
+            neighbours and back to its rest on a gentle wave, so a poke runs along it as a ripple
+            and dies away. The dot lands on it, the cursor skimming it splashes it, a fling of the
+            page jiggles it. Once it's still it sleeps: nothing computed or drawn. ---- */
+    const FK = 26, FD = 3.4;   // pull back to rest, damping (per second)
+    let F = 80, FN = 1, FS = 20, FT = 1000, fu = new Float32Array(2), fv = new Float32Array(2);
+    let fBase = 34, fAmp = 9, fLen = 600, fAwake = false, fDirty = true;
+    function initFloor(){
+      F = floorEl.clientHeight || 80;
+      FN = Math.round(clamp(24, 72, W / 22));
+      FS = W / FN;
+      FT = (720 / FS) ** 2;   // ripples run ~720px a second, whatever the width
+      fu = new Float32Array(FN + 1); fv = new Float32Array(FN + 1);
+      fBase = F * .45; fAmp = Math.min(15, F * .17); fLen = W / (W < 760 ? 1.1 : 1.8);
+      floorEl.setAttribute("viewBox", "0 0 " + W + " " + F);
+      fAwake = false; fDirty = true;
+    }
+    const restY = x => fBase + Math.sin(x / fLen * Math.PI * 2 + .8) * fAmp;
+    // the surface, in the hero's coordinates
+    function surfaceAt(x){
+      const f = clamp(0, FN, x / FS), i = Math.min(FN - 1, Math.floor(f)), k = f - i;
+      return H - F + restY(x) + fu[i] * (1 - k) + fu[i + 1] * k;
+    }
+    // a push (px/s, down is positive) spread over a few points either side of x
+    function poke(x, imp){
+      if (!motion) return;
+      const f = x / FS;
+      for (let i = Math.max(0, Math.floor(f - 4)); i <= Math.min(FN, Math.ceil(f + 4)); i++) fv[i] += imp * Math.exp(-((i - f) ** 2) / 2.9);
+      fAwake = true;
+    }
+    function floorStep(){
+      const cap = F * .4;
+      let mu = 0, mv = 0;
+      for (let i = 0; i <= FN; i++){
+        const l = fu[i ? i - 1 : 1], r = fu[i < FN ? i + 1 : FN - 1];   // free ends: mirrored neighbours
+        fv[i] += (FT * (l + r - 2 * fu[i]) - FK * fu[i] - FD * fv[i]) * DT;
+      }
+      for (let i = 0; i <= FN; i++){
+        fu[i] = clamp(-cap, cap, fu[i] + fv[i] * DT);
+        mu = Math.max(mu, Math.abs(fu[i])); mv = Math.max(mv, Math.abs(fv[i]));
+      }
+      if (mu < .03 && mv < .6){ fu.fill(0); fv.fill(0); fAwake = false; }
+      fDirty = true;
+    }
+    function drawFloor(){
+      const y = i => restY(i * FS) + fu[i];
+      let d = "M-2 " + y(0).toFixed(1);
+      for (let i = 1; i < FN; i++) d += "Q" + (i * FS).toFixed(1) + " " + y(i).toFixed(1) + " " + ((i + .5) * FS).toFixed(1) + " " + ((y(i) + y(i + 1)) / 2).toFixed(1);
+      d += "L" + (W + 2) + " " + y(FN).toFixed(1) + "V" + (F + 2) + "H-2Z";
+      floorPath.setAttribute("d", d);
+      fDirty = false;
+    }
+
+    // the cursor is a bat: it bounces the dot and lends it its speed; skimming the floor splashes it
+    const bat = { x: -999, y: -999, vx: 0, vy: 0, t: 0, r: 40 };
+    function local(e){ const r = hero.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+    if (fine) hero.addEventListener("pointermove", e => {
+      if (!ready) return;
+      const [x, y] = local(e), now = performance.now(), dt = Math.max(8, now - bat.t) / 1000;
+      const fresh = bat.x > -999;
+      bat.vx = (x - bat.x) / dt; bat.vy = (y - bat.y) / dt;
+      bat.x = x; bat.y = y; bat.t = now;
+      if (fresh && !held && y > surfaceAt(x) - 24) poke(x, clamp(-700, 700, bat.vy) * .18 + Math.min(900, Math.abs(bat.vx)) * .09);
+    });
+    hero.addEventListener("pointerleave", () => { bat.x = bat.y = -999; });
+
+    function moveBalls(dt){
+      for (const box of boxes) box.cool -= dt;
+      badgeBox.cool -= dt;
+      const batting = fine && !held && performance.now() - bat.t < 120;
+      for (const b of balls){
+        b.fCool -= dt;
+        // back towards cruising speed
+        const v = Math.hypot(b.vx, b.vy) || 1, to = v + (speed - v) * Math.min(1, dt * 1.6);
+        b.vx *= to / v; b.vy *= to / v;
+        const n = Math.min(12, Math.ceil(to * dt / 4));
+        for (let i = 0; i < n; i++){
+          b.x += b.vx * dt / n; b.y += b.vy * dt / n;
+          for (const box of boxes) againstBox(b, box);
+          againstBadge(b);
+          if (batting){
+            const dx = b.x - bat.x, dy = b.y - bat.y, d = Math.hypot(dx, dy) || 1;
+            if (d < b.r + bat.r){
+              const nx = dx / d, ny = dy / d;
+              reflect(b, nx, ny);
+              b.vx += bat.vx * .35; b.vy += bat.vy * .35;
+              const s = Math.hypot(b.vx, b.vy);
+              if (s > MAX_SPEED){ b.vx *= MAX_SPEED / s; b.vy *= MAX_SPEED / s; }
+              b.x = bat.x + nx * (b.r + bat.r); b.y = bat.y + ny * (b.r + bat.r);
+            }
+          }
+          // the walls last, so it always ends up inside
+          let wall = false;
+          if (b.x < b.r){ b.x = b.r; b.vx = Math.abs(b.vx); wall = true; }
+          if (b.x > W - b.r){ b.x = W - b.r; b.vx = -Math.abs(b.vx); wall = true; }
+          if (b.y < b.r){ b.y = b.r; b.vy = Math.abs(b.vy); wall = true; }
+          // the floor: it lands on the wave, dents it (a ripple runs off both ways) and bounces
+          const fy = surfaceAt(b.x) - b.r;
+          if (b.y > fy){
+            b.y = fy;
+            if (b.vy > 0){
+              if (b.fCool <= 0){ poke(b.x, Math.min(b.vy, 700) * 1.1); spray(b.x, fy + b.r, INKS[b.n % INKS.length]); b.fCool = .12; }
+              b.vy = -Math.abs(b.vy); wall = true;
+            }
+          }
+          if (wall) seek(b);
+        }
+        // a nudge off the straight line now and then, so it never settles into a loop
+        if (Math.random() < dt * .3){ const a = (Math.random() - .5) * .24, c = Math.cos(a), s = Math.sin(a); [b.vx, b.vy] = [b.vx * c - b.vy * s, b.vx * s + b.vy * c]; }
+        place(b);
+      }
+    }
+
+    /* ---- one loop: the rope and the floor in fixed steps, then the dots, then the print.
+            If the device can't keep up (most frames over 22ms for about a second, once the dot
+            is off), it goes easy from then on: the print stops scrolling, the breeze drops (a
+            badge at rest costs nothing to draw) and there's room for two dots. ---- */
+    let acc = 0, slow = 0;
+    function tick(time, dtMs){
+      // (paused with every other animation while the loader lifts: see BOOT)
+      if (!visible || !ready || gsap.globalTimeline.paused()) return;
+      const dt = Math.min(dtMs, 50) / 1000;
+      if (live && !lite){
+        slow = slow * .95 + (dtMs > 22 ? .05 : 0);
+        if (slow > .6){ lite = true; maxBalls = 2; trim(); }
+      }
+      acc = Math.min(acc + dt, DT * 5);
+      while (acc >= DT){ step(); if (fAwake) floorStep(); acc -= DT; }
+      render();
+      if (fDirty) drawFloor();
+      if (live) moveBalls(dt);
+      if (lite) return;
+      // the print runs up the strap; once the first item has gone, the window moves on by one
+      offset += dt * 26;
+      const w0 = itemW[first % ITEMS.length];
+      if (offset >= w0){ offset -= w0; first++; printWindow(); }
+      const o = (-offset).toFixed(1);
+      if (o !== lastO){ tp.setAttribute("startOffset", o); lastO = o; }
+    }
+    if (motion) gsap.ticker.add(tick);
+
+    /* ---- hands on: grab and throw the badge; a click (or Flip) turns it over ---- */
+    badge.addEventListener("pointerdown", e => {
+      if (e.button || !ready || e.target.closest("#ly-turn")) return;
+      const [x, y] = local(e), m = pts[SEG + 1];
+      held = true;
+      grab = { dx: m.x - x, dy: m.y - y, sx: x, sy: y, moved: 0, track: [[x, y, performance.now()]] };
+      badge.setPointerCapture(e.pointerId);
+      badge.classList.add("is-held");
+    });
+    badge.addEventListener("pointermove", e => {
+      if (!held) return;
+      const [x, y] = local(e), now = performance.now(), m = pts[SEG + 1];
+      grab.track.push([x, y, now]);
+      while (grab.track.length > 2 && now - grab.track[0][2] > 90) grab.track.shift();
+      grab.moved = Math.max(grab.moved, Math.hypot(x - grab.sx, y - grab.sy));
+      if (!motion) return;   // still: it can be clicked over, not dragged
+      m.px = m.x; m.py = m.y;
+      m.x = x + grab.dx; m.y = y + grab.dy;
+    });
+    function letGo(e){
+      if (!held) return;
+      held = false;
+      badge.classList.remove("is-held");
+      const m = pts[SEG + 1], [hx, hy, ht] = grab.track[0], [x, y] = local(e), dt = Math.max(.016, (performance.now() - ht) / 1000);
+      if (grab.moved < 5){ flip(); m.px = m.x; m.py = m.y; return; }
+      const MAX = 1800;
+      m.px = m.x - clamp(-MAX, MAX, (x - hx) / dt) * DT;
+      m.py = m.y - clamp(-MAX, MAX, (y - hy) / dt) * DT;
+    }
+    badge.addEventListener("pointerup", letGo);
+    badge.addEventListener("pointercancel", letGo);
+    function flip(){
+      const on = badge.classList.toggle("is-flipped");
+      turn.setAttribute("aria-pressed", String(on));
+      if (motion){ const m = pts[SEG + 1]; m.px = m.x + (Math.random() - .5) * 12; }   // turning over gives it a little kick
+    }
+    turn.addEventListener("click", flip);
+    // a swipe of the cursor across it bats it sideways
+    if (fine && motion) badge.addEventListener("pointermove", e => {
+      if (held || !ready) return;
+      pts[SEG + 1].px -= clamp(-3, 3, e.movementX * .12);
+    });
+    // a fling of the page makes it jump on its strap, and the floor jiggle (unevenly, so it reads as a wave)
+    let lastY = scrollY;
+    addEventListener("scroll", () => {
+      const dy = scrollY - lastY; lastY = scrollY;
+      if (!motion || !visible || !ready) return;
+      const m = pts[SEG + 1];
+      m.py += clamp(-14, 14, dy * .12);
+      m.px += clamp(-6, 6, dy * .03);
+      const k = clamp(-70, 70, dy * 1.6);
+      for (let i = 0; i <= FN; i++) fv[i] += k * (.45 + .55 * Math.sin(i * .45 + t * 4));
+      fAwake = true;
+    }, { passive: true });
+    // a click (or a tap) anywhere else adds another dot
+    hero.addEventListener("click", e => {
+      if (!live || e.target.closest("a, button, .ly-badge")) return;
+      const [x, y] = local(e), a = -Math.PI * (.15 + Math.random() * .7);
+      const b = makeBall(x, y, Math.cos(a) * speed, Math.sin(a) * speed);
+      shape(b, Math.floor(Math.random() * 20));
+      gsap.from(b.face, { scale: 0, duration: .4, ease: "back.out(3)" });
+    });
+
+    /* ---- layout: when the hero first has a size (it has none while another page is open),
+            and again when it changes: a new width rebuilds the rope; any new size re-measures
+            what the dot bounces off and redraws the floor. Run a frame after ResizeObserver
+            reports, since it changes the hero's height itself (phones, --top). ---- */
+    let builtW = 0, builtH = 0;
+    function layout(){
+      const w = hero.clientWidth;
+      if (!w) return false;
+      const wide = Math.abs(w - builtW) >= 2;
+      if (wide){
+        builtW = w;
+        build(); measurePrint(); printWindow();
+        if (!motion) for (let i = 0; i < 400; i++) step();   // still: it just hangs
+        render();
+        hero.classList.add("is-rigged");
+      }
+      H = hero.clientHeight;
+      if (wide || H !== builtH){ builtH = H; measure(); initFloor(); drawFloor(); if (!live) park(); }
+      ready = true;
+      return true;
+    }
+    new ResizeObserver(() => requestAnimationFrame(layout)).observe(hero);
+    // the fonts change what's measured (the letters, the print): once they're in, measure again
+    if (document.fonts) document.fonts.ready.then(() => { builtW = 0; layout(); });
+    // the loop only runs while the hero is on screen (and, through the ticker, while the tab is)
+    new IntersectionObserver(([en]) => { visible = en.isIntersecting; }).observe(hero);
+
+    /* ---- the entrance, on each visit: the name stamps in (stampIn), the badge falls in
+            swinging, the full stop lands, "You're welcome." is underlined once, and then the
+            dot jumps off, back up into "Sham". A language switch (immediate) only re-measures. ---- */
+    let entered = false;
+    function enter(immediate){
+      if (!motion || !layout()) return;
+      if (immediate && entered){ measure(); return; }
+      entered = true;
+      live = false;
+      while (balls.length > 1) balls.shift().el.remove();
+      park(); shape(balls[0], 0);
+      const dot = balls[0], m = pts[SEG + 1], ax = pts[0].x;
+      bopsWrap.hidden = true;
+      // the badge starts high and off to the side, so it falls in swinging
+      m.x = m.px = ax + W * .08; m.y = m.py = bh * .6;
+      for (let i = 1; i < SEG; i++){ pts[i].x = pts[i].px = ax + (m.x - ax) * i / SEG; pts[i].y = pts[i].py = -40; }
+      const ul = $(".ly-ul", punch);
+      if (ul) ul.classList.remove("is-drawn");
+      gsap.timeline()
+        .add(stampIn(name, copy), .15)
+        .from([sub, punch, $(".ly-cta", copy), $(".socials", copy), $(".ly-hint", copy)], { y: 18, opacity: 0, duration: .7, stagger: .07, ease: "power3.out" }, .5)
+        .fromTo(dot.face, { scale: 0 }, { scale: 1, duration: .45, ease: "back.out(3)" }, 1)
+        .add(() => { const u = $(".ly-ul", punch); if (u) u.classList.add("is-drawn"); }, 1.3)
+        .to(dot.face, { scaleX: 1.35, scaleY: .65, transformOrigin: "50% 100%", duration: .14, ease: "power2.in" }, 2)
+        .to(dot.face, { scaleX: 1, scaleY: 1, duration: .3, ease: "back.out(3)" }, 2.14)
+        .add(() => {
+          measure();
+          dot.x = stopAt.x; dot.y = stopAt.y; dot.vx = -speed * .55; dot.vy = -speed * .84;
+          live = true;
+          bopsWrap.hidden = false;
+        }, 2.14);
+    }
+
+    /* ---- words, after applyLang has (re)written them: split the sub and the punchline
+            again, the hint for this device, and the read-out of the strap ---- */
+    function text(){
+      words(sub); words(punch, true);
+      hint.textContent = !motion ? T("hero.hintStill", "Click my badge to see the back.")
+        : fine ? T("hero.hint", "Swing my badge, click it to see the back, and bat the dot about.")
+        : T("hero.hintTouch", "Swing my badge, tap it to see the back, or tap anywhere for another dot.");
+      bopsText();
+      $("#ly-stack-sr").textContent = T("stat.tech", "Technologies in rotation") + ": " + STACK.join(", ") + ".";
+      if (ready) measure();
+    }
+
+    return { enter, text, photo: $(".ly-photo", hero) };
+  })();
 
   /* =================================================================
      CAREER COASTER — About → Experience
@@ -1097,7 +1568,7 @@
       (set ? ' srcset="' + src.replace(/\.webp$/, "-360.webp") + ' 360w, ' + src.replace(/\.webp$/, "-720.webp") + ' 720w, ' + src + ' 1440w" sizes="' + sizes + '"' : '') +
       ' alt="" loading="lazy" decoding="async" onload="this.classList.add(\'ready\')" onerror="this.remove()">';
     return '<div class="shot">' +
-      '<div class="art">' + loadingArt(400, 250) + '</div>' +
+      '<div class="art">' + loadingArt() + '</div>' +
       (!imgFile ? '' : set && phone
         ? '<picture><source media="(max-width: 760px)" srcset="' + src.replace(/\.webp$/, "-m.webp") + '">' + img + '</picture>'
         : img) +
@@ -1127,7 +1598,7 @@
     const url = base + item[1];
     return '<article class="card" style="--accent: ' + accent + '" data-anim="up">' +
       '<div class="shot">' +
-        '<div class="art">' + loadingArt(400, 250) + '</div>' +
+        '<div class="art">' + loadingArt() + '</div>' +
         '<iframe data-src="' + esc(url) + '" title="' + esc(item[0]) + '" loading="lazy" ' +
         'tabindex="-1" scrolling="no"></iframe>' +
         '<span class="poster">' + kind + '</span>' +
@@ -1505,9 +1976,8 @@
     pageCtx = gsap.context(() => {
       const EASE = "power3.out";
 
-      // the hero name stamps in (stampIn) and the hero takes the thud
-      const name = $(".hero-name", scope);
-      if (name) stampIn(name, $(".hero", scope), immediate ? 0 : .15);
+      // the hero's entrance (HERO): the name stamps in, the badge drops in on its strap, the dot's off
+      if (route === "portfolio") HERO.enter(immediate);
 
       $$("[data-split]", scope).forEach((el, idx) => {
         const spans = splitWords(el);
@@ -1525,13 +1995,6 @@
         gsap.from(el, { y: 32, opacity: 0, duration: .75, ease: EASE, clearProps: "transform",
           scrollTrigger: { trigger: el, start: "top 92%", once: true } });
       });
-
-      $$('[data-anim="fade"]', scope).forEach((el, i) => {
-        gsap.from(el, { y: 18, opacity: 0, duration: .7, delay: .35 + i * .08, ease: EASE });
-      });
-
-      const pw = $('[data-anim="portrait"]', scope);
-      if (pw) gsap.from(pw, { scale: .94, opacity: 0, duration: 1.1, ease: EASE, delay: .1 });
 
       $$(".embed-host", scope).forEach(el => {
         gsap.from(el, { y: 40, opacity: 0, duration: .9, ease: EASE,
@@ -1627,15 +2090,6 @@
         undoProcess = () => { if (stamp) stamp.kill(); };
       }
 
-      $$("[data-count]", scope).forEach(el => {
-        const end = Number(el.dataset.count), suffix = el.dataset.suffix || "";
-        const obj = { v: 0 };
-        el.textContent = "0" + suffix;
-        gsap.to(obj, { v: end, duration: 1.4, ease: "power2.out",
-          onUpdate(){ el.textContent = Math.round(obj.v) + suffix; },
-          scrollTrigger: { trigger: el, start: "top 94%", once: true } });
-      });
-
       /* Showcase (SHOWCASE): its first sight pulls each card's accent cover
          off towards its slanted edge, the middle card first, then the
          title rises in and the controls follow. Reverting the context puts
@@ -1698,17 +2152,6 @@
     if (keep > -1) scrollTo(0, keep);
   }
 
-  let marqueeTween = null;
-  function startMarquee(){
-    if (!GS || reduced || marqueeTween) return;
-    marqueeTween = gsap.to("#marquee", { xPercent: -50, duration: 78, ease: "none", repeat: -1 });
-    ScrollTrigger.create({
-      onUpdate(self){
-        const v = self.getVelocity(), dir = v < 0 ? -1 : 1;
-        gsap.to(marqueeTween, { timeScale: dir * gsap.utils.clamp(1, 2.4, 1 + Math.abs(v) / 1500), duration: .4, overwrite: true });
-      }
-    });
-  }
   function startProgress(){
     if (!GS) return;
     gsap.to("#progress", { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: .3 } });
@@ -1717,8 +2160,8 @@
   /* =================================================================
      FOOTER BOUNCE
      https://demos.gsap.com/demo/footer-bounce/ — a wavy divider that
-     kicks based on scroll velocity, same getVelocity()/clamp/overwrite
-     idiom as startMarquee() above. The two path states share identical
+     kicks based on scroll velocity (ScrollTrigger's getVelocity, clamped,
+     overwrite: true). The two path states share identical
      command structure (M C C C C L L Z), so a plain attr tween
      interpolates the numbers directly — no MorphSVGPlugin needed.
      ================================================================= */
@@ -2091,7 +2534,6 @@
       else a.removeAttribute("aria-current");
     });
     setTitle();
-    if (route === "portfolio") requestAnimationFrame(sizeDoodle);
     lazyFrames();
     initEmbeds();
     if (!booting) animatePage(route);   // at boot the loader builds it as it lifts (see the end of this file)
@@ -2139,8 +2581,6 @@
      ================================================================= */
   applyLang();
   applyRoute(routeFromHash());
-  sizeDoodle();
-  startMarquee();
   startProgress();
   startFooterBounce();
   initShapeFx($("#contact-fx"), $("#page-contact"));
@@ -2148,11 +2588,21 @@
   $$(".band-fx").forEach(fx => initShapeFx(fx, fx.closest(".band")));
 
   /* Loader: lift once the fonts are in (and on the home page the hero
-     photo, its LCP) — not every last file — but not before 0.7s from
+     photo, its LCP) and the window has loaded, but not before 0.7s from
      navigation (a beat, not a flicker) and never after 2.5s (one slow
-     asset shouldn't hold the page hostage). The page's animations are
-     built as it lifts, once, so the intro isn't spent behind the panel;
-     then a refresh (or a return with Back) is put back where it was. */
+     asset shouldn't hold the page hostage). A refresh (or a return with
+     Back) is put back where it was.
+     It lifts in two beats, so the first frames anyone sees are smooth.
+     First, still under the panel (opaque, its ring spinning on the
+     compositor): the page is shown and its animations built (animatePage:
+     the hero's entrance, the pins, ScrollTrigger measuring it all) with
+     GSAP's clock paused, and the browser paints it all once, unseen.
+     Then, once that's on screen, the panel slides away and the clock
+     runs, so the intro plays from its first frame. (Done in one go, as
+     it was, the main thread was busy for ~0.5s as the panel started to
+     move and the first paint took another ~0.5s frame: the intro froze
+     and jumped. A paused global timeline resumes where it stopped; a
+     sleeping ticker would skip ahead on waking.) */
   const loader = $("#loader");
   if (!loader) document.documentElement.classList.remove("booting");
   else {
@@ -2161,8 +2611,8 @@
       if (lifted) return;
       lifted = true;
       booting = false;
+      if (GS) gsap.globalTimeline.pause();
       document.documentElement.classList.remove("booting");
-      loader.classList.add("out");
       lazyFrames();
       initEmbeds();
       animatePage(current);
@@ -2173,16 +2623,38 @@
         const i = saved.lastIndexOf("|");
         if (saved.slice(0, i) === location.hash) scrollTo(0, +saved.slice(i + 1));
       }
-      setTimeout(() => loader.remove(), 900);
+      /* Then wait, unseen, until frames flow again: three in a row under 25ms, or 1.5s at
+         most, and only then start the clock and slide the panel away (measured: without
+         this wait, the first paint of the page, ~0.4s, landed on the intro every time). */
+      let prev = 0, calm = 0, waited = 0;
+      const settle = t => {
+        if (prev){ calm = t - prev < 25 ? calm + 1 : 0; waited += t - prev; }
+        prev = t;
+        if (calm < 3 && waited < 1500) return requestAnimationFrame(settle);
+        if (GS) gsap.globalTimeline.resume();
+        loader.classList.add("out");
+        setTimeout(() => loader.remove(), 900);
+      };
+      /* Before that, the showcase's photos (just below the hero, or the page's hero on Projects)
+         are fetched and decoded, under the panel: they're lazy, so they only set off as the page
+         was shown, and arrived, to be decoded, just as the intro began (measured: that froze it
+         for ~0.4s in 5 runs out of 6; held back, in none). 0.8s at most, for a slow connection. */
+      const soon = $$(".sc-slide img", $("#page-" + current));
+      soon.forEach(img => { img.loading = "eager"; });
+      Promise.race([Promise.all(soon.map(img => img.decode().catch(() => {}))), new Promise(r => setTimeout(r, 800))])
+        .then(() => requestAnimationFrame(settle));
     };
-    const hero = current === "portfolio" && $(".photo", portrait);
+    const lcp = current === "portfolio" && HERO.photo;
     Promise.all([
       document.fonts ? document.fonts.ready : null,
-      hero && !hero.complete ? new Promise(r => { hero.addEventListener("load", r); hero.addEventListener("error", r); }) : null
+      lcp && !lcp.complete ? new Promise(r => { lcp.addEventListener("load", r); lcp.addEventListener("error", r); }) : null,
+      // and the window's load: ScrollTrigger re-measures the page on it (a forced layout of ~90ms),
+      // which landed just as the panel started to move
+      document.readyState === "complete" ? null : new Promise(r => addEventListener("load", r, { once: true }))
     ]).then(() => setTimeout(lift, Math.max(0, 700 - performance.now())));
     setTimeout(lift, 2500);
   }
 
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (GS) ScrollTrigger.refresh(); });
-  addEventListener("load", () => { sizeDoodle(); initEmbeds(); if (GS) ScrollTrigger.refresh(); });
+  addEventListener("load", () => { initEmbeds(); if (GS) ScrollTrigger.refresh(); });
 })();
