@@ -419,7 +419,7 @@ button{ font: inherit; color: inherit; }
 .ly-badge.is-flipped .ly-flip{ transform: rotateY(180deg); }
 .ly-face{
   position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  display: flex; flex-direction: column; padding: 14px 16px 16px; border-radius: 18px; overflow: hidden;
+  display: flex; flex-direction: column; padding: 14px 16px 20px; border-radius: 18px; overflow: hidden;   /* 20px: clears the Flip tab on the corner */
   background: var(--card);
   box-shadow: 0 30px 50px -30px rgba(19,17,26,.55);   /* the badge is an object, hanging off the page */
 }
@@ -428,12 +428,16 @@ button{ font: inherit; color: inherit; }
 .ly-head{ display: flex; align-items: center; justify-content: space-between; }
 .ly-slot{ width: 46px; height: 9px; border-radius: 9px; background: var(--paper); box-shadow: inset 0 1px 2px rgba(19,17,26,.25); }
 .ly-pass{ font-family: "JetBrains Mono", monospace; font-size: .58rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--card); background: var(--pink); padding: 3px 8px; border-radius: 999px; }
-.ly-photo{ display: block; width: 100%; height: auto; aspect-ratio: 1; margin-top: 12px; border-radius: 12px; object-fit: cover; object-position: 50% 22%; background: var(--shell); pointer-events: none; }
+/* min-height 0: on a front short of room (a small phone, a long role) the photo crops tighter, so the foot keeps its padding */
+.ly-photo{ display: block; width: 100%; height: auto; min-height: 0; aspect-ratio: 1; margin-top: 12px; border-radius: 12px; object-fit: cover; object-position: 50% 22%; background: var(--shell); pointer-events: none; }
 .ly-who{ margin-top: 12px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 1.55em; line-height: 1; letter-spacing: -.03em; }
 .ly-role{ margin-top: 6px; font-family: "JetBrains Mono", monospace; font-size: .62rem; color: var(--ink-soft); }
 .ly-foot{ margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
-.ly-face .status{ padding: 4px 9px; font-size: .55rem; letter-spacing: .06em; }
-.ly-bars{ width: 74px; height: 24px; flex: none; color: var(--ink); }
+/* the status stays on one line at any badge width: its print shrinks with the badge (cqi, sized for
+   the longer Afrikaans), and the barcode, only decoration, gives way beside it */
+.ly-face .status{ gap: .6em; padding: .45em .8em; font-size: min(.55rem, 3.4cqi); letter-spacing: .04em; white-space: nowrap; }
+.ly-face .dot{ width: .8em; height: .8em; }
+.ly-bars{ width: 74px; min-width: 0; height: auto; aspect-ratio: 74 / 24; color: var(--ink); }
 /* a narrow badge (phones, tablets): a shorter crop, so the role and the status still fit on the front */
 @container (max-width: 262px){ .ly-photo{ aspect-ratio: 4 / 3.3; } }
 /* back: the stats */
@@ -454,9 +458,8 @@ button{ font: inherit; color: inherit; }
 
 /* Letter headings (.nm > .nm-w > letters with --i; the hero name's markup,
    or index.js splitLetters for [data-letters]). .stamp ones — the hero name,
-   "Boring process. Great website." — get index.js stampIn: each letter is
-   stamped in big and spun, lands with a squash, and the block around it
-   takes the thud. Once landed, .is-idle loops one 6s cycle: a bounce runs through the letters,
+   "Boring process. Great website." — get index.js stampIn: the letters
+   rise into place one after another. Once in, .is-idle loops one 6s cycle: a bounce runs through the letters,
    then a pink underline draws in from the left and wipes off to the right,
    then the bounce again. Both share the cycle length, so they stay in step.
    The bounce uses translate, not transform, so it never fights GSAP's

@@ -47,9 +47,9 @@
   const AF = {
     "nav.portfolio":"Portefeulje","nav.about":"Oor my","nav.projects":"Projekte","nav.play":"Speelgrond","nav.contact":"Kontak",
     "drawer.title":"Kieslys",
-    "hero.status":"Beskikbaar vir vryskutwerk",
+    "hero.status":"'n Volgeling van JESUS",
     "hero.sub":"Full-stack developer. Ek maak die internet mooi.","hero.sub2":"Plesier",
-    "hero.tag":"Senior webontwikkelaar · Krugersdorp",
+    "hero.tag":"Senior webontwikkelaar",
     "hero.hint":"Swaai my kaartjie, klik daarop om die agterkant te sien, en slaan die kolletjie rond.",
     "hero.hintTouch":"Swaai my kaartjie, tik daarop om die agterkant te sien, of tik enige plek vir nog 'n kolletjie.",
     "hero.hintStill":"Klik op my kaartjie om die agterkant te sien.",
@@ -549,6 +549,10 @@
       for (const p of pts) if (Math.abs(p.x - (p.rx || 0)) > .05 || Math.abs(p.y - (p.ry || 0)) > .05){ moved = true; break; }
       if (!moved) return;
       for (const p of pts){ p.rx = p.x; p.ry = p.y; }
+      // pulled longer than the print (the badge dragged down), the print grows to cover it
+      let len = 0;
+      for (let i = 1; i <= SEG; i++) len += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+      if (len > strapLen){ strapLen = len + 60; printWindow(); }
       // the strap: a smooth curve through the rope points
       let d = "M" + pts[0].x.toFixed(1) + " " + pts[0].y.toFixed(1);
       for (let i = 1; i < SEG; i++){
@@ -858,8 +862,9 @@
 
     /* ---- one loop: the rope and the floor in fixed steps, then the dots, then the print.
             If the device can't keep up (most frames over 22ms for about a second, once the dot
-            is off), it goes easy from then on: the print stops scrolling, the breeze drops (a
-            badge at rest costs nothing to draw) and there's room for two dots. ---- */
+            is off), it goes easy from then on: the breeze drops (a badge at rest costs nothing
+            to draw) and there's room for two dots. The print always runs: a scroll or a drag on
+            a phone can be enough to tip it into this. ---- */
     let acc = 0, slow = 0;
     function tick(time, dtMs){
       // (paused with every other animation while the loader lifts: see BOOT)
@@ -874,7 +879,6 @@
       render();
       if (fDirty) drawFloor();
       if (live) moveBalls(dt);
-      if (lite) return;
       // the print runs up the strap; once the first item has gone, the window moves on by one
       offset += dt * 26;
       const w0 = itemW[first % ITEMS.length];
@@ -921,11 +925,6 @@
       if (motion){ const m = pts[SEG + 1]; m.px = m.x + (Math.random() - .5) * 12; }   // turning over gives it a little kick
     }
     turn.addEventListener("click", flip);
-    // a swipe of the cursor across it bats it sideways
-    if (fine && motion) badge.addEventListener("pointermove", e => {
-      if (held || !ready) return;
-      pts[SEG + 1].px -= clamp(-3, 3, e.movementX * .12);
-    });
     // a fling of the page makes it jump on its strap, and the floor jiggle (unevenly, so it reads as a wave)
     let lastY = scrollY;
     addEventListener("scroll", () => {
@@ -974,7 +973,7 @@
     // the loop only runs while the hero is on screen (and, through the ticker, while the tab is)
     new IntersectionObserver(([en]) => { visible = en.isIntersecting; }).observe(hero);
 
-    /* ---- the entrance, on each visit: the name stamps in (stampIn), the badge falls in
+    /* ---- the entrance, on each visit: the name rises in (stampIn), the badge falls in
             swinging, the full stop lands, "You're welcome." is underlined once, and then the
             dot jumps off, back up into "Sham". A language switch (immediate) only re-measures. ---- */
     let entered = false;
@@ -993,7 +992,7 @@
       const ul = $(".ly-ul", punch);
       if (ul) ul.classList.remove("is-drawn");
       gsap.timeline()
-        .add(stampIn(name, copy), .15)
+        .add(stampIn(name), .15)
         .from([sub, punch, $(".ly-cta", copy), $(".socials", copy), $(".ly-hint", copy)], { y: 18, opacity: 0, duration: .7, stagger: .07, ease: "power3.out" }, .5)
         .fromTo(dot.face, { scale: 0 }, { scale: 1, duration: .45, ease: "back.out(3)" }, 1)
         .add(() => { const u = $(".ly-ul", punch); if (u) u.classList.add("is-drawn"); }, 1.3)
@@ -1924,21 +1923,15 @@
       }).join(" ") + '</span>';
   }
 
-  /* The hero name's entrance, for any .stamp heading: each letter is
-     stamped in big and spun, lands with a squash, and `thud` takes a shake
-     as the last one lands; then .is-idle starts its idle (index.css: the
-     hop and the underline). Returns the timeline. */
-  function stampIn(el, thud, delay){
-    const letters = $$(".nm-w > span", el), STAGGER = .05, FALL = .42;
+  /* The hero name's entrance, for any .stamp heading: the letters rise
+     into place one after another and settle with a little give; then
+     .is-idle starts its idle (index.css: the hop and the underline).
+     Returns the tween. */
+  function stampIn(el){
     el.classList.remove("is-idle");
-    return gsap.timeline({ delay: delay || 0, onComplete: () => el.classList.add("is-idle") })
-      .fromTo(letters,
-        { yPercent: -150, scale: 2.4, rotate: () => gsap.utils.random(-40, 40), opacity: 0 },
-        { yPercent: 0, scale: 1, rotate: 0, opacity: 1, duration: FALL, ease: "power3.in", stagger: STAGGER })
-      .fromTo(letters, { scaleX: 1.28, scaleY: .7 },
-        { scaleX: 1, scaleY: 1, duration: .55, ease: "elastic.out(1, .35)", stagger: STAGGER, immediateRender: false,
-          clearProps: "transform,opacity" }, FALL)
-      .add(() => { thud.animate(SHAKE, { duration: 380, easing: "ease-out" }); }, FALL + (letters.length - 1) * STAGGER);
+    return gsap.fromTo($$(".nm-w > span", el), { yPercent: 40, opacity: 0 },
+      { yPercent: 0, opacity: 1, duration: .6, ease: "back.out(1.6)", stagger: .035,
+        clearProps: "transform,opacity", onComplete: () => el.classList.add("is-idle") });
   }
 
   function splitWords(el){
@@ -2003,8 +1996,9 @@
 
       /* How I work (index.html #process): a pinned scroll story, scrubbed
          (scrub: 1 eases it after the scroll, so it glides rather than jerks).
-         The statement fills in word by word in the middle of the screen and
-         the kicker stamps in under it. Step 01 opens out of a frame in the
+         The statement fills in word by word in the middle of the screen; the
+         kicker under it rises in as it comes into view, as the hero name does
+         (stampIn), and then hops. Step 01 opens out of a frame in the
          centre to the full screen while its photo settles; 02 and 03 wipe in
          from the right as the one before drifts left. As each step opens its
          words rise in, its number comes up, its bar fills and its title
@@ -2026,9 +2020,20 @@
         const words = splitWords($(".pr-statement", proc)), kicker = $(".pr-kicker", proc), kLetters = $$(".nm-w > span", kicker);
         const copy = s => $$(".pr-copy > *", s), bg = s => $(".pr-bg", s), num = s => $(".pr-num", s);
         gsap.set(words, { opacity: .18 });
-        // the kicker waits, hidden, to be stamped in (stampIn) once the statement has filled
+        /* the kicker rises in (stampIn) as it comes into view, with the heading and the statement;
+           scrolled back out of view below, it's hidden again to rise next time */
+        let stamp = null;
         kicker.classList.remove("is-idle");
         gsap.set(kLetters, { opacity: 0 });
+        ScrollTrigger.create({ trigger: kicker, pinnedContainer: proc, start: "top 92%", end: "max",
+          onEnter: () => { stamp = stampIn(kicker); },
+          onLeaveBack: () => {
+            if (stamp) stamp.kill();
+            stamp = null;
+            kicker.classList.remove("is-idle");
+            gsap.set(kLetters, { clearProps: "transform" });
+            gsap.set(kLetters, { opacity: 0 });
+          } });
         // each step's clip: index.css builds it from these (centre frame for 01, a wipe from the right for 02 and 03)
         steps.forEach((s, i) => {
           gsap.set(s, i ? { "--cy": "0%", "--cx": "0%", "--cw": "100%", "--cr": "0px" } : { "--cy": "50%", "--cx": "50%", "--cw": "0%", "--cr": "24px" });
@@ -2037,23 +2042,14 @@
           gsap.set(num(s), { yPercent: 30, opacity: 0 });
           gsap.set(bars[i], { scaleX: 0 });
         });
-        /* the schedule, in timeline seconds: FILL the statement, a BEAT on it (about a screen of
-           scrolling, so the kicker can stamp in before the first panel comes), then each step: in, its
-           words settle (+.7), DWELL while it drifts, the next one comes in */
-        const FILL = 1, BEAT = 1, DWELL = .5, STAMP = FILL * .9, at = [];
-        let stamp = null;
+        /* the schedule, in timeline seconds: FILL the statement, a short BEAT on it (about a third of
+           a screen of scrolling: any longer and, once it's full, the page feels stuck), then each step:
+           in, its words settle (+.7), DWELL while it drifts, the next one comes in */
+        const FILL = 1, BEAT = .3, DWELL = .5, at = [];
         const tl = gsap.timeline({ paused: true, defaults: { ease: "none", immediateRender: false },
           onUpdate(){
             const t = this.time();
             steps.forEach((s, i) => s.classList.toggle("is-on", t >= at[i] && !(t >= at[i + 1])));
-            // played (in real time, not scrubbed) as the scroll passes STAMP; scrolling back above it resets it to replay
-            if (t >= STAMP && !stamp) stamp = stampIn(kicker, $(".pr-intro", proc));
-            else if (t < STAMP && stamp){
-              stamp.kill(); stamp = null;
-              kicker.classList.remove("is-idle");
-              gsap.set(kLetters, { clearProps: "transform" });
-              gsap.set(kLetters, { opacity: 0 });
-            }
           } });
         tl.fromTo(words, { opacity: .18 }, { opacity: 1, duration: .1, stagger: { amount: FILL - .1 } }, 0);
         let t0 = FILL + BEAT;
@@ -2611,11 +2607,16 @@
       if (lifted) return;
       lifted = true;
       booting = false;
-      if (GS) gsap.globalTimeline.pause();
       document.documentElement.classList.remove("booting");
       lazyFrames();
       initEmbeds();
       animatePage(current);
+      /* the clock stops only now: under a stopped clock gsap.set() holds its values back until
+         it runs again, so the pins measured (ScrollTrigger plays them to the end and back) before
+         their starting states had landed, and took How I work's closed steps for open ones:
+         scrolling back through it threw the steps open, 03 over the words. Nothing ticks in
+         between, so the intro still starts from its first frame. */
+      if (GS) gsap.globalTimeline.pause();
       const nav = performance.getEntriesByType("navigation")[0];
       let saved = null;
       try { saved = sessionStorage.getItem("ws-scroll"); sessionStorage.removeItem("ws-scroll"); } catch (e) {}
