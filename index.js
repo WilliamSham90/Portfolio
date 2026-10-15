@@ -56,7 +56,7 @@
     "hero.hintTouch":"Swaai my kaartjie, tik daarop om die agterkant te sien, of tik enige plek vir nog 'n kolletjie.",
     "hero.hintStill":"Klik op my kaartjie om die agterkant te sien.",
     "hero.bop":"bons","hero.bops":"bonse",
-    "badge.pass":"Volle toegang","badge.back":"Die agterkant","badge.note":"WS-0036 · geldig oral waar daar Wi-Fi is","badge.flip":"Draai om ↻",
+    "badge.pass":"Volle toegang","badge.back":"#1 Spider-Man-fan","badge.note":"WS-0036 · geldig oral waar daar Wi-Fi is","badge.flip":"Draai om ↻",
     "cta.work":"Eregalery","cta.touch":"Klik & Vind Uit","cta.allProjects":"Al 36 projekte",
     "cta.startChat":"GEE MY DAARDIE KOFFIE →","cta.cv":"Vra my CV aan","cta.ask":"Okay, EK sal jou vra →",
     "cta.hire":"Help My →","cta.idea":"Die Knoppie →",
@@ -550,6 +550,10 @@
     const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     const motion = GS && !reduced;
     let W = 0, H = 0, visible = false, ready = false;
+    /* the bops counter waits invisible but in its place (visibility, not [hidden]), so it never moves
+       the page when it shows: the pins below (How I work) were measured before it did, and on a
+       phone, where it takes a line of its own, the section jumped 24px as it pinned */
+    if (motion){ bopsWrap.hidden = false; bopsWrap.style.visibility = "hidden"; }
 
     /* ---- the words the dot can hit: the sub and the punchline, a span a word. Redone by
             text() after every applyLang, which rewrites their text. ---- */
@@ -1018,7 +1022,7 @@
       while (balls.length > 1) balls.shift().el.remove();
       park(); shape(balls[0], 0);
       const dot = balls[0], m = pts[SEG + 1], ax = pts[0].x;
-      bopsWrap.hidden = true;
+      bopsWrap.style.visibility = "hidden";
       // the badge starts high and off to the side, so it falls in swinging
       m.x = m.px = ax + W * .08; m.y = m.py = bh * .6;
       for (let i = 1; i < SEG; i++){ pts[i].x = pts[i].px = ax + (m.x - ax) * i / SEG; pts[i].y = pts[i].py = -40; }
@@ -1035,7 +1039,7 @@
           measure();
           dot.x = stopAt.x; dot.y = stopAt.y; dot.vx = -speed * .55; dot.vy = -speed * .84;
           live = true;
-          bopsWrap.hidden = false;
+          bopsWrap.style.visibility = "";
         }, 2.14);
     }
 
