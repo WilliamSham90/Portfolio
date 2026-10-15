@@ -1311,11 +1311,13 @@
     /* a scroll knocks it once, as a dot cruising into it does (againstBadge) but a little harder: a small
        hop on its strap and a sway (scrolling down knocks it up and to the left). Only the start of a
        scroll knocks it, however long it goes on; the floor jiggles all along (unevenly, so it reads as a wave) */
-    let lastY = scrollY, lastScroll = 0;
+    let lastY = null, lastScroll = 0;
     addEventListener("scroll", () => {
-      const dy = scrollY - lastY, now = performance.now(), fresh = now - lastScroll > 400;
-      lastY = scrollY; lastScroll = now;
-      if (!motion || !visible || !ready) return;
+      /* off screen (on another page, or scrolled past) it isn't read at all: reading scrollY makes the
+         browser lay the page out again then and there, mid-scroll (18ms a scroll on a phone, measured) */
+      if (!motion || !visible || !ready){ lastY = null; return; }
+      const y = scrollY, dy = lastY === null ? 0 : y - lastY, now = performance.now(), fresh = now - lastScroll > 400;
+      lastY = y; lastScroll = now;
       if (dy && fresh && !held){
         const m = pts[SEG + 1], kick = speed * .35 * DT * 1.2 * Math.sign(dy);   // (Verlet: velocity is x - px)
         m.py += kick; m.px += kick;
@@ -1936,6 +1938,12 @@
       onScreen ? gsap.ticker.add(tick) : gsap.ticker.remove(tick);
     });
     io.observe(stage);
+    /* More than a screen away, the ride isn't rendered at all (index.css .is-far): its park is some 90
+       graphics layers, all updated on every frame anything else on the page moved (the record at the top
+       of About ran at half speed on a phone for it) */
+    const clip = $(".coaster-clip", root);
+    const far = new IntersectionObserver(([e]) => clip.classList.toggle("is-far", !e.isIntersecting), { rootMargin: "100% 0px" });
+    far.observe(stage);
     // the park's wheels, balloons and clouds only turn, bob and drift near the screen (index.css)
     const near = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("is-near", e.isIntersecting)), { rootMargin: "0px 300px" });
     $$(".cz-spin, .cz-float, .cz-gate, .cz-end, .cz-cloud", world).forEach(el => near.observe(el));
@@ -1947,6 +1955,8 @@
       stage.removeEventListener("click", onClick);
       io.disconnect();
       near.disconnect();
+      far.disconnect();
+      clip.classList.remove("is-far");
       clearTimeout(warm);
       $$(".cz-fx", root).forEach(l => { l.textContent = ""; });
       root.classList.remove("is-ride");
@@ -2419,10 +2429,13 @@
            a screen of scrolling: any longer and, once it's full, the page feels stuck), then each step:
            in, its words settle (+.7), DWELL while it drifts, the next one comes in */
         const FILL = 1, BEAT = .3, DWELL = .5, at = [];
+        const gone = FILL + BEAT + 1.05;   // the intro has faded out under step 01 (below)
         const tl = gsap.timeline({ paused: true, defaults: { ease: "none", immediateRender: false },
           onUpdate(){
             const t = this.time();
             steps.forEach((s, i) => s.classList.toggle("is-on", t >= at[i] && !(t >= at[i + 1])));
+            // its heading's letters stop hopping while the steps cover it (index.css): 50-odd layers, unseen
+            proc.classList.toggle("is-covered", t >= gone);
           } });
         tl.fromTo(words, { opacity: .18 }, { opacity: 1, duration: .1, stagger: { amount: FILL - .1 } }, 0);
         let t0 = FILL + BEAT;
@@ -2456,7 +2469,7 @@
         ScrollTrigger.create({ trigger: proc, animation: tl, start: "top top", end: () => "+=" + Math.round(innerHeight * tl.duration() * .95),
           pin: true, pinSpacing: true, scrub: 1, anticipatePin: 1, refreshPriority: 1 });
         // the stamp runs outside this context: stop it when the context reverts
-        undoProcess = () => { if (stamp) stamp.kill(); };
+        undoProcess = () => { if (stamp) stamp.kill(); proc.classList.remove("is-covered"); };
       }
 
       /* Showcase (SHOWCASE): its first sight pulls each card's accent cover
@@ -2550,8 +2563,14 @@
     const sleep = () => { if (on){ gsap.ticker.remove(run); on = false; } };
     const wake = () => { if (visible && wave.awake && !on){ on = true; acc = 0; gsap.ticker.add(run); } };
     new IntersectionObserver(([en]) => { visible = en.isIntersecting; visible ? wake() : sleep(); }).observe(svg);
-    let lastY = scrollY;
-    addEventListener("scroll", () => { const dy = scrollY - lastY; lastY = scrollY; if (visible){ wave.jiggle(dy); wake(); } }, { passive: true });
+    let lastY = null;
+    // read only while it's on screen: reading scrollY lays the page out again, mid-scroll
+    addEventListener("scroll", () => {
+      if (!visible){ lastY = null; return; }
+      const y = scrollY, dy = lastY === null ? 0 : y - lastY;
+      lastY = y;
+      wave.jiggle(dy); wake();
+    }, { passive: true });
     if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     let px = 0, py = 0, pt = 0;
     addEventListener("pointermove", e => {
@@ -3049,10 +3068,13 @@
   /* =================================================================
      BACK TO TOP
      ================================================================= */
-  const toTop = $("#to-top");
-  addEventListener("scroll", () => {
-    toTop.classList.toggle("show", scrollY > innerHeight * .6);
-  }, { passive: true });
+  /* shown once a marker 60% of a screen down the page (index.css .top-mark) has gone out of view: no work
+     on every scroll (reading scrollY there made the browser lay the page out again, mid-scroll) */
+  const toTop = $("#to-top"), mark = document.createElement("div");
+  mark.className = "top-mark";
+  mark.setAttribute("aria-hidden", "true");
+  document.body.prepend(mark);
+  new IntersectionObserver(([e]) => toTop.classList.toggle("show", !e.isIntersecting)).observe(mark);
   toTop.addEventListener("click", () => {
     scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
   });

@@ -533,8 +533,11 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 }
 .nm-w{ display: inline-block; white-space: nowrap; }
 .nm-w > span{ display: inline-block; }
-/* off screen (index.js marks them): looping animations stop, rather than be restyled every frame unseen */
-.is-away, .is-away *{ animation-play-state: paused !important; }
+/* off screen (index.js marks them): looping animations stop, rather than be restyled every frame unseen.
+   Taken off, not paused: a paused animation still keeps its graphics layer (a heading's every letter), and
+   each layer is work on every frame. The loops start over when they're back; the hero's underline, drawn
+   once and held, is left be. */
+.is-away, .is-away *:not(.ly-ul){ animation: none !important; }
 /* .hop (the Playground's title): the bounce alone, no underline */
 @media (prefers-reduced-motion: no-preference){
   :is(.stamp, .hop).is-idle .nm-w > span{ animation: nm-hop 6s ease-in-out calc(var(--i) * 60ms + .1s) infinite; }
@@ -1060,6 +1063,8 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
   .process:not(.is-pinned) .pr-title .nm-w > span,
   .pr-step.is-on .pr-title .nm-w > span{ animation: nm-hop 6s ease-in-out calc(var(--i) * 45ms + .4s) infinite; }
 }
+/* the intro faded out under the steps (index.js): its letters stop, their layers freed */
+.process.is-covered .pr-intro *{ animation: none !important; }
 
 .pr-bars{ display: none; }
 /* the scroll story: one screen, pinned (index.js), everything stacked in it. As tall as a phone's
@@ -1152,11 +1157,13 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 .a5-track.is-on{ color: var(--ink); }
 .a5-track.is-on .a5-w::before{ transform: none; transform-origin: 0 50%; }
 .a5-eq{ display: inline-flex; align-items: flex-end; gap: 3px; height: .42em; opacity: 0; transition: opacity .3s; }
-.a5-eq i{ width: 5px; height: 100%; background: var(--c); transform-origin: bottom; animation: a5-eq .8s ease-in-out infinite alternate; animation-play-state: paused; }
+.a5-eq i{ width: 5px; height: 100%; background: var(--c); transform-origin: bottom; }
+/* the playing track's meter only: the other tracks' (hidden) ran too, 12 animations doing nothing */
+.a5-track.is-on .a5-eq i{ animation: a5-eq .8s ease-in-out infinite alternate paused; }
 .a5-eq i:nth-child(2){ animation-delay: -.3s; }
 .a5-eq i:nth-child(3){ animation-delay: -.55s; }
 .a5-track.is-on .a5-eq{ opacity: 1; }
-.is-playing .a5-eq i{ animation-play-state: running; }
+.is-playing .a5-track.is-on .a5-eq i{ animation-play-state: running; }
 @keyframes a5-eq{ from{ transform: scaleY(.25); } }
 
 /* ---- the liner notes: typed out (the caret), then a word or two glitching now and then ---- */
@@ -1432,6 +1439,8 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
    The same cut, painted the same way, and nothing moves. */
 .coaster.is-ride .coaster-stage{ position: relative; height: 100vh; height: 100lvh; }
 .coaster.is-ride .coaster-clip{ position: absolute; inset: 0; clip-path: inset(0); }
+/* more than a screen from view (index.js): not rendered at all, its park's many layers skipped */
+.coaster.is-ride .coaster-clip.is-far{ content-visibility: hidden; }
 /* A clip-path cuts what's painted, not the page's size: unpinned (before and after the ride), the
    park, thousands of px wide, made the page wider than a phone (Chrome there widens the viewport
    to fit, so the page could be zoomed out and dragged sideways). The section clips its overflow;
@@ -1527,12 +1536,14 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 .cz-spin img{ display: block; width: 100%; height: 100%; }
 @keyframes cz-spin{ to{ transform: rotate(1turn); } }
 /* Park animations run only near the screen (index.js marks those .is-near): a running animation is
-   restyled every frame, on screen or not, and the park has a dozen of them */
+   restyled every frame, on screen or not, and the park has dozens. Taken off, not paused: a paused one
+   keeps its graphics layer (and pushes the pictures near it onto layers of their own). They start over
+   as they come near, 300px before they're seen. */
 .coaster-world .cz-spin:not(.is-near),
 .coaster-world .cz-float:not(.is-near),
 .coaster-world .cz-end:not(.is-near),
 .coaster-world .cz-cloud:not(.is-near),
-.coaster-world :is(.cz-gate, .cz-end):not(.is-near) .cz-bulbs svg{ animation-play-state: paused; }
+.coaster-world :is(.cz-gate, .cz-end):not(.is-near) .cz-bulbs svg{ animation: none; }
 /* The sky (index.js, skyHTML): its own layer, since the camera moves it every frame for the parallax;
    each cloud drifts to and fro on the wind (--dx over --t, from a random phase --d). translate, not
    transform, so a flipped cloud (scale: -1 1) still drifts the right way. */
@@ -1835,6 +1846,8 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
   transition: transform .35s cubic-bezier(.22,1,.36,1), opacity .25s, border-color .2s, background .2s;
 }
 #to-top.show{ transform: translateY(0); opacity: 1; pointer-events: auto; }
+/* back to top shows once this (the page's first 60% of a screen) is out of view (index.js) */
+.top-mark{ position: absolute; left: 0; top: 0; width: 1px; height: 60vh; visibility: hidden; pointer-events: none; }
 
 /* the mask is padded out (and the padding cancelled by negative margin) so
    descenders (g, y) and overhanging glyphs (?, f) aren't clipped by the
