@@ -1464,10 +1464,13 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 .c3-sent.is-no{ background: var(--yellow); color: var(--ink); }
 
 @media (max-width: 900px){ .c3-grid{ grid-template-columns: 1fr; } }
-/* phones: the shapes gather, smaller, in a band above the title; one column throughout */
+/* phones: the shapes gather, smaller, in a band above the heading, which is centred and well clear
+   of them; the band sits 20px lower than its --mt places it, clear of the bar above too (it reaches
+   ~90px down; the label starts at 124px); one column throughout */
 @media (max-width: 760px){
-  .c3-head{ padding-top: 64px; }
-  .c3-s{ left: var(--ml); top: var(--mt); width: 40px; }
+  .c3-head{ padding-top: 124px; text-align: center; }
+  .c3-title{ margin-inline: auto; }
+  .c3-s{ left: var(--ml); top: calc(var(--mt) + 20px); width: 40px; }
   .lines{ grid-template-columns: 1fr; }
 }
 @media (max-width: 640px){ .two{ grid-template-columns: 1fr; } }
