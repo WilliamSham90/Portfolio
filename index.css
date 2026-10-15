@@ -198,18 +198,18 @@ button{ font: inherit; color: inherit; }
    through the four inks, holding each a beat. clip-path and colour only: in
    the nav, hover and the click spin own the transform. */
 .morph{ display: inline-block; border-radius: 50%; background: var(--pink); }
+/* Seven 2s steps: hold 1.4s, morph .6s. index.js (and 404.html) moves every .morph on a step every
+   2s (data-s); a .6s transition does the morph. Between steps nothing's animating: as a looping
+   animation it was restyled and repainted on the main thread every frame of every page, the whole
+   time (clip-path and colour can't run on the compositor), and kept the page from ever resting. */
 @media (prefers-reduced-motion: no-preference){
-  .morph{ border-radius: 0; clip-path: var(--circle); animation: brand-morph 14s ease-in-out infinite; }
-}
-/* seven 2s steps: hold 1.4s, morph .6s */
-@keyframes brand-morph{
-  0%, 10%, 100%{ clip-path: var(--circle);   background: var(--pink); }
-  14.29%, 24.29%{ clip-path: var(--square);   background: var(--blue); }
-  28.57%, 38.57%{ clip-path: var(--triangle); background: var(--yellow); }
-  42.86%, 52.86%{ clip-path: var(--hexagon);  background: var(--mint); }
-  57.14%, 67.14%{ clip-path: var(--diamond);  background: var(--pink); }
-  71.43%, 81.43%{ clip-path: var(--pentagon); background: var(--blue); }
-  85.71%, 95.71%{ clip-path: var(--star);     background: var(--yellow); }
+  .morph{ border-radius: 0; clip-path: var(--circle); transition: clip-path .6s ease-in-out, background-color .6s ease-in-out; }
+  .morph[data-s="1"]{ clip-path: var(--square);   background-color: var(--blue); }
+  .morph[data-s="2"]{ clip-path: var(--triangle); background-color: var(--yellow); }
+  .morph[data-s="3"]{ clip-path: var(--hexagon);  background-color: var(--mint); }
+  .morph[data-s="4"]{ clip-path: var(--diamond);  background-color: var(--pink); }
+  .morph[data-s="5"]{ clip-path: var(--pentagon); background-color: var(--blue); }
+  .morph[data-s="6"]{ clip-path: var(--star);     background-color: var(--yellow); }
 }
 .brand-text{ white-space: nowrap; line-height: 1.25; }
 .brand-text .hl-name{ display: inline-block; }
@@ -416,7 +416,7 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
   display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: clamp(22px, 3.4vh, 34px);
   font-family: "JetBrains Mono", monospace; font-size: .72rem; color: var(--ink-faint);
 }
-.ly-hint .morph{ width: 12px; height: 12px; flex: none; animation: none; }   /* still: the header's mark already morphs */
+.ly-hint .morph{ width: 12px; height: 12px; flex: none; }   /* still (index.js skips it): the header's mark already morphs */
 .ly-bops b{ font-weight: 500; color: var(--pink-ink); font-variant-numeric: tabular-nums; }
 .ly-bops::before{ content: "·"; margin-right: 10px; }
 
@@ -532,6 +532,8 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 }
 .nm-w{ display: inline-block; white-space: nowrap; }
 .nm-w > span{ display: inline-block; }
+/* off screen (index.js marks them): looping animations stop, rather than be restyled every frame unseen */
+.is-away, .is-away *{ animation-play-state: paused !important; }
 /* .hop (the Playground's title): the bounce alone, no underline */
 @media (prefers-reduced-motion: no-preference){
   :is(.stamp, .hop).is-idle .nm-w > span{ animation: nm-hop 6s ease-in-out calc(var(--i) * 60ms + .1s) infinite; }
@@ -783,7 +785,9 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 }
 .embed-hint:is(:hover, :focus-visible) > span{ transform: scale(1.05); background: var(--ink); }
 /* the cursor acts out a press, drag and release */
-.embed-hint svg{ width: 18px; height: 18px; flex: none; fill: #fff; stroke: var(--ink); stroke-width: 1.2; animation: hintDrag 2.2s ease-in-out infinite; }
+.embed-hint svg{ width: 18px; height: 18px; flex: none; fill: #fff; stroke: var(--ink); stroke-width: 1.2; animation: hintDrag 2.2s ease-in-out infinite paused; }
+/* only while the layer's showing: hidden (before the site's in, once it's used), it'd still run */
+.embed-stage:not(.used):has(> iframe.ready) .embed-hint svg{ animation-play-state: running; }
 @keyframes hintDrag{
   0%, 100%{ transform: translate(0, 0) scale(1); }
   15%     { transform: translate(0, 0) scale(.8); }
@@ -1434,6 +1438,11 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
    The same cut, painted the same way, and nothing moves. */
 .coaster.is-ride .coaster-stage{ position: relative; height: 100vh; height: 100lvh; }
 .coaster.is-ride .coaster-clip{ position: absolute; inset: 0; clip-path: inset(0); }
+/* A clip-path cuts what's painted, not the page's size: unpinned (before and after the ride), the
+   park, thousands of px wide, made the page wider than a phone (Chrome there widens the viewport
+   to fit, so the page could be zoomed out and dragged sideways). The section clips its overflow;
+   it never turns fixed, so this brings back no layout shift (and a fixed, pinned stage ignores it). */
+.coaster.is-ride{ overflow: clip; }
 .coaster.is-ride .coaster-world{ display: block; position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
 .coaster.is-ride .cz-boards{ position: absolute; inset: 0; display: block; max-width: none; padding: 0; pointer-events: none; }
 .coaster.is-ride .cz-board{
@@ -1465,16 +1474,28 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 
 /* The gate: a marquee sign, bulbs and all */
 .cz-gate{ left: -100px; top: -345px; width: 300px; border-inline: 7px solid var(--ink); }
+/* its words kept well inside the ring of lights (the bulbs run 12px in, their glow to ~20px) */
 .cz-gate-sign{
-  position: absolute; left: -27px; right: -27px; top: 0; padding: 20px 22px 22px; text-align: center;
+  position: absolute; left: -27px; right: -27px; top: 0; padding: 30px 34px; text-align: center;
   background: var(--ink); color: var(--paper); border-radius: 14px; box-shadow: 8px 8px 0 var(--pink);
-  outline: 4px dotted var(--yellow); outline-offset: -10px;
 }
+/* Its lights chase round it, clockwise (index.js bulbsHTML: three rings, each a bulb on from the last).
+   The rings light in turn, a bulb's step every .2s. Only each ring's opacity is animated: the
+   compositor runs that, so the park layer they're on (moved by the camera every frame) is never
+   repainted for it. Off screen they stop (.is-near); with reduced motion they're simply all lit. */
+.cz-bulbs{ position: absolute; inset: 12px; pointer-events: none; }
+.cz-bulbs svg{ position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; animation: cz-chase .6s linear infinite; }
+.cz-bulbs svg:nth-child(2){ animation-delay: -.4s; }
+.cz-bulbs svg:nth-child(3){ animation-delay: -.2s; }
+.cz-bulbs rect{ fill: none; stroke: #FFCB3D; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0 3; }
+.cz-bulbs .cz-halo{ stroke-width: 12; opacity: .22; }   /* each bulb's glow */
+@keyframes cz-chase{ 0%, 30%{ opacity: 1; } 40%, 90%{ opacity: .28; } }
 .cz-gate-sign b{ display: block; font: 800 34px/1 "Bricolage Grotesque", sans-serif; letter-spacing: -.03em; text-wrap: balance; }
 /* "To be continued…": the gate's sign again, hovering over the track where the ride ends */
 .cz-end{ top: -175px; animation: cz-bob 3s ease-in-out infinite alternate; }
 .cz-end .cz-gate-sign{ top: auto; bottom: 0; left: -170px; right: auto; width: 340px; transform-origin: 50% 100%; }
-.cz-gate-sign span{ display: block; margin-top: 10px; font: 500 14px/1.4 "JetBrains Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--yellow); }
+/* the line under the title (b + span: not the lights' .cz-bulbs, a span too, which its margin pushed 10px down) */
+.cz-gate-sign b + span{ display: block; margin-top: 10px; font: 500 14px/1.4 "JetBrains Mono", monospace; letter-spacing: .06em; text-transform: uppercase; text-wrap: balance; color: var(--yellow); }
 
 /* A stop: striped awning on posts, a platform, and the sign that pops when the cart pulls in */
 .cz-stop{ top: 0; }
@@ -1516,7 +1537,8 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 .coaster-world .cz-spin:not(.is-near),
 .coaster-world .cz-float:not(.is-near),
 .coaster-world .cz-end:not(.is-near),
-.coaster-world .cz-cloud:not(.is-near){ animation-play-state: paused; }
+.coaster-world .cz-cloud:not(.is-near),
+.coaster-world :is(.cz-gate, .cz-end):not(.is-near) .cz-bulbs svg{ animation-play-state: paused; }
 /* The sky (index.js, skyHTML): its own layer, since the camera moves it every frame for the parallax;
    each cloud drifts to and fro on the wind (--dx over --t, from a random phase --d). translate, not
    transform, so a flipped cloud (scale: -1 1) still drifts the right way. */

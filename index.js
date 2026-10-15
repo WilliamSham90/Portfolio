@@ -1271,8 +1271,6 @@
       const o = (-offset).toFixed(1);
       if (o !== lastO){ tp.setAttribute("startOffset", o); lastO = o; }
     }
-    if (motion) gsap.ticker.add(tick);
-
     /* ---- hands on: grab and throw the badge; a click (or Flip) turns it over ---- */
     badge.addEventListener("pointerdown", e => {
       if (e.button || !ready || e.target.closest("#ly-turn")) return;
@@ -1357,8 +1355,13 @@
     new ResizeObserver(() => requestAnimationFrame(layout)).observe(hero);
     // the fonts change what's measured (the letters, the print): once they're in, measure again
     if (document.fonts) document.fonts.ready.then(() => { builtW = 0; layout(); });
-    // the loop only runs while the hero is on screen (and, through the ticker, while the tab is)
-    new IntersectionObserver(([en]) => { visible = en.isIntersecting; }).observe(hero);
+    /* the loop runs only while the hero is on screen (and, through the ticker, while the tab is): it's
+       on GSAP's ticker only then, since a listener on the ticker, even one with nothing to do, keeps
+       it asking for a frame every refresh, on every page */
+    new IntersectionObserver(([en]) => {
+      visible = en.isIntersecting;
+      if (motion) visible ? gsap.ticker.add(tick) : gsap.ticker.remove(tick);
+    }).observe(hero);
 
     /* ---- the entrance, on each visit: the name rises in (stampIn), the badge falls in
             swinging, the full stop lands, "You're welcome." is underlined once, and then the
@@ -1651,16 +1654,24 @@
     return '<div class="cz-sky">' + html + '</div>';
   }
 
+  /* A sign's marquee lights (index.css .cz-bulbs): 3n bulbs evenly round its edge, as three rings of
+     n, each one bulb further on, clockwise (a rect's outline runs clockwise from its top left;
+     pathLength 3n spaces a ring's bulbs 3 apart, the dash offset steps it on by 1) */
+  const bulbsHTML = n => '<span class="cz-bulbs" aria-hidden="true">' + [0, 1, 2].map(k =>
+    '<svg><rect class="cz-halo" width="100%" height="100%" rx="5" pathLength="' + 3 * n + '" stroke-dashoffset="' + -k + '"/>' +
+    '<rect width="100%" height="100%" rx="5" pathLength="' + 3 * n + '" stroke-dashoffset="' + -k + '"/></svg>').join("") + '</span>';
+
   function coasterWorldHTML(){
     const t = TRACK;
     return '<div class="cz-ground" style="left:' + (-TAIL - 400) + 'px;width:' + (t.end + 2 * TAIL + 800) + 'px;top:' + GROUND + 'px"></div>' +
       skyHTML() + '<div class="cz-fx cz-fx--back"></div>' + parkHTML() +
-      '<div class="cz-gate" style="height:' + (345 + GROUND) + 'px"><div class="cz-gate-sign"><b>' + esc(T("ride.title", "The Career Coaster")) +
+      // the signs' sizes are set (340 × 177 and 340 × 94): bulbs about 12px apart round each
+      '<div class="cz-gate" style="height:' + (345 + GROUND) + 'px"><div class="cz-gate-sign">' + bulbsHTML(26) + '<b>' + esc(T("ride.title", "The Career Coaster")) +
         '</b><span>' + esc(T("ride.sub", "Keep your arms inside the cart · scroll to ride ↓")) + '</span></div></div>' +
       t.stops.map((x, i) => '<div class="cz-stop" style="left:' + x + 'px;--accent:' + JOBS[i].accent + '"><i class="cz-roof"></i><i class="cz-deck"></i>' +
         '<div class="cz-sign"><span>' + esc(T("ride.stop", "Stop")) + ' ' + pad2(i + 1) + ' · ' + esc(JOBS[i].when[LANG]) + '</span>' +
         '<b>' + esc(JOBS[i].role[LANG]) + '</b></div></div>').join("") +
-      '<div class="cz-end" style="left:' + (t.end + 60) + 'px"><div class="cz-gate-sign"><b>' + esc(T("ride.next", "To be continued…")) + '</b></div></div>' +
+      '<div class="cz-end" style="left:' + (t.end + 60) + 'px"><div class="cz-gate-sign">' + bulbsHTML(21) + '<b>' + esc(T("ride.next", "To be continued…")) + '</b></div></div>' +
       '<svg class="cz-track" width="1" height="1">' +
         t.chunks.map(c => '<path class="cz-supports" d="' + c.supports + '"/>').join("") +
         t.chunks.map(c => '<path class="cz-ties" d="' + c.ties + '"/>').join("") +
@@ -1906,7 +1917,6 @@
       }
       fxStep(fxBack, time); fxStep(fxCart, time); fxStep(fxClick, time);
     }
-    gsap.ticker.add(tick);
     // One burst, sometimes two in different colours, and only over the ride itself: never while a
     // job's board is showing (its photos open the lightbox instead)
     const onClick = e => {
@@ -1919,11 +1929,16 @@
       }
     };
     stage.addEventListener("click", onClick);
-    const io = new IntersectionObserver(entries => { onScreen = entries[0].isIntersecting; });
+    // the effects' loop is on GSAP's ticker only while the ride's on screen (an idle listener there keeps
+    // the page drawing every frame); off it, a burst still going simply finishes on the way back
+    const io = new IntersectionObserver(entries => {
+      onScreen = entries[0].isIntersecting;
+      onScreen ? gsap.ticker.add(tick) : gsap.ticker.remove(tick);
+    });
     io.observe(stage);
     // the park's wheels, balloons and clouds only turn, bob and drift near the screen (index.css)
     const near = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("is-near", e.isIntersecting)), { rootMargin: "0px 300px" });
-    $$(".cz-spin, .cz-float, .cz-end, .cz-cloud", world).forEach(el => near.observe(el));
+    $$(".cz-spin, .cz-float, .cz-gate, .cz-end, .cz-cloud", world).forEach(el => near.observe(el));
     // fetch and decode the sheets ahead of time, once the browser has a quiet moment
     const warm = setTimeout(() => { if (!lite) (window.requestIdleCallback || (f => f()))(() => FX_SHEETS.forEach(sheet)); }, 1200);
 
@@ -2515,25 +2530,28 @@
      FOOTER WAVE — the footer's top is the hero's wave (WAVE), without
      the dots: a fling of the page jiggles it, and on a mouse or a
      trackpad the cursor skimming it splashes it, as in the hero. It's
-     stepped on GSAP's ticker, only while it's on screen and moving.
+     on GSAP's ticker only while it's on screen and moving: a listener
+     there, even an idle one, keeps the page drawing every frame.
      ================================================================= */
   function startFooterWave(){
     const svg = $("#foot-wave");
     if (!svg) return;
     const wave = makeWave(svg), DT = 1 / 120;
-    let visible = false, acc = 0;
+    let visible = false, acc = 0, on = false;
     // sized as it arrives and on every resize (its height follows the screen's: --floor)
     new ResizeObserver(() => { wave.size(svg.clientWidth); wave.draw(); }).observe(svg);
     if (!GS || reduced) return;   // still: it rests
-    new IntersectionObserver(([en]) => { visible = en.isIntersecting; }).observe(svg);
-    gsap.ticker.add((time, dtMs) => {
-      if (!visible || !wave.awake) return;
+    const run = (time, dtMs) => {
       acc = Math.min(acc + Math.min(dtMs, 50) / 1000, DT * 5);
       while (acc >= DT && wave.awake){ wave.step(DT); acc -= DT; }
       wave.draw();
-    });
+      if (!wave.awake || !visible) sleep();   // settled (or gone): off the ticker
+    };
+    const sleep = () => { if (on){ gsap.ticker.remove(run); on = false; } };
+    const wake = () => { if (visible && wave.awake && !on){ on = true; acc = 0; gsap.ticker.add(run); } };
+    new IntersectionObserver(([en]) => { visible = en.isIntersecting; visible ? wake() : sleep(); }).observe(svg);
     let lastY = scrollY;
-    addEventListener("scroll", () => { const dy = scrollY - lastY; lastY = scrollY; if (visible) wave.jiggle(dy); }, { passive: true });
+    addEventListener("scroll", () => { const dy = scrollY - lastY; lastY = scrollY; if (visible){ wave.jiggle(dy); wake(); } }, { passive: true });
     if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     let px = 0, py = 0, pt = 0;
     addEventListener("pointermove", e => {
@@ -2542,7 +2560,7 @@
       const now = performance.now(), dt = Math.max(8, now - pt) / 1000;
       // the hero's splash (HERO, the bat): down the wave's slope with the cursor's speed
       if (now - pt < 120 && x >= 0 && x <= r.width && y > wave.surface(x) - 24 && y < r.height)
-        wave.poke(x, clamp(-700, 700, (y - py) / dt) * .18 + Math.min(900, Math.abs(x - px) / dt) * .09);
+      { wave.poke(x, clamp(-700, 700, (y - py) / dt) * .18 + Math.min(900, Math.abs(x - px) / dt) * .09); wake(); }
       px = x; py = y; pt = now;
     }, { passive: true });
   }
@@ -2941,7 +2959,11 @@
        language switch rebuilding the page) skips the entrance. */
     function enter(immediate){
       if (!preloaded){ preloaded = true; PHOTOS.forEach(p => { new Image().src = p.src; }); }   // the next covers, ready
-      ScrollTrigger.create({ trigger: code, start: "top 92%", once: true, onEnter: () => { if (!typed && !typing) typeCode(); } });
+      /* the typing starts a frame after the trigger, so it isn't part of the page's GSAP context: a
+         ScrollTrigger's callbacks run inside its context, so a tween begun there was reverted with the
+         page on leaving it (or on a language switch), which ran it back to nothing: the code was left
+         empty, one line with the caret, and it never typed again until a refresh */
+      ScrollTrigger.create({ trigger: code, start: "top 92%", once: true, onEnter: () => requestAnimationFrame(() => { if (!typed && !typing) typeCode(); }) });
       if (immediate){ if (wanted && !playing) setPlaying(true); return; }
       leave();
       show(0);
@@ -2952,9 +2974,10 @@
         .fromTo($(".a5-controls"), { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: .6, clearProps: "transform,opacity" }, .45)
         .fromTo(disc, { xPercent: -34 }, { xPercent: 0, duration: .9, ease: "power3.inOut", onComplete: () => setPlaying(true) }, .7);
     }
-    // leaving the page (applyRoute): the record stops
+    // leaving the page (applyRoute): the record stops, and the code's typed out in full, ready for the return
     function leave(){
       if (swapping) swapping.progress(1).kill();   // finished at once (its onComplete clears it)
+      if (typing) typing.progress(1);
       setPlaying(false);
     }
     // the words in the language just switched to (applyLang): the tracks, Play/Pause, the code whole
@@ -3530,6 +3553,16 @@
   applyRoute(routeFromHash());
   startProgress();
   startFooterWave();
+
+  /* Looping CSS animations pause while their part of the page is off screen (index.css .is-away): a
+     running animation is restyled every frame, seen or not, and kept even a still page drawing. And
+     the logo marks step on a 2s clock (index.css .morph: a .6s morph, then still). */
+  if (!reduced){
+    const away = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("is-away", !e.isIntersecting)), { rootMargin: "100px 0px" });
+    $$(".ly, .stamp, .hop, .pr-title, .a5-deck, .a5-head, .a5-words, .embed-loader, .c3-s").forEach(el => away.observe(el));
+    let s = 0;
+    setInterval(() => { s = (s + 1) % 7; $$(".morph").forEach(el => { if (!el.closest(".ly-hint")) el.dataset.s = s; }); }, 2000);
+  }
   $("#year").textContent = new Date().getFullYear();
   initShapeFx($("#contact-fx"), $("#page-contact"));
   initShapeFx($("#skills-fx"), $("#skills-tinted"));

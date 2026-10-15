@@ -267,6 +267,9 @@
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const main = $("#nf"), boss = $("#boss"), arena = $("#arena"), hit = $("#hit"), ko = $("#ko");
 
+  // the logo marks' morph, as on the site (index.css .morph): the next shape every 2s
+  if (!reduced){ let s = 0; setInterval(() => { s = (s + 1) % 7; document.querySelectorAll(".morph").forEach(el => { el.dataset.s = s; }); }, 2000); }
+
   /* same language switch as the main site (index.js stores it) */
   let af = false;
   try { af = localStorage.getItem("ws-lang") === "af"; } catch (e) {}
