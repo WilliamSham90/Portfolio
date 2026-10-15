@@ -239,6 +239,8 @@ button{ font: inherit; color: inherit; }
   content:""; position: absolute; left: 10px; top: -8px; width: 12px; height: 12px;
   background: #fff; border-left: 2px solid var(--ink); border-top: 2px solid var(--ink); transform: rotate(45deg);
 }
+/* the Spider-Man show (index.js SHOW): its own canvas, over everything; the pointer goes through it */
+.spidey-stage{ position: fixed; inset: 0; z-index: 120; width: 100%; height: 100%; pointer-events: none; }
 .spidey-confetti{ position: fixed; z-index: 80; width: 0; height: 0; pointer-events: none; }
 .spidey-confetti i{ position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; }
 .spidey-confetti svg{ display: block; width: 100%; height: 100%; fill: currentColor; stroke: currentColor; }
@@ -1319,7 +1321,12 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 .cz-slot:nth-child(3){ left: 28%; bottom: 0; rotate: -2deg; }
 
 /* ---- riding ---- */
-.coaster.is-ride .coaster-stage{ position: relative; height: 100vh; height: 100lvh; overflow: hidden; overflow: clip; }
+/* The ride is cut to the stage by a clip-path on a box inside it, not by overflow: with an overflow
+   clip, Chrome read the ride as jumping a whole screen each time the pin took hold or let go (it
+   turns the stage fixed), a layout shift (CLS) of ~1 each time, ~4 for a trip down and back up.
+   The same cut, painted the same way, and nothing moves. */
+.coaster.is-ride .coaster-stage{ position: relative; height: 100vh; height: 100lvh; }
+.coaster.is-ride .coaster-clip{ position: absolute; inset: 0; clip-path: inset(0); }
 .coaster.is-ride .coaster-world{ display: block; position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
 .coaster.is-ride .cz-boards{ position: absolute; inset: 0; display: block; max-width: none; padding: 0; pointer-events: none; }
 .coaster.is-ride .cz-board{

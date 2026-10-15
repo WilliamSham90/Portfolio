@@ -417,11 +417,14 @@
         </div>
       </div>
       <!-- The Career Coaster (index.js, COASTER): pinned while the cart rides
-           from stop to stop; each stop's board opens out of the cart -->
+           from stop to stop; each stop's board opens out of the cart.
+           Clipped inside the stage, not by it (index.css: no layout shifts at the pin) -->
       <div class="coaster-stage">
-        <div class="coaster-world" id="cz-world" aria-hidden="true"></div>
-        <div class="cz-boards" id="cz-boards"></div>
-        <div class="cz-fx cz-fx--click" aria-hidden="true"></div>
+        <div class="coaster-clip">
+          <div class="coaster-world" id="cz-world" aria-hidden="true"></div>
+          <div class="cz-boards" id="cz-boards"></div>
+          <div class="cz-fx cz-fx--click" aria-hidden="true"></div>
+        </div>
       </div>
     </section>
 
