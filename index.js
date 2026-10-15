@@ -925,14 +925,18 @@
       if (motion){ const m = pts[SEG + 1]; m.px = m.x + (Math.random() - .5) * 12; }   // turning over gives it a little kick
     }
     turn.addEventListener("click", flip);
-    // a fling of the page makes it jump on its strap, and the floor jiggle (unevenly, so it reads as a wave)
-    let lastY = scrollY;
+    /* a scroll knocks it once, as a dot cruising into it does (againstBadge) but a little harder: a small
+       hop on its strap and a sway (scrolling down knocks it up and to the left). Only the start of a
+       scroll knocks it, however long it goes on; the floor jiggles all along (unevenly, so it reads as a wave) */
+    let lastY = scrollY, lastScroll = 0;
     addEventListener("scroll", () => {
-      const dy = scrollY - lastY; lastY = scrollY;
+      const dy = scrollY - lastY, now = performance.now(), fresh = now - lastScroll > 400;
+      lastY = scrollY; lastScroll = now;
       if (!motion || !visible || !ready) return;
-      const m = pts[SEG + 1];
-      m.py += clamp(-14, 14, dy * .12);
-      m.px += clamp(-6, 6, dy * .03);
+      if (dy && fresh && !held){
+        const m = pts[SEG + 1], kick = speed * .35 * DT * 1.2 * Math.sign(dy);   // (Verlet: velocity is x - px)
+        m.py += kick; m.px += kick;
+      }
       const k = clamp(-70, 70, dy * 1.6);
       for (let i = 0; i <= FN; i++) fv[i] += k * (.45 + .55 * Math.sin(i * .45 + t * 4));
       fAwake = true;
