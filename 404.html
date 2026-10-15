@@ -30,7 +30,6 @@
   body{ min-height: 100svh; display: flex; flex-direction: column; }
   .topbar a{ text-decoration: none; }
   .lost{ color: var(--pink); }
-  footer{ border-top: 1px solid var(--hair); }
 
   .nf{
     flex: 1; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
@@ -195,7 +194,7 @@
   <div class="shell topbar-in">
     <a class="brand" href="./">
       <span class="brand-icon" aria-hidden="true"><i class="brand-dot morph on"></i></span>
-      <span class="brand-text"><span>WILLIAM&nbsp;SHAM,</span> <span class="brand-is">IS <span class="lost" data-af="VERDWAAL">LOST</span></span></span>
+      <span class="brand-text"><span class="hl hl-name">WILLIAM&nbsp;SHAM,</span> <span class="brand-is">IS <span class="lost" data-af="VERDWAAL">LOST</span></span></span>
     </a>
     <a class="ghost" href="./"><span aria-hidden="true">←</span> <span data-af="Tuis">Home</span></a>
   </div>
@@ -230,17 +229,33 @@
   </section>
 </main>
 
-<footer>
-  <div class="shell foot">
-    <span>© 2026 WILLIAM SHAM</span>
-    <nav aria-label="Footer">
-      <a href="#portfolio" data-af="Portefeulje">Portfolio</a>
-      <a href="#about" data-af="Oor my">About</a>
-      <a href="#projects" data-af="Projekte">Projects</a>
-      <a href="#play" data-af="Speelgrond">Playground</a>
-      <a href="#contact" data-af="Kontak">Contact</a>
-    </nav>
-    <a href="https://www.bible.com/bible/114/PSA.115.NKJV" target="_blank" rel="noopener" data-af="Alle eer aan GOD · Psalm 115">All glory to GOD · Psalm 115</a>
+<!-- the site's footer (index.html), with its wave at rest: there's no index.js here to ripple it -->
+<footer class="site-foot">
+  <svg class="foot-wave" viewBox="0 0 1200 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M-2 44Q300 30 600 44T1202 44V102H-2Z"/></svg>
+  <div class="shell">
+    <div class="foot-top">
+      <div class="foot-id">
+        <p class="foot-mark"><i class="morph" aria-hidden="true"></i><span class="hl hl-name">WILLIAM&nbsp;SHAM</span></p>
+        <p class="foot-tag" data-af="Senior webontwikkelaar">Senior Web Developer</p>
+        <a class="hl foot-mail" href="mailto:williamsham90@gmail.com">williamsham90@gmail.com</a>
+      </div>
+      <nav class="foot-links" aria-label="Footer">
+        <a class="hl" href="#portfolio" data-route="portfolio" data-af="Portefeulje">Portfolio</a>
+        <a class="hl" href="#about"     data-route="about"     data-af="Oor my">About</a>
+        <a class="hl" href="#projects"  data-route="projects"  data-af="Projekte">Projects</a>
+        <a class="hl" href="#play"      data-route="play"      data-af="Speelgrond">Playground</a>
+        <a class="hl" href="#contact"   data-route="contact"   data-af="Kontak">Contact</a>
+      </nav>
+    </div>
+    <div class="foot-bottom">
+      <p class="foot-copy">© <span id="year">2026</span> WILLIAM SHAM</p>
+      <a class="hl foot-psalm" href="https://www.bible.com/bible/114/PSA.115.NKJV" target="_blank" rel="noopener" data-af="Alle eer aan GOD · Psalm 115">All glory to GOD · Psalm 115</a>
+      <div class="foot-social">
+        <a class="ghost" href="https://github.com/WilliamSham90" target="_blank" rel="noopener">GitHub ↗</a>
+        <a class="ghost" href="https://www.linkedin.com/in/william-sham-0a1a12211/" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a class="ghost" href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener">CodePen ↗</a>
+      </div>
+    </div>
   </div>
 </footer>
 
@@ -260,6 +275,8 @@
     document.querySelectorAll("[data-af]").forEach(el => { el.textContent = el.dataset.af; });
     hit.setAttribute("aria-label", "Slaan die 404");
   }
+
+  $("#year").textContent = new Date().getFullYear();
 
   let path = location.pathname;
   try { path = decodeURI(path); } catch (e) {}

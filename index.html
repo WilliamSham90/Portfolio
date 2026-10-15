@@ -54,6 +54,8 @@
 </head>
 <body>
 
+<a class="skip" href="#main" id="skip" data-i18n="skip">Skip to content</a>
+
 <div id="loader" aria-hidden="true">
   <div class="loader-ring">
     <span style="--i:0">N</span><span style="--i:1">O</span><span style="--i:2">W</span><span style="--i:4">L</span><span style="--i:5">O</span><span style="--i:6">A</span><span style="--i:7">D</span><span style="--i:8">I</span><span style="--i:9">N</span><span style="--i:10">G</span><span style="--i:11">.</span><span style="--i:12">.</span><span style="--i:13">.</span><span style="--i:14">✦</span>
@@ -81,34 +83,36 @@
         <img src="Images/Navimages/yeah.webp" alt="" width="34" height="34">
         <img src="Images/Navimages/batman.webp" alt="" width="34" height="34">
       </span>
-      <span class="brand-text"><span>WILLIAM&nbsp;SHAM,</span> <span class="brand-is">IS <span class="brand-mask"><span id="brand-word">A Programmer</span></span></span></span>
+      <span class="brand-text"><span class="hl hl-name">WILLIAM&nbsp;SHAM,</span> <span class="brand-is">IS <span class="brand-mask"><span id="brand-word">A Programmer</span></span></span></span>
     </button>
     <span class="bat-bubble" id="bat-bubble" role="status"></span>
-    <nav class="nav" id="nav" aria-label="Primary">
-      <a href="#portfolio" data-route="portfolio" data-i18n="nav.portfolio">Portfolio</a>
-      <a href="#about"     data-route="about"     data-i18n="nav.about">About</a>
-      <a href="#projects"  data-route="projects"  data-i18n="nav.projects">Projects</a>
-      <a href="#play"      data-route="play"      data-i18n="nav.play">Playground</a>
-      <a href="#contact"   data-route="contact"   data-i18n="nav.contact">Contact</a>
+    <!-- every link here, in the drawer and in the footer: a marker-pen stroke in its page's ink
+         behind the page you're on (index.css, the highlighter; index.js sets aria-current) -->
+    <nav class="nav-links" aria-label="Primary">
+      <a class="hl" href="#portfolio" data-route="portfolio" data-i18n="nav.portfolio">Portfolio</a>
+      <a class="hl" href="#about"     data-route="about"     data-i18n="nav.about">About</a>
+      <a class="hl" href="#projects"  data-route="projects"  data-i18n="nav.projects">Projects</a>
+      <a class="hl" href="#play"      data-route="play"      data-i18n="nav.play">Playground</a>
+      <a class="hl" href="#contact"   data-route="contact"   data-i18n="nav.contact">Contact</a>
     </nav>
     <div class="tools">
       <button class="ghost" id="lang" type="button" aria-label="EN, switch to Afrikaans">EN</button>
-      <button class="ghost burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+      <button class="ghost burger" id="burger" type="button" aria-label="Open menu" data-i18n-label="menu.open" aria-expanded="false" aria-controls="drawer">☰</button>
     </div>
   </div>
 </header>
 
 <div id="scrim"></div>
-<aside id="drawer" aria-label="Menu" inert>
+<aside id="drawer" aria-label="Menu" data-i18n-label="drawer.title" inert>
   <div class="drawer-top">
     <span class="label" data-i18n="drawer.title">Menu</span>
-    <button class="ghost" id="close-drawer" type="button" aria-label="Close menu">✕</button>
+    <button class="ghost" id="close-drawer" type="button" aria-label="Close menu" data-i18n-label="menu.close">✕</button>
   </div>
-  <a href="#portfolio" data-route="portfolio"><i aria-hidden="true">01</i><span data-i18n="nav.portfolio">Portfolio</span></a>
-  <a href="#about"     data-route="about"><i aria-hidden="true">02</i><span data-i18n="nav.about">About</span></a>
-  <a href="#projects"  data-route="projects"><i aria-hidden="true">03</i><span data-i18n="nav.projects">Projects</span></a>
-  <a href="#play"      data-route="play"><i aria-hidden="true">04</i><span data-i18n="nav.play">Playground</span></a>
-  <a href="#contact"   data-route="contact"><i aria-hidden="true">05</i><span data-i18n="nav.contact">Contact</span></a>
+  <a href="#portfolio" data-route="portfolio"><i aria-hidden="true">01</i><span class="hl" data-i18n="nav.portfolio">Portfolio</span></a>
+  <a href="#about"     data-route="about"><i aria-hidden="true">02</i><span class="hl" data-i18n="nav.about">About</span></a>
+  <a href="#projects"  data-route="projects"><i aria-hidden="true">03</i><span class="hl" data-i18n="nav.projects">Projects</span></a>
+  <a href="#play"      data-route="play"><i aria-hidden="true">04</i><span class="hl" data-i18n="nav.play">Playground</span></a>
+  <a href="#contact"   data-route="contact"><i aria-hidden="true">05</i><span class="hl" data-i18n="nav.contact">Contact</span></a>
   <div class="drawer-foot">
     <a href="mailto:williamsham90@gmail.com">williamsham90@gmail.com</a>
     <a href="https://github.com/WilliamSham90" target="_blank" rel="noopener">github.com/WilliamSham90</a>
@@ -116,7 +120,7 @@
   </div>
 </aside>
 
-<main id="main">
+<main id="main" tabindex="-1">
 
   <!-- ========================== PORTFOLIO ========================= -->
   <section class="page" id="page-portfolio">
@@ -565,20 +569,33 @@
 
 </main>
 
-<footer>
-  <svg class="footer-wave" viewBox="0 0 1200 30" preserveAspectRatio="none" aria-hidden="true">
-    <path id="footer-wave-path" d="M0,30 C150,30 150,30 300,30 C450,30 450,30 600,30 C750,30 750,30 900,30 C1050,30 1050,30 1200,30 L1200,30 L0,30 Z"></path>
-  </svg>
-  <div class="shell foot">
-    <span>© 2026 WILLIAM SHAM</span>
-    <nav aria-label="Footer">
-      <a href="#portfolio" data-i18n="nav.portfolio">Portfolio</a>
-      <a href="#about" data-i18n="nav.about">About</a>
-      <a href="#projects" data-i18n="nav.projects">Projects</a>
-      <a href="#play" data-i18n="nav.play">Playground</a>
-      <a href="#contact" data-i18n="nav.contact">Contact</a>
-    </nav>
-    <a data-i18n="foot.built" href="https://www.bible.com/bible/114/PSA.115.NKJV" target="_blank" rel="noopener">All glory to GOD · Psalm 115</a>
+<footer class="site-foot">
+  <!-- the hero's wave (index.js, WAVE): a still one, until index.js draws it to size -->
+  <svg class="foot-wave" id="foot-wave" viewBox="0 0 1200 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M-2 44Q300 30 600 44T1202 44V102H-2Z"/></svg>
+  <div class="shell">
+    <div class="foot-top">
+      <div class="foot-id">
+        <p class="foot-mark"><i class="morph" aria-hidden="true"></i><span class="hl hl-name">WILLIAM&nbsp;SHAM</span></p>
+        <p class="foot-tag" data-i18n="foot.tag">Senior Web Developer</p>
+        <a class="hl foot-mail" href="mailto:williamsham90@gmail.com">williamsham90@gmail.com</a>
+      </div>
+      <nav class="foot-links" aria-label="Footer">
+        <a class="hl" href="#portfolio" data-route="portfolio" data-i18n="nav.portfolio">Portfolio</a>
+        <a class="hl" href="#about"     data-route="about"     data-i18n="nav.about">About</a>
+        <a class="hl" href="#projects"  data-route="projects"  data-i18n="nav.projects">Projects</a>
+        <a class="hl" href="#play"      data-route="play"      data-i18n="nav.play">Playground</a>
+        <a class="hl" href="#contact"   data-route="contact"   data-i18n="nav.contact">Contact</a>
+      </nav>
+    </div>
+    <div class="foot-bottom">
+      <p class="foot-copy">© <span id="year">2026</span> WILLIAM SHAM</p>
+      <a class="hl foot-psalm" href="https://www.bible.com/bible/114/PSA.115.NKJV" target="_blank" rel="noopener" data-i18n="foot.built">All glory to GOD · Psalm 115</a>
+      <div class="foot-social">
+        <a class="ghost" href="https://github.com/WilliamSham90" target="_blank" rel="noopener">GitHub ↗</a>
+        <a class="ghost" href="https://www.linkedin.com/in/william-sham-0a1a12211/" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a class="ghost" href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener">CodePen ↗</a>
+      </div>
+    </div>
   </div>
 </footer>
 

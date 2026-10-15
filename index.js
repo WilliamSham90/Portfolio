@@ -28,6 +28,7 @@
     catch (e) { return null; }
   }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" })[c]);
+  const clamp = (a, b, v) => v < a ? a : v > b ? b : v;
 
   /* An iframe fires `load` even when the embed was refused, leaving a blank
      frame on top of the fallback — but every source this site embeds
@@ -46,7 +47,8 @@
      ================================================================= */
   const AF = {
     "nav.portfolio":"Portefeulje","nav.about":"Oor my","nav.projects":"Projekte","nav.play":"Speelgrond","nav.contact":"Kontak",
-    "drawer.title":"Kieslys",
+    "drawer.title":"Kieslys","menu.open":"Maak die kieslys oop","menu.close":"Maak die kieslys toe",
+    "skip":"Spring na die inhoud","foot.tag":"Senior webontwikkelaar",
     "hero.status":"'n Volgeling van JESUS",
     "hero.sub":"Full-stack developer. Ek maak die internet mooi.","hero.sub2":"Plesier",
     "hero.tag":"Senior webontwikkelaar",
@@ -134,6 +136,11 @@
     $$("[data-i18n-ph]").forEach(el => {
       if (el.dataset.enPh === undefined) el.dataset.enPh = el.placeholder;
       el.placeholder = T(el.dataset.i18nPh, el.dataset.enPh);
+    });
+    // accessible names (the ☰ and ✕, the drawer)
+    $$("[data-i18n-label]").forEach(el => {
+      if (el.dataset.enLabel === undefined) el.dataset.enLabel = el.getAttribute("aria-label");
+      el.setAttribute("aria-label", T(el.dataset.i18nLabel, el.dataset.enLabel));
     });
     $("#lang").textContent = LANG === "af" ? "AF" : "EN";
     $("#lang").setAttribute("aria-label", LANG === "af" ? "AF, verander na Engels" : "EN, switch to Afrikaans");
@@ -439,6 +446,80 @@
     "GSAP","Locomotive","Without Code","Contentful","Plex","Jellyfin"];
 
   /* =================================================================
+     WAVE — the springy edge into the shell colour: the hero's floor
+     (the split into "Selected work") and the footer's top. A row of
+     springs, each pulled towards its neighbours and back to its rest on
+     a gentle wave, so a poke runs along it as a ripple and dies away; a
+     fling of the page jiggles all of it, unevenly, so it reads as a wave.
+     Once it's still it sleeps: nothing computed or drawn. Its owner
+     sizes it, steps it (fixed steps of dt) and draws it; with reduced
+     motion or no GSAP it just rests. Its <svg> is filled below the line.
+     ================================================================= */
+  function makeWave(svg){
+    const path = $("path", svg), FK = 26, FD = 3.4;   // pull back to rest, damping (per second)
+    const still = !GS || reduced;
+    let W = 1, F = 80, N = 1, S = 20, T = 1000, u = new Float32Array(2), v = new Float32Array(2);
+    let base = 34, amp = 9, len = 600, awake = false, dirty = true;
+    const rest = x => base + Math.sin(x / len * Math.PI * 2 + .8) * amp;
+    return {
+      get awake(){ return awake; },
+      get height(){ return F; },
+      // laid out again for a new size, at rest
+      size(width){
+        W = width; F = svg.clientHeight || 80;
+        N = Math.round(clamp(24, 72, W / 22)); S = W / N;
+        T = (720 / S) ** 2;   // ripples run ~720px a second, whatever the width
+        u = new Float32Array(N + 1); v = new Float32Array(N + 1);
+        base = F * .45; amp = Math.min(15, F * .17); len = W / (W < 760 ? 1.1 : 1.8);
+        svg.setAttribute("viewBox", "0 0 " + W + " " + F);
+        awake = false; dirty = true;
+      },
+      // the surface at x, down from the top of the wave's box
+      surface(x){
+        const f = clamp(0, N, x / S), i = Math.min(N - 1, Math.floor(f)), k = f - i;
+        return rest(x) + u[i] * (1 - k) + u[i + 1] * k;
+      },
+      // a push (px/s, down is positive) spread over a few points either side of x
+      poke(x, imp){
+        if (still) return;
+        const f = x / S;
+        for (let i = Math.max(0, Math.floor(f - 4)); i <= Math.min(N, Math.ceil(f + 4)); i++) v[i] += imp * Math.exp(-((i - f) ** 2) / 2.9);
+        awake = true;
+      },
+      // a fling of the page (dy: how far it just scrolled)
+      jiggle(dy){
+        if (still) return;
+        const k = clamp(-70, 70, dy * 1.6), ph = performance.now() / 250;
+        for (let i = 0; i <= N; i++) v[i] += k * (.45 + .55 * Math.sin(i * .45 + ph));
+        awake = true;
+      },
+      step(dt){
+        const cap = F * .4;
+        let mu = 0, mv = 0;
+        for (let i = 0; i <= N; i++){
+          const l = u[i ? i - 1 : 1], r = u[i < N ? i + 1 : N - 1];   // free ends: mirrored neighbours
+          v[i] += (T * (l + r - 2 * u[i]) - FK * u[i] - FD * v[i]) * dt;
+        }
+        for (let i = 0; i <= N; i++){
+          u[i] = clamp(-cap, cap, u[i] + v[i] * dt);
+          mu = Math.max(mu, Math.abs(u[i])); mv = Math.max(mv, Math.abs(v[i]));
+        }
+        if (mu < .03 && mv < .6){ u.fill(0); v.fill(0); awake = false; }
+        dirty = true;
+      },
+      draw(){
+        if (!dirty) return;
+        const y = i => rest(i * S) + u[i];
+        let d = "M-2 " + y(0).toFixed(1);
+        for (let i = 1; i < N; i++) d += "Q" + (i * S).toFixed(1) + " " + y(i).toFixed(1) + " " + ((i + .5) * S).toFixed(1) + " " + ((y(i) + y(i + 1)) / 2).toFixed(1);
+        d += "L" + (W + 2) + " " + y(N).toFixed(1) + "V" + (F + 2) + "H-2Z";
+        path.setAttribute("d", d);
+        dirty = false;
+      }
+    };
+  }
+
+  /* =================================================================
      HERO — the badge (index.html #ly-hero, index.css HERO)
      William's ID badge hangs from a strap printed with STACK on a little
      rope simulation: grab it and throw it, scroll and it bounces, click it
@@ -464,11 +545,10 @@
     if (!hero) return { enter(){}, text(){}, photo: null };
     const copy = $("#ly-copy"), name = $("#ly-name"), sub = $("#ly-sub"), punch = $("#ly-punch");
     const badge = $("#ly-badge"), turn = $("#ly-turn"), path = $("#ly-path"), tp = $("#ly-tp"), probe = $("#ly-measure");
-    const field = $("#ly-field"), floorEl = $("#ly-floor"), floorPath = $("#ly-floor-path");
+    const field = $("#ly-field"), floor = makeWave($("#ly-floor"));
     const hint = $("#ly-hint"), bopsWrap = $("#ly-bops-wrap"), bopsEl = $("#ly-bops"), bopsWord = $("#ly-bops-word");
     const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     const motion = GS && !reduced;
-    const clamp = (a, b, v) => v < a ? a : v > b ? b : v;
     let W = 0, H = 0, visible = false, ready = false;
 
     /* ---- the words the dot can hit: the sub and the punchline, a span a word. Redone by
@@ -747,58 +827,9 @@
       b.vx = Math.cos(a) * v; b.vy = Math.sin(a) * v;
     }
 
-    /* ---- the floor: the split into "Selected work". A row of springs, each pulled towards its
-            neighbours and back to its rest on a gentle wave, so a poke runs along it as a ripple
-            and dies away. The dot lands on it, the cursor skimming it splashes it, a fling of the
-            page jiggles it. Once it's still it sleeps: nothing computed or drawn. ---- */
-    const FK = 26, FD = 3.4;   // pull back to rest, damping (per second)
-    let F = 80, FN = 1, FS = 20, FT = 1000, fu = new Float32Array(2), fv = new Float32Array(2);
-    let fBase = 34, fAmp = 9, fLen = 600, fAwake = false, fDirty = true;
-    function initFloor(){
-      F = floorEl.clientHeight || 80;
-      FN = Math.round(clamp(24, 72, W / 22));
-      FS = W / FN;
-      FT = (720 / FS) ** 2;   // ripples run ~720px a second, whatever the width
-      fu = new Float32Array(FN + 1); fv = new Float32Array(FN + 1);
-      fBase = F * .45; fAmp = Math.min(15, F * .17); fLen = W / (W < 760 ? 1.1 : 1.8);
-      floorEl.setAttribute("viewBox", "0 0 " + W + " " + F);
-      fAwake = false; fDirty = true;
-    }
-    const restY = x => fBase + Math.sin(x / fLen * Math.PI * 2 + .8) * fAmp;
-    // the surface, in the hero's coordinates
-    function surfaceAt(x){
-      const f = clamp(0, FN, x / FS), i = Math.min(FN - 1, Math.floor(f)), k = f - i;
-      return H - F + restY(x) + fu[i] * (1 - k) + fu[i + 1] * k;
-    }
-    // a push (px/s, down is positive) spread over a few points either side of x
-    function poke(x, imp){
-      if (!motion) return;
-      const f = x / FS;
-      for (let i = Math.max(0, Math.floor(f - 4)); i <= Math.min(FN, Math.ceil(f + 4)); i++) fv[i] += imp * Math.exp(-((i - f) ** 2) / 2.9);
-      fAwake = true;
-    }
-    function floorStep(){
-      const cap = F * .4;
-      let mu = 0, mv = 0;
-      for (let i = 0; i <= FN; i++){
-        const l = fu[i ? i - 1 : 1], r = fu[i < FN ? i + 1 : FN - 1];   // free ends: mirrored neighbours
-        fv[i] += (FT * (l + r - 2 * fu[i]) - FK * fu[i] - FD * fv[i]) * DT;
-      }
-      for (let i = 0; i <= FN; i++){
-        fu[i] = clamp(-cap, cap, fu[i] + fv[i] * DT);
-        mu = Math.max(mu, Math.abs(fu[i])); mv = Math.max(mv, Math.abs(fv[i]));
-      }
-      if (mu < .03 && mv < .6){ fu.fill(0); fv.fill(0); fAwake = false; }
-      fDirty = true;
-    }
-    function drawFloor(){
-      const y = i => restY(i * FS) + fu[i];
-      let d = "M-2 " + y(0).toFixed(1);
-      for (let i = 1; i < FN; i++) d += "Q" + (i * FS).toFixed(1) + " " + y(i).toFixed(1) + " " + ((i + .5) * FS).toFixed(1) + " " + ((y(i) + y(i + 1)) / 2).toFixed(1);
-      d += "L" + (W + 2) + " " + y(FN).toFixed(1) + "V" + (F + 2) + "H-2Z";
-      floorPath.setAttribute("d", d);
-      fDirty = false;
-    }
+    /* ---- the floor: the split into "Selected work" (WAVE). The dot lands on it, the cursor
+            skimming it splashes it, a fling of the page jiggles it. ---- */
+    const surfaceAt = x => H - floor.height + floor.surface(x);   // in the hero's coordinates
 
     // the cursor is a bat: it bounces the dot and lends it its speed; skimming the floor splashes it
     const bat = { x: -999, y: -999, vx: 0, vy: 0, t: 0, r: 40 };
@@ -809,7 +840,7 @@
       const fresh = bat.x > -999;
       bat.vx = (x - bat.x) / dt; bat.vy = (y - bat.y) / dt;
       bat.x = x; bat.y = y; bat.t = now;
-      if (fresh && !held && y > surfaceAt(x) - 24) poke(x, clamp(-700, 700, bat.vy) * .18 + Math.min(900, Math.abs(bat.vx)) * .09);
+      if (fresh && !held && y > surfaceAt(x) - 24) floor.poke(x, clamp(-700, 700, bat.vy) * .18 + Math.min(900, Math.abs(bat.vx)) * .09);
     });
     hero.addEventListener("pointerleave", () => { bat.x = bat.y = -999; });
 
@@ -848,7 +879,7 @@
           if (b.y > fy){
             b.y = fy;
             if (b.vy > 0){
-              if (b.fCool <= 0){ poke(b.x, Math.min(b.vy, 700) * 1.1); spray(b.x, fy + b.r, INKS[b.n % INKS.length]); b.fCool = .12; }
+              if (b.fCool <= 0){ floor.poke(b.x, Math.min(b.vy, 700) * 1.1); spray(b.x, fy + b.r, INKS[b.n % INKS.length]); b.fCool = .12; }
               b.vy = -Math.abs(b.vy); wall = true;
             }
           }
@@ -875,9 +906,9 @@
         if (slow > .6){ lite = true; maxBalls = 2; trim(); }
       }
       acc = Math.min(acc + dt, DT * 5);
-      while (acc >= DT){ step(); if (fAwake) floorStep(); acc -= DT; }
+      while (acc >= DT){ step(); if (floor.awake) floor.step(DT); acc -= DT; }
       render();
-      if (fDirty) drawFloor();
+      floor.draw();
       if (live) moveBalls(dt);
       // the print runs up the strap; once the first item has gone, the window moves on by one
       offset += dt * 26;
@@ -937,9 +968,7 @@
         const m = pts[SEG + 1], kick = speed * .35 * DT * 1.2 * Math.sign(dy);   // (Verlet: velocity is x - px)
         m.py += kick; m.px += kick;
       }
-      const k = clamp(-70, 70, dy * 1.6);
-      for (let i = 0; i <= FN; i++) fv[i] += k * (.45 + .55 * Math.sin(i * .45 + t * 4));
-      fAwake = true;
+      floor.jiggle(dy);
     }, { passive: true });
     // a click (or a tap) anywhere else adds another dot
     hero.addEventListener("click", e => {
@@ -967,7 +996,7 @@
         hero.classList.add("is-rigged");
       }
       H = hero.clientHeight;
-      if (wide || H !== builtH){ builtH = H; measure(); initFloor(); drawFloor(); if (!live) park(); }
+      if (wide || H !== builtH){ builtH = H; measure(); floor.size(W); floor.draw(); if (!live) park(); }
       ready = true;
       return true;
     }
@@ -2158,45 +2187,39 @@
   }
 
   /* =================================================================
-     FOOTER BOUNCE
-     https://demos.gsap.com/demo/footer-bounce/ — a wavy divider that
-     kicks based on scroll velocity (ScrollTrigger's getVelocity, clamped,
-     overwrite: true). The two path states share identical
-     command structure (M C C C C L L Z), so a plain attr tween
-     interpolates the numbers directly — no MorphSVGPlugin needed.
+     FOOTER WAVE — the footer's top is the hero's wave (WAVE), without
+     the dots: a fling of the page jiggles it, and on a mouse or a
+     trackpad the cursor skimming it splashes it, as in the hero. It's
+     stepped on GSAP's ticker, only while it's on screen and moving.
      ================================================================= */
-  function startFooterBounce(){
-    if (!GS || reduced) return;
-    const path = $("#footer-wave-path");
-    if (!path) return;
-    const BASE = 30;
-    const wave = (m1, m2, m3, m4) => {
-      const y = (m) => gsap.utils.clamp(6, BASE, BASE - m).toFixed(1);
-      return "M0," + BASE +
-        " C150," + y(m1) + " 150," + y(m1) + " 300," + BASE +
-        " C450," + y(m2) + " 450," + y(m2) + " 600," + BASE +
-        " C750," + y(m3) + " 750," + y(m3) + " 900," + BASE +
-        " C1050," + y(m4) + " 1050," + y(m4) + " 1200," + BASE +
-        " L1200," + BASE + " L0," + BASE + " Z";
-    };
-    const flat = wave(0, 0, 0, 0);
-    let settleTimer;
-    ScrollTrigger.create({
-      trigger: "footer", start: "top bottom", end: "bottom top",
-      onUpdate(self){
-        const amp = gsap.utils.clamp(0, 20, Math.abs(self.getVelocity()) / 100);
-        gsap.to(path, {
-          attr: { d: wave(amp, amp * .7, amp * .9, amp * .6) },
-          duration: .5, ease: "elastic.out(1, 0.3)", overwrite: true
-        });
-        /* onUpdate only fires while the scroll position is still moving,
-           so without this the wave freezes mid-bounce once scrolling stops. */
-        clearTimeout(settleTimer);
-        settleTimer = setTimeout(() => {
-          gsap.to(path, { attr: { d: flat }, duration: .6, ease: "elastic.out(1, 0.35)", overwrite: true });
-        }, 120);
-      }
+  function startFooterWave(){
+    const svg = $("#foot-wave");
+    if (!svg) return;
+    const wave = makeWave(svg), DT = 1 / 120;
+    let visible = false, acc = 0;
+    // sized as it arrives and on every resize (its height follows the screen's: --floor)
+    new ResizeObserver(() => { wave.size(svg.clientWidth); wave.draw(); }).observe(svg);
+    if (!GS || reduced) return;   // still: it rests
+    new IntersectionObserver(([en]) => { visible = en.isIntersecting; }).observe(svg);
+    gsap.ticker.add((time, dtMs) => {
+      if (!visible || !wave.awake) return;
+      acc = Math.min(acc + Math.min(dtMs, 50) / 1000, DT * 5);
+      while (acc >= DT && wave.awake){ wave.step(DT); acc -= DT; }
+      wave.draw();
     });
+    let lastY = scrollY;
+    addEventListener("scroll", () => { const dy = scrollY - lastY; lastY = scrollY; if (visible) wave.jiggle(dy); }, { passive: true });
+    if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    let px = 0, py = 0, pt = 0;
+    addEventListener("pointermove", e => {
+      if (!visible) return;
+      const r = svg.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      const now = performance.now(), dt = Math.max(8, now - pt) / 1000;
+      // the hero's splash (HERO, the bat): down the wave's slope with the cursor's speed
+      if (now - pt < 120 && x >= 0 && x <= r.width && y > wave.surface(x) - 24 && y < r.height)
+        wave.poke(x, clamp(-700, 700, (y - py) / dt) * .18 + Math.min(900, Math.abs(x - px) / dt) * .09);
+      px = x; py = y; pt = now;
+    }, { passive: true });
   }
 
   /* =================================================================
@@ -2310,6 +2333,7 @@
      ================================================================= */
   const drawer = $("#drawer"), scrim = $("#scrim");
   function setDrawer(open){
+    if (open === drawer.classList.contains("open")) return;
     drawer.classList.toggle("open", open);
     scrim.classList.toggle("open", open);
     /* inert, not aria-hidden: the closed drawer is only slid off-screen,
@@ -2327,6 +2351,12 @@
   scrim.addEventListener("click", () => setDrawer(false));
   drawer.addEventListener("click", e => { if (e.target.closest("a[data-route]")) setDrawer(false); });
   addEventListener("keydown", e => { if (e.key === "Escape") setDrawer(false); });
+  // widened past the phone layout with it open (a rotated tablet): close it, or the page stays locked
+  matchMedia("(max-width: 1040px)").addEventListener("change", e => { if (!e.matches) setDrawer(false); });
+
+  /* the skip link: focus moves to the page without the address changing (the router would
+     read "#main" as an unknown page and go home) */
+  $("#skip").addEventListener("click", e => { e.preventDefault(); $("#main").focus(); });
 
   /* =================================================================
      ABOUT — PHOTO STACK
@@ -2582,7 +2612,8 @@
   applyLang();
   applyRoute(routeFromHash());
   startProgress();
-  startFooterBounce();
+  startFooterWave();
+  $("#year").textContent = new Date().getFullYear();
   initShapeFx($("#contact-fx"), $("#page-contact"));
   initShapeFx($("#skills-fx"), $("#skills-tinted"));
   $$(".band-fx").forEach(fx => initShapeFx(fx, fx.closest(".band")));
@@ -2604,8 +2635,11 @@
      and jumped. A paused global timeline resumes where it stopped; a
      sleeping ticker would skip ahead on waking.) */
   const loader = $("#loader");
-  if (!loader) document.documentElement.classList.remove("booting");
-  else {
+  // .lifted: the page is in view, and the bar's name draws its stroke (index.css)
+  if (!loader){
+    document.documentElement.classList.remove("booting");
+    document.documentElement.classList.add("lifted");
+  } else {
     let lifted = false;
     const lift = () => {
       if (lifted) return;
@@ -2638,6 +2672,7 @@
         if (calm < 3 && waited < 1500) return requestAnimationFrame(settle);
         if (GS) gsap.globalTimeline.resume();
         loader.classList.add("out");
+        document.documentElement.classList.add("lifted");
         setTimeout(() => loader.remove(), 900);
       };
       /* Before that, the showcase's photos (just below the hero, or the page's hero on Projects)
