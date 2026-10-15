@@ -81,12 +81,14 @@
     "live.p2":"Veilig geïsoleer",
     "live.p3":"Responsief, nie geskaal nie",
     "about.eyebrow":"Oor my","about.title":"Bid Bou Slaap Eet Herhaal",
-    "about.p1":"Ek is William, 'n full-stack-ontwikkelaar van Krugersdorp. Ek bou webwerwe wat vinnig laai, lekker lees en maklik is om te onderhou.",
-    "about.p2":"Elke projek wat ek aanpak, is 'n geleentheid om te groei, te leer en my vaardighede as ontwikkelaar te verfyn. Ek gee al die eer aan God.",
+    "about.p1a":"Ek is William, 'n","about.role":"full-stack-ontwikkelaar",
+    "about.p1b":"van Krugersdorp. Ek bou webwerwe wat vinnig laai, lekker lees en maklik is om te onderhou.",
+    "about.p2":"Elke projek wat ek aanpak, is 'n geleentheid om te groei, te leer en my vaardighede as ontwikkelaar te verfyn.",
+    "about.glory":"Ek gee al die eer aan God.","about.play":"Speel","about.pause":"Pouseer",
     "about.cJob":"'Senior webontwikkelaar'","about.cEn":"'Engels'",
     "about.cP1":"'webwerwe'","about.cP2":"'digitale kuns'","about.cP3":"'3D-modelle'","about.cP4":"'speletjie-ontwerp'",
     "about.snap1":"Hallo, dis ek, mooi aangetrek","about.snap2":"Die beste sitplek by die kermis","about.snap3":"Vars lug, geen skerms nie",
-    "about.shuffle":"Skommel die foto's",
+    "about.skip1":"Te cool? Spring vorentoe","about.skip2":"Gooi nog een","about.skip3":"Ruil hierdie ou uit","about.skip4":"Wag, is daar nog?",
     "skills.eyebrow":"Vaardighede","skills.title":"Waarmee ek werk",
     "exp.eyebrow":"Ervaring","exp.title":"Waar ek al gewerk het",
     "ride.title":"Die Loopbaan-tuimeltrein","ride.sub":"Hou jou arms binne die waentjie · blaai om te ry ↓",
@@ -132,7 +134,6 @@
     $$("[data-i18n]").forEach(el => {
       if (el.dataset.en === undefined) el.dataset.en = el.textContent;
       el.textContent = (LANG === "af" && AF[el.dataset.i18n]) ? AF[el.dataset.i18n] : el.dataset.en;
-      delete el.dataset.raw;
     });
     $$("[data-i18n-ph]").forEach(el => {
       if (el.dataset.enPh === undefined) el.dataset.enPh = el.placeholder;
@@ -149,6 +150,7 @@
     setTitle();
     renderAll();
     HERO.text();
+    ABOUT.text();
     /* strings inside JS-built markup are repainted by hand, because they
        are created after this pass has already walked the document */
     $$(".embed-host[data-built]").forEach(el => {
@@ -1974,19 +1976,24 @@
         clearProps: "transform,opacity", onComplete: () => el.classList.add("is-idle") });
   }
 
+  /* Words in masks, for their rise-in: every text node is split where it is, so inline markup
+     inside stays (About's underlined "full-stack developer"). An earlier split (the page reopened,
+     a language switch) is undone first. */
   function splitWords(el){
-    const raw = el.dataset.raw !== undefined ? el.dataset.raw : (el.dataset.raw = el.textContent);
-    const parts = raw.split(/(\s+)/);
-    el.textContent = "";
-    const frag = document.createDocumentFragment();
-    const spans = [];
-    parts.forEach(w => {
-      if (!w.trim()){ frag.appendChild(document.createTextNode(w)); return; }
-      const outer = document.createElement("span"); outer.className = "w";
-      const inner = document.createElement("span"); inner.textContent = w;
-      outer.appendChild(inner); frag.appendChild(outer); spans.push(inner);
+    $$(".w", el).forEach(w => w.replaceWith(w.textContent));
+    el.normalize();
+    const nodes = [], spans = [], walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    while (walk.nextNode()) nodes.push(walk.currentNode);
+    nodes.forEach(node => {
+      const frag = document.createDocumentFragment();
+      node.nodeValue.split(/(\s+)/).forEach(w => {
+        if (!w.trim()){ if (w) frag.append(w); return; }
+        const outer = document.createElement("span"), inner = document.createElement("span");
+        outer.className = "w"; inner.textContent = w;
+        outer.append(inner); frag.append(outer); spans.push(inner);
+      });
+      node.replaceWith(frag);
     });
-    el.appendChild(frag);
     return spans;
   }
 
@@ -2018,12 +2025,16 @@
         if (immediate) title.classList.add("is-idle");
         else gsap.timeline().add(stampIn(title), .35);
       }
+      // About's record: its heading and tracks rise in, the record slides out and plays (ABOUT)
+      if (route === "about") ABOUT.enter(immediate);
 
       $$("[data-split]", scope).forEach((el, idx) => {
         const spans = splitWords(el);
         if (!spans.length) return;
         const aboveFold = el.getBoundingClientRect().top < innerHeight * .9;
-        const base = { yPercent: 0, opacity: 1, duration: .9, ease: EASE, stagger: { each: .035 } };
+        // .is-in once they're up (About's underline waits for it)
+        el.classList.remove("is-in");
+        const base = { yPercent: 0, opacity: 1, duration: .9, ease: EASE, stagger: { each: .035 }, onComplete: () => el.classList.add("is-in") };
         gsap.set(spans, { yPercent: 115, opacity: 0 });
         if (aboveFold && idx < 2) gsap.to(spans, Object.assign({ delay: immediate ? 0 : .08 }, base));
         else gsap.to(spans, Object.assign({ scrollTrigger: { trigger: el, start: "top 88%", once: true } }, base));
@@ -2454,24 +2465,209 @@
   $("#skip").addEventListener("click", e => { e.preventDefault(); $("#main").focus(); });
 
   /* =================================================================
-     ABOUT — PHOTO STACK
-     Positions live in CSS (data-pos 0 = front). A shuffle tosses the
-     front photo out and tucks it in at the back; .toss runs that
-     keyframe and is dropped once it ends.
+     ABOUT — THE RECORD (index.html .a5). As the page opens, the record
+     slides out of its sleeve, the arm comes over and it plays, a track
+     a turn (one spin, 2.6s); after the last track the next record (the
+     next photo) goes on. Pause stops all of the section's motion; Skip
+     puts the next record on now.
+     The code (the liner notes) types itself out as it comes into view;
+     then, while the record plays, it glitches in bursts: 5 to 8 words
+     scramble and come back letter by letter, 1 to 3s apart — not off
+     screen, not while the pointer's on it or text in it is selected (so
+     it can be read and copied). Reduced motion: nothing plays until Play.
      ================================================================= */
-  const snaps = $$("#stack .snap");
-  function shuffleStack(){
-    snaps.forEach(s => {
-      const pos = (Number(s.dataset.pos) + snaps.length - 1) % snaps.length;
-      if (pos === snaps.length - 1){
-        s.classList.add("toss");
-        s.addEventListener("animationend", () => s.classList.remove("toss"), { once: true });
-      }
-      s.dataset.pos = pos;
+  const ABOUT = (() => {
+    const animate = GS && !reduced;
+    const deck = $("#deck"), disc = $("#disc"), play = $("#a5-play"), head = $(".a5-head"), tracks = $$(".a5-track");
+    const code = $(".a5-more .codeblock"), cover = $("#a5-cover"), labelImg = $("#a5-label"), cap = $("#a5-cap");
+    const PHOTOS = [
+      { src: IMG_BASE + "Me/williampp.webp", alt: "William Sham", cap: "about.snap1", en: "Hi, that's me, all dressed up" },
+      { src: IMG_BASE + "Me/about-us-2.webp", alt: "William Sham on a Ferris wheel at a fair", cap: "about.snap2", en: "Best seat at the fair" },
+      { src: IMG_BASE + "Me/about-us-3.webp", alt: "William Sham outdoors in a garden", cap: "about.snap3", en: "Fresh air, no screens" }
+    ];
+    // wanted: playing, unless Pause was pressed (a language switch keeps it as it was)
+    // Skip's line, a new one each press, round and round
+    const SKIP = [["about.skip1", "Too cool? Skip ahead"], ["about.skip2", "Hit me with another one"], ["about.skip3", "Swap out this guy"], ["about.skip4", "Wait, there's more?"]];
+    let at = 0, photo = 0, skip = 0, playing = false, wanted = true, timer = 0, swapping = null, preloaded = false;
+
+    const label = () => {
+      play.innerHTML = '<span aria-hidden="true">' + (playing ? "❚❚" : "▶︎") + '</span> ' + esc(playing ? T("about.pause", "Pause") : T("about.play", "Play"));
+    };
+    // text whose key changes (the caption, Skip's line): dataset.en is what applyLang puts back in English
+    const relabel = (el, key, en) => { el.dataset.i18n = key; el.dataset.en = en; el.textContent = T(key, en); };
+    function show(n){
+      deck.classList.replace("v" + at, "v" + n);
+      at = n;
+      tracks.forEach((tr, k) => tr.classList.toggle("is-on", k === n));
+    }
+    // the record turning, the arm on it, the meter going: off while paused and while records are swapped
+    const spin = on => { deck.classList.toggle("is-playing", on); head.classList.toggle("is-playing", on); };
+    // a track a turn; after the last one, the next record
+    function tick(){
+      clearTimeout(timer);
+      if (playing && !swapping) timer = setTimeout(() => { if (at === tracks.length - 1) next(); else { show(at + 1); tick(); } }, 2600);
+    }
+    function setPlaying(on){
+      playing = on;
+      label();
+      if (!swapping) spin(on);
+      tick();
+      if (on) glitchLater(); else stopGlitch();
+    }
+    play.addEventListener("click", () => { wanted = !playing; setPlaying(wanted); });
+
+    /* The next record, from A1 (after the last track, and on Skip): the arm lifts and the record
+       stops, as on Pause, then it slides back into its sleeve, the next cover goes on, and it slides
+       out and plays again (unless Pause was pressed meanwhile). */
+    function next(){
+      if (swapping) return;
+      if (!animate){ swap(); return tick(); }
+      spin(false);
+      clearTimeout(timer);
+      swapping = gsap.timeline({ defaults: { duration: .6, ease: "power2.inOut" }, onComplete(){ swapping = null; if (playing){ spin(true); tick(); } } })
+        .to(disc, { xPercent: -34 }, .3).add(swap).to(disc, { xPercent: 0 });
+    }
+    function swap(){
+      const p = PHOTOS[photo = (photo + 1) % PHOTOS.length];
+      cover.src = labelImg.src = p.src;
+      cover.alt = p.alt;
+      relabel(cap, p.cap, p.en);
+      show(0);
+    }
+    $("#shuffle").addEventListener("click", () => {
+      if (swapping) return;
+      next();
+      relabel($("#shuffle [data-i18n]"), ...SKIP[skip = (skip + 1) % SKIP.length]);
     });
-  }
-  $("#stack").addEventListener("click", shuffleStack);
-  $("#shuffle").addEventListener("click", shuffleStack);
+
+    /* ---- the typing: every text node emptied, then filled back in order by one counter, so the
+            highlighting stays as it is. The block keeps its height meanwhile (nothing below jumps)
+            and is aria-busy until it's done. Once per visit to the site. ---- */
+    const textNodes = () => { const out = [], w = document.createTreeWalker(code, NodeFilter.SHOW_TEXT); while (w.nextNode()) out.push(w.currentNode); return out; };
+    let typed = !animate, typing = null;
+    function typeCode(){
+      const nodes = textNodes().map(n => [n, n.nodeValue]), total = nodes.reduce((sum, [, txt]) => sum + txt.length, 0);
+      const caret = document.createElement("span");
+      caret.className = "a5-caret";
+      caret.setAttribute("aria-hidden", "true");
+      code.style.minHeight = code.offsetHeight + "px";
+      code.setAttribute("aria-busy", "true");
+      nodes.forEach(([n]) => { n.nodeValue = ""; });
+      const state = { n: 0 };
+      typing = gsap.to(state, {
+        n: total, duration: total * .016, ease: "none",
+        onUpdate(){
+          let left = Math.round(state.n);
+          for (const [node, txt] of nodes){
+            const k = Math.min(txt.length, Math.max(0, left));
+            if (node.nodeValue.length !== k) node.nodeValue = txt.slice(0, k);
+            if (left > 0 && left <= txt.length && node.isConnected && node.nextSibling !== caret) node.after(caret);
+            left -= txt.length;
+          }
+        },
+        onComplete(){
+          typing = null; typed = true;
+          code.style.minHeight = "";
+          code.removeAttribute("aria-busy");
+          gsap.to(caret, { opacity: 0, delay: 1.2, duration: .3, onComplete: () => caret.remove() });   // no caret blinking for ever
+          glitchLater();
+        }
+      });
+    }
+
+    /* ---- the glitch: 5 to 8 words at random, each scrambled for a moment, then its letters coming
+            back one by one, left to right. Each word keeps its length (the code is monospaced). ---- */
+    const GLYPHS = { upper: "ABDEFGHKMNPRSTUVXYZ".split(""), lower: "abdefghkmnoprstuvxyz".split(""), digit: "0123456789".split("") };
+    const glyphsFor = ch => /[0-9]/.test(ch) ? GLYPHS.digit : ch !== ch.toLowerCase() ? GLYPHS.upper : GLYPHS.lower;
+    let glitchTl = null, nextGlitch = null, glitching = [], codeSeen = false, held = false;
+    function glitch(){
+      const sel = getSelection();
+      if (!codeSeen || held || document.hidden || (sel && !sel.isCollapsed && sel.containsNode(code, true))) return glitchLater();
+      const found = [];
+      textNodes().forEach(node => { for (const m of node.nodeValue.matchAll(/[A-Za-z0-9]+/g)) found.push({ node, at: m.index, len: m[0].length }); });
+      const picks = gsap.utils.shuffle(found).slice(0, gsap.utils.random(5, 8, 1));
+      // each text node with picked words in it: plain text, and a span for each word
+      const words = [];
+      glitching = [];
+      new Set(picks.map(p => p.node)).forEach(node => {
+        const text = node.nodeValue, frag = document.createDocumentFragment();
+        let last = 0;
+        picks.filter(p => p.node === node).sort((x, y) => x.at - y.at).forEach(p => {
+          frag.append(text.slice(last, p.at));
+          const sp = document.createElement("span");
+          sp.className = "a5-glitch";
+          sp.textContent = text.slice(p.at, p.at + p.len);
+          words.push({ sp, word: sp.textContent, delay: gsap.utils.random(0, .3), hold: gsap.utils.random(4, 7, 1) });
+          frag.append(sp);
+          last = p.at + p.len;
+        });
+        frag.append(text.slice(last));
+        glitching.push({ parts: [...frag.childNodes], text });
+        node.replaceWith(frag);
+      });
+      // a frame every 60ms: scrambled for `hold` frames, then one more letter back each frame
+      glitchTl = gsap.timeline({ onComplete: () => { restore(); glitchLater(); } });
+      words.forEach(({ sp, word, delay, hold }) => {
+        for (let k = 0; k <= hold + word.length; k++) glitchTl.call(() => {
+          sp.textContent = [...word].map((ch, i) => i < k - hold ? ch : gsap.utils.random(glyphsFor(ch))).join("");
+        }, null, delay + k * .06);
+      });
+    }
+    // the glitched bits back to plain text nodes (unless a language switch has replaced them already)
+    function restore(){
+      glitching.forEach(({ parts, text }) => {
+        if (!parts[0].isConnected) return;
+        parts[0].before(document.createTextNode(text));
+        parts.forEach(n => n.remove());
+      });
+      glitching = [];
+    }
+    function glitchLater(){
+      if (nextGlitch) nextGlitch.kill();
+      nextGlitch = animate && playing && typed ? gsap.delayedCall(gsap.utils.random(1, 3), glitch) : null;
+    }
+    function stopGlitch(){
+      if (nextGlitch){ nextGlitch.kill(); nextGlitch = null; }
+      if (glitchTl){ glitchTl.kill(); glitchTl = null; }
+      restore();
+    }
+    new IntersectionObserver(([en]) => { codeSeen = en.isIntersecting; }).observe(code);
+    code.addEventListener("pointerenter", () => { held = true; stopGlitch(); });
+    code.addEventListener("pointerleave", () => { held = false; glitchLater(); });
+
+    /* The page opening (animatePage, inside its context, so it's undone with it): the heading and
+       the tracks rise in one after another as the page wipe uncovers them, the sleeve lands, and the
+       record slides out and plays. The code types itself out as it rises into view. `immediate` (a
+       language switch rebuilding the page) skips the entrance. */
+    function enter(immediate){
+      if (!preloaded){ preloaded = true; PHOTOS.forEach(p => { new Image().src = p.src; }); }   // the next covers, ready
+      ScrollTrigger.create({ trigger: code, start: "top 92%", once: true, onEnter: () => { if (!typed && !typing) typeCode(); } });
+      if (immediate){ if (wanted && !playing) setPlaying(true); return; }
+      leave();
+      show(0);
+      wanted = true;
+      gsap.timeline({ delay: .35, defaults: { ease: "power3.out" } })
+        .fromTo([$(".label", head), ...tracks], { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .7, stagger: .07, clearProps: "transform,opacity" })
+        .fromTo($(".a5-sleeve", deck), { y: 28, rotation: -4, opacity: 0 }, { y: 0, rotation: 0, opacity: 1, duration: .8, clearProps: "transform,opacity" }, .1)
+        .fromTo($(".a5-controls"), { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: .6, clearProps: "transform,opacity" }, .45)
+        .fromTo(disc, { xPercent: -34 }, { xPercent: 0, duration: .9, ease: "power3.inOut", onComplete: () => setPlaying(true) }, .7);
+    }
+    // leaving the page (applyRoute): the record stops
+    function leave(){
+      if (swapping) swapping.progress(1).kill();   // finished at once (its onComplete clears it)
+      setPlaying(false);
+    }
+    // the words in the language just switched to (applyLang): the tracks, Play/Pause, the code whole
+    function text(){
+      stopGlitch();
+      if (typing) typing.progress(1);
+      const words = $(".sr-only", $("#about-title")).textContent.trim().split(/\s+/);
+      tracks.forEach((tr, k) => { $(".a5-w", tr).textContent = words[k] || ""; });
+      label();
+      glitchLater();
+    }
+    return { enter, leave, text };
+  })();
 
   /* =================================================================
      LIGHTBOX — one for the whole site (#lightbox, a native <dialog>:
@@ -2539,24 +2735,27 @@
   });
 
   /* =================================================================
-     BRAND — "WILLIAM SHAM, IS <word>" and the Batman button
+     BRAND — "WILLIAM SHAM, IS <word>" and the Spider-Man button
      The word list rotates on a GSAP delayedCall loop. A click spins the
      comic icons slot-machine style (fast, then slowing) until it lands on
-     Batman: bat confetti, an "I'm Batman" bubble, and the word list says
-     BATMAN for a few seconds before it carries on. Reduced motion keeps
-     the joke (Batman, bubble, word) but drops the spin, slide and confetti.
+     Spider-Man: spider confetti (the badge back's red and blue), an "I'm
+     Spider-Man" bubble, and the word list says Spider-Man for a few
+     seconds before it carries on. Reduced motion keeps the joke (the
+     mask, bubble, word) but drops the spin, slide and confetti.
      ================================================================= */
   const WORDS = {
     en: ["A Programmer","Poster Sexy","A Bug Slayer","Always Hungry","An Unpaid Comedian","A Follower Of JESUS"],
     af: ["'n Programmeerder","Poster Sexy","'n Foutjagter","Altyd Honger","'n Onbetaalde Komediant","'n Volgeling Van Christus"]
   };
-  // 0 is the resting pink dot, 1–5 the comic icons, last Batman
-  const brandWord = $("#brand-word"), brandIcons = $$(".brand-icon > *"), bubble = $("#bat-bubble");
-  const BATMAN = brandIcons.length - 1;
-  const SPIN = [2, 3, 4, 5, 1, 2, 3, 4, 5, BATMAN];
-  const BAT = '<svg viewBox="0 0 100 50"><path d="M50 15 47 5 44 14C36 7 19 4 3 9c10 4 12 12 8 21 8-5 17-3 21 5 5-6 13-5 18 7 5-12 13-13 18-7 4-8 13-10 21-5-4-9-2-17 8-21C81 4 64 7 56 14L53 5z"/></svg>';
+  // 0 is the resting pink dot, 1–5 the comic icons, last Spider-Man
+  const brandWord = $("#brand-word"), brandIcons = $$(".brand-icon > *"), bubble = $("#spidey-bubble");
+  const SPIDEY = brandIcons.length - 1;
+  const SPIN = [2, 3, 4, 5, 1, 2, 3, 4, 5, SPIDEY];
+  // a spider: head, body, four bent legs a side
+  const SPIDER = '<svg viewBox="0 0 100 100"><circle cx="50" cy="30" r="9"/><ellipse cx="50" cy="60" rx="14" ry="20"/>' +
+    '<path d="M43 40 28 26 22 6M41 48 20 40 6 24M41 58 20 62 6 80M43 68 28 80 22 98M57 40 72 26 78 6M59 48 80 40 94 24M59 58 80 62 94 80M57 68 72 80 78 98" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const animate = GS && !reduced;
-  let wordIdx = 0, wordLoop = null, batBusy = false;
+  let wordIdx = 0, wordLoop = null, spideyBusy = false;
 
   function setWord(text){
     if (!animate){ brandWord.textContent = text; return; }
@@ -2580,14 +2779,14 @@
     if (pop) gsap.fromTo(".brand-icon", { scale: .65, rotation: gsap.utils.random(-14, 14) },
       { scale: 1, rotation: 0, duration: .2, ease: "back.out(3)" });
   }
-  function batConfetti(){
+  function spideyConfetti(){
     const r = $(".brand-icon").getBoundingClientRect();
     const box = document.createElement("div");
-    box.className = "bat-confetti";
+    box.className = "spidey-confetti";
     box.style.left = r.left + r.width / 2 + "px";
     box.style.top = r.top + r.height / 2 + "px";
     box.innerHTML = Array.from({ length: 24 }, (_, i) =>
-      '<i style="color:' + (i % 3 ? "#13111A" : "#F5B800") + '">' + BAT + '</i>').join("");
+      '<i style="color:' + (i % 3 ? "#B11313" : "#0047AB") + '">' + SPIDER + '</i>').join("");
     document.body.appendChild(box);
     /* the icon sits in the top-left corner, so the burst sprays down and right */
     gsap.timeline({ onComplete: () => box.remove() })
@@ -2598,18 +2797,18 @@
       .to(box.children, { y: () => "+=" + gsap.utils.random(40, 110), opacity: 0,
         duration: .9, ease: "power1.in", stagger: .008 }, "-=.2");
   }
-  function batman(){
+  function spidey(){
     if (wordLoop) wordLoop.kill();
-    bubble.textContent = "I'm Batman";
-    setWord("Batman");
+    bubble.textContent = "I'm Spider-Man";
+    setWord("Spider-Man");
     if (animate){
       gsap.fromTo(".brand-icon", { scale: 1.9, rotation: -16 }, { scale: 1, rotation: 0, duration: .8, ease: "elastic.out(1, .45)" });
       gsap.fromTo(bubble, { autoAlpha: 0, scale: 0, rotation: -10 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: .55, ease: "back.out(2.2)" });
-      batConfetti();
+      spideyConfetti();
     } else bubble.style.visibility = "visible";
   }
-  function unBatman(){
-    batBusy = false;
+  function unSpidey(){
+    spideyBusy = false;
     setWord(WORDS[LANG][wordIdx]);
     if (animate){
       gsap.to(bubble, { autoAlpha: 0, scale: 0, duration: .25, ease: "power2.in", onComplete: () => { bubble.textContent = ""; } });
@@ -2621,13 +2820,13 @@
     }
   }
   $("#brand").addEventListener("click", () => {
-    if (batBusy) return;
-    batBusy = true;
-    if (!animate){ showIcon(BATMAN); batman(); setTimeout(unBatman, 2800); return; }
+    if (spideyBusy) return;
+    spideyBusy = true;
+    if (!animate){ showIcon(SPIDEY); spidey(); setTimeout(unSpidey, 2800); return; }
     const tl = gsap.timeline();
-    /* gaps grow from 0.05s to ~0.25s: a spin that slows onto Batman */
-    SPIN.forEach((n, i) => tl.add(() => showIcon(n, n !== BATMAN), i ? "+=" + (.05 + .2 * (i / SPIN.length) ** 2) : 0));
-    tl.add(batman).add(unBatman, "+=2.8");
+    /* gaps grow from 0.05s to ~0.25s: a spin that slows onto Spider-Man */
+    SPIN.forEach((n, i) => tl.add(() => showIcon(n, n !== SPIDEY), i ? "+=" + (.05 + .2 * (i / SPIN.length) ** 2) : 0));
+    tl.add(spidey).add(unSpidey, "+=2.8");
   });
 
   /* =================================================================
@@ -2653,7 +2852,8 @@
     ROUTES.forEach(r => { $("#page-" + r).hidden = (r !== route); });
     document.documentElement.classList.remove("boot-away");   // [hidden] has it from here (index.html head)
     // the page's lead photo (its LCP) loads now rather than waiting on the lazy-load check
-    $$('.sc-slide.is-active img, .snap[data-pos="0"] img', $("#page-" + route)).forEach(img => { img.loading = "eager"; img.fetchPriority = "high"; });
+    $$(".sc-slide.is-active img, #a5-cover", $("#page-" + route)).forEach(img => { img.loading = "eager"; img.fetchPriority = "high"; });
+    if (route !== "about") ABOUT.leave();   // the record stops when you leave
     $$("[data-route]").forEach(a => {
       if (a.dataset.route === route) a.setAttribute("aria-current", "page");
       else a.removeAttribute("aria-current");

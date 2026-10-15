@@ -29,8 +29,10 @@
   (function(){
     var d = document.documentElement, r = location.hash.slice(1).split(/[?&\/]/)[0].toLowerCase();
     d.classList.add("booting");   // the page stays hidden under the loader until it lifts (index.css, index.js)
-    if (["about", "projects", "play", "contact"].indexOf(r) > -1) d.classList.add("boot-away");
-    else {
+    var away = ["about", "projects", "play", "contact"].indexOf(r) > -1;
+    if (away) d.classList.add("boot-away");
+    // the same photo is About's LCP too (the record's sleeve)
+    if (!away || r === "about"){
       var l = document.createElement("link");
       l.rel = "preload"; l.as = "image"; l.href = "Images/Me/williampp.webp"; l.fetchPriority = "high";
       document.head.appendChild(l);
@@ -69,8 +71,8 @@
 <header class="topbar">
   <div class="shell topbar-in">
     <!-- the pink dot is the resting mark; click: the comic icons spin
-         through to Batman, then it settles back on the dot (index.js,
-         BRAND). The 96px webps are all in the DOM so every swap is already
+         through to Spider-Man, then it settles back on the dot (index.js,
+         BRAND). The icons are all in the DOM so every swap is already
          decoded. Its name is its visible text, so voice control users can
          say what they see. -->
     <button class="brand" id="brand" type="button">
@@ -81,11 +83,11 @@
         <img src="Images/Navimages/smash.webp" alt="" width="34" height="34">
         <img src="Images/Navimages/super.webp" alt="" width="34" height="34">
         <img src="Images/Navimages/yeah.webp" alt="" width="34" height="34">
-        <img src="Images/Navimages/batman.webp" alt="" width="34" height="34">
+        <img src="Images/Spiderman/spider-man.svg" alt="" width="34" height="34">
       </span>
       <span class="brand-text"><span class="hl hl-name">WILLIAM&nbsp;SHAM,</span> <span class="brand-is">IS <span class="brand-mask"><span id="brand-word">A Programmer</span></span></span></span>
     </button>
-    <span class="bat-bubble" id="bat-bubble" role="status"></span>
+    <span class="spidey-bubble" id="spidey-bubble" role="status"></span>
     <!-- every link here, in the drawer and in the footer: a marker-pen stroke in its page's ink
          behind the page you're on (index.css, the highlighter; index.js sets aria-current) -->
     <nav class="nav-links" aria-label="Primary">
@@ -183,8 +185,8 @@
                 <li><b>36</b><span data-i18n="stat.live">Live sites in this portfolio</span></li>
                 <li><b>30+</b><span data-i18n="stat.tech">Technologies in rotation</span></li>
               </ul>
-              <!-- his spider, in the room under the stats: Images/spider-logo.webp is spiderman card.jpg cropped to it, black on clear -->
-              <img class="ly-spider" src="Images/spider-logo.webp" alt="" width="398" height="540" loading="lazy" decoding="async" draggable="false">
+              <!-- his spider, in the room under the stats: Images/Spiderman/spider-logo.webp is spiderman-card.jpg cropped to it, black on clear -->
+              <img class="ly-spider" src="Images/Spiderman/spider-logo.webp" alt="" width="398" height="540" loading="lazy" decoding="async" draggable="false">
               <p class="ly-note" data-i18n="badge.note">WS-0036 · valid anywhere with Wi-Fi</p>
             </div>
           </div>
@@ -299,19 +301,50 @@
 
   <!-- ============================ ABOUT =========================== -->
   <section class="page" id="page-about" hidden>
-    <div class="shell block">
-      <section class="sec">
-        <div class="sec-head">
-          <div>
+    <!-- the hero: a record (index.css .a5, index.js ABOUT). The title is its track list, the photo its
+         sleeve and label, the code its liner notes. -->
+    <div class="shell block a5">
+      <section aria-labelledby="about-title">
+        <div class="a5-top">
+          <div class="a5-side">
+            <div class="a5-deck v0" id="deck">
+              <figure class="a5-sleeve">
+                <img id="a5-cover" src="Images/Me/williampp.webp" alt="William Sham" width="800" height="800" decoding="async">
+                <span class="a5-sticker" aria-hidden="true">WS</span>
+                <figcaption id="a5-cap" data-i18n="about.snap1">Hi, that's me, all dressed up</figcaption>
+              </figure>
+              <div class="a5-disc" id="disc" aria-hidden="true">
+                <div class="a5-spin"><div class="a5-label"><img id="a5-label" src="Images/Me/williampp.webp" alt="" width="800" height="800" decoding="async"></div></div>
+                <i class="a5-sheen"></i><i class="a5-hole"></i>
+              </div>
+              <div class="a5-arm" aria-hidden="true">
+                <svg viewBox="0 0 100 220"><circle cx="74" cy="26" r="18" fill="#D9D6DE"/><circle cx="74" cy="26" r="7" fill="#8E8A99"/><path d="M74 26 L70 150 L46 196" fill="none" stroke="#8E8A99" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><rect x="30" y="186" width="28" height="16" rx="4" transform="rotate(-30 44 194)" fill="#13111A"/></svg>
+              </div>
+            </div>
+            <div class="a5-controls">
+              <button class="ghost" id="a5-play" type="button"><span aria-hidden="true">▶&#xFE0E;</span> Play</button>
+              <button class="ghost" id="shuffle" type="button"><span aria-hidden="true">↻</span> <span data-i18n="about.skip1">Too cool? Skip ahead</span></button>
+            </div>
+          </div>
+          <div class="a5-head">
             <span class="label"><b>[01]</b> <span data-i18n="about.eyebrow">About</span></span>
-            <h2 data-split data-i18n="about.title">Pray Build Sleep Eat Repeat</h2>
+            <!-- read as one line; drawn as a track list (index.js ABOUT puts the words in) -->
+            <h2 class="a5-title" id="about-title"><span class="sr-only" data-i18n="about.title">Pray Build Sleep Eat Repeat</span>
+              <span class="a5-track v0 is-on" aria-hidden="true"><b>A1</b><span class="a5-w">Pray</span><span class="a5-eq"><i></i><i></i><i></i></span></span>
+              <span class="a5-track v1" aria-hidden="true"><b>A2</b><span class="a5-w">Build</span><span class="a5-eq"><i></i><i></i><i></i></span></span>
+              <span class="a5-track v2" aria-hidden="true"><b>A3</b><span class="a5-w">Sleep</span><span class="a5-eq"><i></i><i></i><i></i></span></span>
+              <span class="a5-track v3" aria-hidden="true"><b>B1</b><span class="a5-w">Eat</span><span class="a5-eq"><i></i><i></i><i></i></span></span>
+              <span class="a5-track v4" aria-hidden="true"><b>B2</b><span class="a5-w">Repeat</span><span class="a5-eq"><i></i><i></i><i></i></span></span>
+            </h2>
           </div>
         </div>
-        <div class="about-grid">
-          <div class="about-copy">
-            <p class="lead" data-anim="up" data-i18n="about.p1">I'm William, a full-stack developer from Krugersdorp. I build websites that load fast, read well and are easy to look after.</p>
-            <p class="prose" data-anim="up" data-i18n="about.p2">Every project I take on is an opportunity to grow, learn, and refine my skills as a developer. I give all the glory to God.</p>
-            <pre class="codeblock" data-anim="up"><span class="k">const</span> <span class="p">william</span> = {
+        <div class="a5-more">
+          <div class="a5-words">
+            <!-- .a5-role: the hero name's underline, on its own; .stamp.is-idle: its hop and underline (index.css) -->
+            <p class="lead" data-split><span data-i18n="about.p1a">I'm William, a</span> <span class="a5-role" data-i18n="about.role">full-stack developer</span> <span data-i18n="about.p1b">from Krugersdorp. I build websites that load fast, read well and are easy to look after.</span></p>
+            <p class="prose" data-anim="up"><span data-i18n="about.p2">Every project I take on is an opportunity to grow, learn, and refine my skills as a developer.</span> <span class="stamp is-idle" data-letters data-i18n="about.glory">I give all the glory to God.</span></p>
+          </div>
+          <pre class="codeblock" data-anim="up"><span class="k">const</span> <span class="p">william</span> = {
   <span class="p">home</span>:     <span class="s">'Krugersdorp, Gauteng'</span>,
   <span class="p">dayJob</span>:   <span class="s" data-i18n="about.cJob">'Senior Web Developer'</span>,
   <span class="p">speaks</span>:   [<span class="s" data-i18n="about.cEn">'English'</span>, <span class="s">'Afrikaans'</span>],
@@ -320,25 +353,6 @@
     <span class="s" data-i18n="about.cP3">'3D models'</span>, <span class="s" data-i18n="about.cP4">'game design'</span>
   ]
 };</pre>
-          </div>
-
-          <div class="stack-wrap" data-anim="up">
-            <div class="stack" id="stack">
-              <figure class="snap" data-pos="0" style="--accent: var(--pink); --accent-2: var(--yellow)">
-                <div class="ph"><img src="Images/Me/williampp.webp" alt="William Sham" loading="lazy" decoding="async" onerror="this.remove()"></div>
-                <figcaption data-i18n="about.snap1">Hi, that's me, all dressed up</figcaption>
-              </figure>
-              <figure class="snap" data-pos="1" style="--accent: var(--blue); --accent-2: var(--yellow)">
-                <div class="ph"><img src="Images/Me/about-us-2.webp" alt="William Sham on a Ferris wheel at a fair" loading="lazy" decoding="async" onerror="this.remove()"></div>
-                <figcaption data-i18n="about.snap2">Best seat at the fair</figcaption>
-              </figure>
-              <figure class="snap" data-pos="2" style="--accent: var(--mint); --accent-2: var(--pink)">
-                <div class="ph"><img src="Images/Me/about-us-3.webp" alt="William Sham outdoors in a garden" loading="lazy" decoding="async" onerror="this.remove()"></div>
-                <figcaption data-i18n="about.snap3">Fresh air, no screens</figcaption>
-              </figure>
-            </div>
-            <button class="ghost" id="shuffle" type="button"><span aria-hidden="true">↻</span><span data-i18n="about.shuffle">Shuffle the photos</span></button>
-          </div>
         </div>
       </section>
     </div>
