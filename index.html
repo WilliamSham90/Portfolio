@@ -493,45 +493,55 @@
 
   <!-- ========================= PLAYGROUND ========================= -->
   <section class="page" id="page-play" hidden>
-    <div class="shell block">
-      <section class="sec">
-        <div class="sec-head">
-          <div>
-            <span class="label"><b>[01]</b> <span data-i18n="play.eyebrow">Playground</span></span>
-            <h2 data-split data-i18n="play.title">Things I built on a Sunday</h2>
-          </div>
-          <p class="lead" data-i18n="play.intro">Experiments, widgets and games, all self-contained and running on their own pages.</p>
-        </div>
-        <div class="subhead" style="margin-top:calc(var(--v) * 1.4)">
-          <h3 data-i18n="live.title2">Williams OS</h3>
-          <span class="label" data-i18n="live.eyebrow">Live preview</span>
-        </div>
-        <div class="embed-intro" style="--accent: var(--blue)">
-          <p class="prose" data-i18n="live.copy2">The real site, running live in the frame below. Open it full size for the proper experience.</p>
-        </div>
-        <div class="embed-host" data-embed="https://williamsham90.github.io/Portfolio-2/" data-label="Williams OS"></div>
-      </section>
-
-      <section class="sec">
-        <div class="subhead">
-          <h3 data-i18n="play.pages">Pages</h3>
-          <span class="label">07</span>
-        </div>
-        <div class="cards" id="pages-grid"></div>
-      </section>
-    </div>
-
-    <div class="tinted-2">
-      <div class="shell">
-        <section class="sec">
-          <div class="subhead">
-            <h3 data-i18n="play.games">Games</h3>
-            <span class="label">08</span>
-          </div>
-          <div class="cards" id="games-grid"></div>
-        </section>
+    <!-- the title, over a field of the brand's shapes (index.js PLAY): they part round the pointer,
+         a click sends a ripple through them -->
+    <section class="f-hero" aria-labelledby="play-title">
+      <canvas class="f-field" aria-hidden="true"></canvas>
+      <div class="shell f-hero-in">
+        <span class="label"><b>[01]</b> <span data-i18n="play.eyebrow">Playground</span></span>
+        <!-- the hero name's letters: they rise in as the page opens (data-stamp), then hop (.hop: the bounce alone) -->
+        <h2 class="f-title hop" id="play-title" data-letters data-stamp data-i18n="play.title">Things I built on a Sunday</h2>
+        <!-- its words rise in as the title's letters land (data-delay: seconds after the page opens) -->
+        <p class="prose" data-split data-delay=".8" data-i18n="play.intro">Experiments, widgets and games, all self-contained and running on their own pages.</p>
       </div>
-    </div>
+    </section>
+
+    <!-- the player: the thing in a window, picked from the panel beside it (index.js PLAY) -->
+    <section class="c-pl" aria-labelledby="pl-title">
+      <div class="c-desk">
+        <div class="c-launch">
+          <div class="c-launch-top"><h3 class="label" id="pl-title" data-i18n="pl.title">Pick one and play</h3><span class="label" id="pl-count" aria-hidden="true"></span></div>
+          <div class="c-tabs" id="pl-tabs" role="tablist" aria-orientation="vertical" aria-label="Things to play with" data-i18n-label="pl.tabs"></div>
+          <div class="c-about">
+            <p class="label" data-i18n="pl.now">Now playing</p>
+            <p class="c-desc" data-now="desc"></p>
+            <span class="c-tags" data-now="tags"></span>
+          </div>
+        </div>
+        <div class="c-main" id="pl-panel" role="tabpanel">
+          <div class="c-win">
+            <div class="c-tbar">
+              <span class="c-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="c-wtitle"><span class="c-ico" aria-hidden="true" data-now="glyph"></span><b data-now="title"></b><span class="c-wkind" data-now="kind"></span></span>
+              <a class="arrow-link" data-now-href href="https://williamsham90.github.io/Portfolio-2/" target="_blank" rel="noopener"><span data-i18n="live.open">Open full size</span><span class="sr-only" data-i18n="newtab">(opens in a new tab)</span><span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="c-stage embed-stage" id="pl-stage">
+              <!-- the site's page wipe and loading screen, over the window while a pick loads -->
+              <div class="ld" aria-hidden="true">
+                <div class="ld-wipe"><i></i><i></i></div>
+                <div class="embed-loader">
+                  <div class="loader-ring">
+                    <span style="--i:0">N</span><span style="--i:1">O</span><span style="--i:2">W</span><span style="--i:4">L</span><span style="--i:5">O</span><span style="--i:6">A</span><span style="--i:7">D</span><span style="--i:8">I</span><span style="--i:9">N</span><span style="--i:10">G</span><span style="--i:11">.</span><span style="--i:12">.</span><span style="--i:13">.</span><span style="--i:14">✦</span>
+                  </div>
+                </div>
+              </div>
+              <button class="embed-hint" type="button"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2v18l5-5 3.5 7 3-1.4-3.4-6.9H20z"/></svg><span data-i18n="live.hint">It's live · click, drag &amp; explore</span></span></button>
+              <p class="sr-only" role="status" id="pl-status"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <div class="shell block">
       <div class="band" style="--accent: var(--yellow)">
@@ -564,7 +574,7 @@
         </div>
         <span class="label"><b>[01]</b> <span data-i18n="contact.eyebrow">Contact</span></span>
         <!-- letters (data-letters) that rise in as the page opens, as the hero's name does, then hop (.stamp) -->
-        <h2 class="c3-title stamp is-idle" data-letters data-i18n="contact.title">Let's work out if this is a fit</h2>
+        <h2 class="c3-title stamp is-idle" data-letters data-stamp data-i18n="contact.title">Let's work out if this is a fit</h2>
         <span class="status"><span class="dot" aria-hidden="true"></span><span data-i18n="contact.status">Open to freelance work</span></span>
       </div>
 

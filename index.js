@@ -14,7 +14,6 @@
      DNS/TLS round trip and no raw.githubusercontent.com rate limits. */
   const IMG_BASE  = "Images/";
   const GAME_BASE = "Games/";
-  const PAGE_BASE = "Codelab/";
 
   let toastTimer;
   function toast(msg){
@@ -29,18 +28,6 @@
   }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" })[c]);
   const clamp = (a, b, v) => v < a ? a : v > b ? b : v;
-
-  /* An iframe fires `load` even when the embed was refused, leaving a blank
-     frame on top of the fallback — but every source this site embeds
-     (Portfolio-2, the Codelab/Games pages) is our own and never sends a
-     blocking X-Frame-Options/CSP, so load firing is proof enough. A
-     same-origin-unreadable check was tried here instead, but GitHub
-     Pages serves Portfolio-2 and this site from the same origin
-     (different paths, same williamsham90.github.io host) — so that
-     check never saw "unreadable" and the frame stayed invisible. */
-  function revealWhenEmbedded(frame){
-    frame.addEventListener("load", () => frame.classList.add("ready"), { once: true });
-  }
 
   /* =================================================================
      LANGUAGE
@@ -73,10 +60,9 @@
     "step.3p":"Toetse, 'n README wat op 'n splinternuwe skootrekenaar werk, CI wat met elke merge ontplooi, en 'n deurloop vir wie dit ook al oorneem.",
     "band.homeTitle":"Mooi so, jy het die onderkant gehaal.",
     "band.homeText":"Om dankie te sê, wat van ek jou uitneem vir 'n koffie? Klik net op die swart knoppie (definitief nie my kontakbladsy of iets nie).",
-    "live.eyebrow":"Regstreekse voorskou","live.titleRest":", reg hier voor jou","live.title2":"Williams OS",
+    "live.eyebrow":"Regstreekse voorskou","live.titleRest":", reg hier voor jou",
     "live.open":"Maak volskerm oop",
     "live.copy":"Dis die regte werf, nie 'n skermskoot nie. Dit pas by enige breedte aan, so jy sien die rekenaaruitleg hier en die selfoonuitleg op 'n foon.",
-    "live.copy2":"Die regte werf, regstreeks in die raam hieronder. Maak dit volskerm oop vir die volle ervaring.",
     "live.p1":"Laai outomaties wanneer jy daarheen blaai",
     "live.p2":"Veilig geïsoleer",
     "live.p3":"Responsief, nie geskaal nie",
@@ -104,7 +90,7 @@
     "band.projText":"Pasop! Jy het FOMO. Kliek die knoppie om ontslae te raak van FOMO",
     "play.eyebrow":"Speelgrond","play.title":"Dinge wat ek op 'n Sondag gebou het",
     "play.intro":"Eksperimente, widgets en speletjies, elkeen selfstandig op sy eie bladsy.",
-    "play.pages":"Bladsye","play.games":"Speletjies",
+    "pl.title":"Kies een en speel","pl.tabs":"Goed om mee te speel","pl.now":"Speel nou",
     "band.playTitle":"Moenie die knoppie druk nie",
     "band.playText":"Nee, regtig, moenie die knoppie in swart druk nie. Dit mag jou na 'n lekker plek neem, soos my kontakbladsy. Ooh, so scary.",
     "contact.eyebrow":"Kontak","contact.title":"Kom ons kyk of ons 'n goeie pas is",
@@ -153,16 +139,11 @@
     document.documentElement.lang = LANG;
     setTitle();
     renderAll();
+    // strings in markup built by script, repainted by hand (this pass has already walked the document)
     HERO.text();
     ABOUT.text();
     OS.relayout();
-    /* strings inside JS-built markup are repainted by hand, because they
-       are created after this pass has already walked the document */
-    $$(".embed-host[data-built]").forEach(el => {
-      el.dataset.built = "";
-      el.innerHTML = "";
-      buildEmbed(el);
-    });
+    PLAY.text();
   }
   $("#lang").addEventListener("click", () => {
     LANG = LANG === "en" ? "af" : "en";
@@ -178,8 +159,8 @@
   const ACCENTS = ["var(--pink)", "var(--blue)", "var(--yellow)", "var(--mint)"];
 
 
-  /* Organised loading placeholder (every card's screenshot, the live
-     embed) — three evenly spaced dots, not scattered riso shapes, so it
+  /* Organised loading placeholder (every card's screenshot) — three
+     evenly spaced dots, not scattered riso shapes, so it
      reads as "loading" rather than as another card's cover art. HTML,
      not SVG: a CSS animation of transform and opacity on an HTML element
      runs on the compositor, but on SVG shapes it relayouts and repaints
@@ -192,55 +173,13 @@
   }
 
   /* =================================================================
-     LIVE EMBED
-     Auto-loads once scrolled near — still never fetched on page load
-     (no request, no layout shift, for a visitor who never reaches it),
-     but no click required either. The iframe fills its container at
-     natural width, so the embedded site chooses its own responsive
-     layout rather than being scaled or squashed.
+     LIVE SITES — Williams OS on the home page (OS), the Playground's
+     player (PLAY). Each loads only once scrolled near (no request for a
+     visitor who never reaches it), into a frame at its natural width, so
+     the site picks its own responsive layout rather than being scaled.
+     No sandbox: they're this site's own origin (github.io), where
+     allow-scripts + allow-same-origin isolates nothing.
      ================================================================= */
-  function buildEmbed(el){
-    if (el.dataset.built) return;
-    el.dataset.built = "1";
-    const src = el.dataset.embed;
-    const label = el.dataset.label || "Live preview";
-    let host = src;
-    try { host = new URL(src).host + new URL(src).pathname; } catch (e) {}
-
-    el.innerHTML =
-      '<div class="embed">' +
-        '<div class="embed-bar">' +
-          '<span class="embed-dots" aria-hidden="true"><i></i><i></i><i></i></span>' +
-          '<span class="embed-url">' + esc(host) + '</span>' +
-          '<a class="embed-open" href="' + esc(src) + '" target="_blank" rel="noopener">' +
-            T("live.open", "Open full size") + ' ↗</a>' +
-        '</div>' +
-        '<div class="embed-stage">' +
-          '<div class="embed-fallback" aria-hidden="true">' + loadingArt() + '</div>' +
-          '<button class="embed-hint" type="button"><span>' +
-            '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2v18l5-5 3.5 7 3-1.4-3.4-6.9H20z"/></svg>' +
-            (coarse ? T("live.hintTouch", "It's live · tap, drag & explore")
-                    : T("live.hint", "It's live · click, drag & explore")) +
-          '</span></button>' +
-          // no sandbox: the embed is this site's own origin (github.io), where allow-scripts +
-          // allow-same-origin isolates nothing and only earns a console warning per load
-          '<iframe data-src="' + esc(src) + '" title="' + esc(label) + ' — live preview" ' +
-            'referrerpolicy="no-referrer-when-downgrade"></iframe>' +
-        '</div>' +
-      '</div>' +
-      '<p class="embed-caption">' + esc(label) + ' · ' + esc(host) + '</p>';
-
-    const frame = $(".embed-stage iframe", el);
-    $(".embed-hint", el).addEventListener("click", () => {
-      frame.parentElement.classList.add("used");
-      frame.focus();
-    });
-    whenNear($(".embed-stage", el), () => {
-      revealWhenEmbedded(frame);
-      frame.src = frame.dataset.src;
-    });
-  }
-
   /* A live site starts (`start`) once `el` is within a screen AND the
      reader has paused (no scrolling for 300ms, then an idle moment): a
      whole site starting up in a frame cost the page frames of 200ms+
@@ -270,9 +209,9 @@
   }
 
   function initEmbeds(){
-    if (booting) return;   // live previews wait for the loader to lift (it starts them), not compete with the first screen
-    $$(".embed-host[data-embed]").forEach(buildEmbed);
+    if (booting) return;   // live sites wait for the loader to lift (it starts them), not compete with the first screen
     OS.start();
+    if (current === "play") PLAY.arm();
   }
   /* Clicking into an iframe moves focus out of this window. That blur is
      the only signal a cross-origin frame gives, and it's enough to retire
@@ -418,6 +357,285 @@
   })();
 
   /* =================================================================
+     PLAYGROUND (index.html #page-play)
+     1. The title, over a field of the brand's five shapes filling the
+        first screen: each is held to its place by a spring, the pointer
+        pushes those near it apart (they tip as they go), a click kicks
+        them all out from where it landed, and they pop in from the
+        middle as the page opens (pop, animatePage). The canvas only
+        draws while something's moving; with reduced motion it's simply
+        there, still.
+     2. The player: the things in a window, picked from the panel beside
+        it. Tabs: one Tab stop; the arrows, Home and End move along them;
+        Enter, Space or a click picks (a pick loads a whole page, so
+        passing over one never does). A pick sweeps the site's page wipe
+        in over the window; its colour stays as the loading screen until
+        the thing has loaded and frames run smoothly again, then drops
+        away as the site's loader does, and the "it's live" layer offers
+        it. A new frame each pick: no steps added to the browser's Back,
+        and the last one's sound and timers stop with it. The first loads
+        once the player's near and the reader has paused (whenNear, after
+        the loader: initEmbeds); leaving the page unloads it (the cats
+        have music).
+     To add a thing: an entry in ITEMS (its group, address, icon mark,
+     tags, and words in English and Afrikaans).
+     ================================================================= */
+  const PLAY = (() => {
+    const page = $("#page-play"), motion = !reduced;
+    const tr = (en, af) => LANG === "af" ? af : en;
+
+    /* ---- 1. the shape field ---- */
+    const hero = $(".f-hero", page), cv = $(".f-field", hero), fx = cv.getContext("2d");
+    const INKS = ["#E0206A", "#2B4BFF", "#F5B800", "#00967F"];
+    const REACH = 140, PUSH = 14000, SPRING = 60, DAMP = 9, KICK = 1700;   // px, px/s², 1/s², 1/s, px/s: they part wide and come back with a little bounce
+    const SHAPES = ["circle", "square", "triangle", "hexagon", "diamond"].map(k => {
+      const s = new Path2D();
+      if (k === "circle") s.arc(0, 0, 1, 0, 2 * Math.PI);
+      else if (k === "square") s.rect(-.85, -.85, 1.7, 1.7);
+      else {
+        const n = k === "triangle" ? 3 : k === "hexagon" ? 6 : 4, R = k === "triangle" ? 1.25 : k === "hexagon" ? 1.05 : 1.2;
+        for (let i = 0; i < n; i++){ const a = -Math.PI / 2 + i * 2 * Math.PI / n; s.lineTo(Math.cos(a) * R, Math.sin(a) * R); }
+        s.closePath();
+      }
+      return s;
+    });
+    let P = [], W = 0, H = 0, dpr = 1, raf = 0, last = 0, t0 = -1e9, px = 0, py = 0, near = false;
+    // one shape per cell of a loose grid, so it's full edge to edge; each pops in later the further out it is
+    function build(){
+      W = hero.offsetWidth; H = hero.offsetHeight; dpr = Math.min(2, devicePixelRatio || 1);
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      const gap = Math.max(36, Math.min(56, W / 26)), far = Math.hypot(W, H) / 2 || 1;
+      P = [];
+      for (let y = gap / 2; y < H; y += gap) for (let x = gap / 2; x < W; x += gap){
+        const hx = x + (Math.random() - .5) * gap * .8, hy = y + (Math.random() - .5) * gap * .8;
+        P.push({ hx, hy, ox: 0, oy: 0, vx: 0, vy: 0, r: 4 + Math.random() * 6, a: Math.random() * 2 * Math.PI,
+          s: Math.floor(Math.random() * 5), ink: INKS[Math.floor(Math.random() * 4)], wait: Math.hypot(hx - W / 2, hy - H / 2) / far * 900 });
+      }
+      wake();
+    }
+    const grown = (p, now) => { const k = Math.min(1, Math.max(0, (now - t0 - p.wait) / 380)); return 1 - Math.pow(1 - k, 3); };
+    function draw(now){
+      fx.setTransform(1, 0, 0, 1, 0, 0);
+      fx.clearRect(0, 0, cv.width, cv.height);
+      for (const p of P){
+        const k = grown(p, now);
+        if (!k) continue;
+        const s = p.r * k * dpr, a = p.a + p.ox * .03, c = Math.cos(a) * s, n = Math.sin(a) * s;
+        fx.setTransform(c, n, -n, c, (p.hx + p.ox) * dpr, (p.hy + p.oy) * dpr);
+        fx.fillStyle = p.ink;
+        fx.fill(SHAPES[p.s]);
+      }
+    }
+    function step(now){
+      raf = 0;
+      const dt = Math.min(.033, (now - last) / 1000) || .016;
+      last = now;
+      let busy = now - t0 < 1400;
+      for (const p of P){
+        let ax = -SPRING * p.ox - DAMP * p.vx, ay = -SPRING * p.oy - DAMP * p.vy;
+        if (near){
+          const dx = p.hx + p.ox - px, dy = p.hy + p.oy - py, d2 = dx * dx + dy * dy;
+          if (d2 < REACH * REACH && d2 > .01){ const d = Math.sqrt(d2), f = PUSH * (1 - d / REACH) ** 2; ax += dx / d * f; ay += dy / d * f; }
+        }
+        p.vx += ax * dt; p.vy += ay * dt;
+        p.ox += p.vx * dt; p.oy += p.vy * dt;
+        if (Math.abs(p.ox) + Math.abs(p.oy) > .2 || Math.abs(p.vx) + Math.abs(p.vy) > 2) busy = true;
+        else p.ox = p.oy = p.vx = p.vy = 0;
+      }
+      draw(now);
+      if (busy || near) raf = requestAnimationFrame(step);
+    }
+    function wake(){
+      if (!motion) return draw(performance.now());
+      if (!raf){ last = performance.now(); raf = requestAnimationFrame(step); }
+    }
+    // the page opening: they pop in from the middle
+    function pop(){ t0 = performance.now(); wake(); }
+    // laid out again at a new size (and when the page first shows: hidden, it has none)
+    new ResizeObserver(() => { if (Math.abs(hero.offsetWidth - W) > 1 || Math.abs(hero.offsetHeight - H) > 1) build(); }).observe(hero);
+    if (motion){
+      const at = e => { const r = hero.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+      hero.addEventListener("pointermove", e => { [px, py] = at(e); near = true; wake(); });
+      hero.addEventListener("pointerleave", () => { near = false; wake(); });
+      const lift = e => { if (e.pointerType !== "mouse"){ near = false; wake(); } };   // a finger's gone: nothing's pushing
+      hero.addEventListener("pointerup", lift);
+      hero.addEventListener("pointercancel", lift);
+      hero.addEventListener("click", e => {
+        const [x, y] = at(e);
+        P.forEach(p => {
+          const dx = p.hx + p.ox - x, dy = p.hy + p.oy - y, d = Math.hypot(dx, dy) || 1, k = 1 - d / 520;
+          if (k > 0){ p.vx += dx / d * KICK * k; p.vy += dy / d * KICK * k; }
+        });
+        wake();
+      });
+    }
+
+    /* ---- 2. the player ---- */
+    const GROUPS = {
+      live:  { en: "Live sites", af: "Regstreekse werwe", one: ["Live site", "Regstreekse werf"] },
+      games: { en: "Games", af: "Speletjies", one: ["Game", "Speletjie"] }
+    };
+    const ITEMS = [
+      { group: "live", title: "Williams OS", url: "https://williamsham90.github.io/Portfolio-2/", glyph: "OS", tags: ["Live", "Desktop", "Portfolio"],
+        en: "The real site, not a screenshot: my portfolio, built as a little desktop of its own.",
+        af: "Die regte werf, nie 'n skermskoot nie: my portefeulje, gebou as 'n klein lessenaar van sy eie." },
+      { group: "live", title: "Cat Playground", url: "https://williamsham90.github.io/Cat-Section-Full-screen/", glyph: "CAT", tags: ["PixiJS", "Pixel art", "Sound"],
+        en: "A cosy pixel-art room full of cats to play with: their moods, music, rooms and skies, and a camera for a photo.",
+        af: "'n Gesellige pixelkuns-kamer vol katte om mee te speel: hul buie, musiek, kamers en lugte, en 'n kamera vir 'n foto." },
+      { group: "games", title: "2048", url: GAME_BASE + "2048-master/index.html", glyph: "2048", tags: ["Puzzle", "Classic", "GitHub"],
+        en: "The original sliding tile puzzle: merge the numbers until you reach 2048. From gabrielecirulli's open-source repo on GitHub.",
+        af: "Die oorspronklike skuifteël-legkaart: voeg die getalle saam tot jy 2048 bereik. Van gabrielecirulli se oopbronprojek op GitHub." }
+    ].map((it, i) => Object.assign(it, { id: it.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"), accent: ACCENTS[i % 4] }));
+    // a thing's field, in the reader's language
+    const field = (it, k) => k === "desc" ? tr(it.en, it.af) : k === "kind" ? tr(...GROUPS[it.group].one) : it[k];
+    function put(el, it, k){
+      if (k !== "tags") el.textContent = field(it, k);
+      else el.replaceChildren(...it.tags.map(x => Object.assign(document.createElement("span"), { className: "tag", textContent: x })));
+    }
+
+    const list = $("#pl-tabs"), panel = $("#pl-panel"), stage = $("#pl-stage"), ld = $(".ld", stage), screen = $(".embed-loader", ld);
+    const hint = $(".embed-hint", stage), status = $("#pl-status");
+    // the groups and their tabs
+    const tabs = ITEMS.map(it => {
+      let g = $('.pl-group[data-group="' + it.group + '"]', list);
+      if (!g){
+        g = document.createElement("div");
+        g.className = "pl-group"; g.dataset.group = it.group;
+        g.innerHTML = '<p class="pl-glabel" id="pl-g-' + it.group + '" aria-hidden="true"><span></span><b>' +
+          String(ITEMS.filter(o => o.group === it.group).length).padStart(2, "0") + "</b></p>";
+        list.append(g);
+      }
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "pl-tab"; b.id = "pl-tab-" + it.id; b.dataset.id = it.id; b.tabIndex = -1;
+      b.setAttribute("role", "tab"); b.setAttribute("aria-selected", "false");
+      b.setAttribute("aria-controls", panel.id); b.setAttribute("aria-describedby", "pl-g-" + it.group);
+      b.style.setProperty("--c", it.accent);
+      b.dataset.accent = it.accent.slice(6, -1);   // "yellow": ink on the icon
+      b.innerHTML = '<span class="c-ico"></span><span class="c-tx"><b></b><small></small></span>';
+      put($(".c-ico", b), it, "glyph"); put($("b", b), it, "title");
+      g.append(b);
+      return b;
+    });
+    $("#pl-count").textContent = String(tabs.length).padStart(2, "0");
+    // on a phone the tabs lie in a row
+    const row = matchMedia("(max-width: 760px)");
+    const orient = () => list.setAttribute("aria-orientation", row.matches ? "horizontal" : "vertical");
+    orient();
+    row.addEventListener("change", orient);
+    // the touch words, in before applyLang first reads the English
+    if (coarse){ const w = $("[data-i18n]", hint); w.dataset.i18n = "live.hintTouch"; w.textContent = "It's live · tap, drag & explore"; }
+    hint.addEventListener("click", () => { stage.classList.add("used"); if (frame) frame.focus(); });
+
+    // the loading screen's colour: one of the site's five, never the same twice running
+    const pickInk = () => { const n = +ld.dataset.wipe; ld.dataset.wipe = isNaN(n) ? Math.floor(Math.random() * 5) : (n + 1 + Math.floor(Math.random() * 4)) % 5; };
+    pickInk();
+    // resolves once a few frames in a row have come in time (or after 1.5s)
+    const calm = () => new Promise(done => {
+      let prev = 0, run = 0, waited = 0;
+      const tick = now => {
+        if (prev){ run = now - prev < 25 ? run + 1 : 0; waited += now - prev; }
+        prev = now;
+        if (run < 3 && waited < 1500) requestAnimationFrame(tick); else done();
+      };
+      requestAnimationFrame(tick);
+    });
+
+    let cur = ITEMS[0], frame = null, seq = 0, started = false, armed = false, wiping = null;
+    function mark(it){
+      cur = it;
+      tabs.forEach(b => { const on = b.dataset.id === it.id; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
+      panel.setAttribute("aria-labelledby", "pl-tab-" + it.id);
+      panel.style.setProperty("--now", it.accent);
+      panel.dataset.accent = it.accent.slice(6, -1);
+      $$("[data-now]", panel.parentElement).forEach(el => put(el, it, el.dataset.now));
+      $$("[data-now-href]", panel).forEach(a => { a.href = it.url; });
+    }
+    // the site's page wipe, in: ink then the colour, which then stays as the loading screen
+    function sweepIn(back){
+      pickInk();
+      ld.classList.toggle("rev", !!back);
+      ld.hidden = false;
+      if (!motion) return null;
+      ld.classList.add("is-wiping");
+      const layers = $$(".ld-wipe i", ld);
+      return Promise.all(layers.map((l, i) => l.animate([{ transform: "translateX(-100%)" }, { transform: "none" }],
+        { duration: 450, delay: i * 35, easing: "cubic-bezier(.45,0,.55,1)", fill: "forwards" }).finished.catch(() => {})))
+        .then(() => { ld.classList.remove("is-wiping"); layers.forEach(l => l.getAnimations().forEach(a => a.cancel())); wiping = null; });
+    }
+    async function load(it, back){
+      started = true;
+      const my = ++seq;
+      stage.classList.remove("used");
+      status.textContent = tr("Loading ", "Laai ") + it.title + "…";
+      if (ld.hidden) wiping = sweepIn(back);
+      else screen.classList.remove("out");   // still up (or on its way down): it simply stays
+      await wiping;
+      if (my !== seq) return;                // picked again meanwhile: that one carries on
+      if (frame) frame.remove();
+      const f = frame = document.createElement("iframe");
+      f.title = it.title;
+      f.referrerPolicy = "no-referrer-when-downgrade";
+      f.src = it.url;
+      const t1 = performance.now();
+      f.addEventListener("load", async () => {
+        // the loading screen stays up for a beat (no flash), and until frames run smoothly again
+        await new Promise(r => setTimeout(r, motion ? Math.max(0, 900 - (performance.now() - t1)) : 0));
+        await calm();
+        if (my !== seq) return;
+        f.classList.add("ready");
+        screen.classList.add("out");
+        status.textContent = it.title + tr(" is ready", " is gereed");
+        setTimeout(() => { if (my === seq){ ld.hidden = true; screen.classList.remove("out"); } }, motion ? 800 : 0);
+      }, { once: true });
+      stage.insertBefore(f, hint);
+    }
+    function select(id){
+      const it = ITEMS.find(o => o.id === id);
+      if (!it || (it === cur && started)) return;
+      const back = ITEMS.indexOf(it) < ITEMS.indexOf(cur);
+      mark(it);
+      load(it, back);
+    }
+    list.addEventListener("click", e => { const b = e.target.closest("[role=tab]"); if (b) select(b.dataset.id); });
+    list.addEventListener("keydown", e => {
+      const i = tabs.indexOf(e.target), k = e.key, n = tabs.length;
+      if (i < 0) return;
+      const to = k === "ArrowDown" || k === "ArrowRight" ? (i + 1) % n : k === "ArrowUp" || k === "ArrowLeft" ? (i - 1 + n) % n : k === "Home" ? 0 : k === "End" ? n - 1 : -1;
+      if (to < 0) return;
+      e.preventDefault();
+      tabs[to].focus();
+    });
+    mark(cur);
+
+    // the first thing loads once the player's near and the reader has paused
+    function arm(){
+      if (armed || started) return;
+      armed = true;
+      whenNear(stage, () => { armed = false; if (!started && current === "play") load(cur, false); });
+    }
+    // off the page: the thing unloads (no music playing on another page), ready to load again on return
+    function leave(){
+      if (!started) return;
+      seq++;
+      started = false;
+      if (frame){ frame.remove(); frame = null; }
+      $$(".ld-wipe i", ld).forEach(l => l.getAnimations().forEach(a => a.cancel()));
+      ld.classList.remove("is-wiping");
+      screen.classList.remove("out");
+      ld.hidden = false;
+      stage.classList.remove("used");
+      status.textContent = "";
+    }
+    // the words in the language just switched to (applyLang)
+    function text(){
+      $$(".pl-group", list).forEach(g => { const G = GROUPS[g.dataset.group]; $(".pl-glabel span", g).textContent = tr(G.en, G.af); });
+      tabs.forEach((b, i) => put($("small", b), ITEMS[i], "kind"));
+      mark(cur);
+    }
+    return { pop, arm, leave, text };
+  })();
+
+  /* =================================================================
      DATA — straight from index.js
      ================================================================= */
   const CATS = {
@@ -483,27 +701,6 @@
     { key:"3D Lazer Monkey", note:{ en:"3D printing and laser cutting, start to finish", af:"3D-druk en lasersny, van begin tot einde" } },
     { key:"Current Automation", metric:{ n:1500, unit:"+", en:"products loaded into the store", af:"produkte in die winkel gelaai" } },
     { key:"Afrit", note:{ en:"Trailer manufacturer's full corporate site", af:"Die volledige korporatiewe werf van 'n sleepwavervaardiger" } }
-  ];
-
-  const PAGES = [
-    ["buddy terminal","buddyterminal.html",["Tamagotchi","commands","Interactive"],"Hatch your own pet, play with it and watch it write code — and plenty more.","Broei jou eie troeteldier uit, speel daarmee en kyk hoe dit kode skryf — en nog baie meer."],
-    ["Hacklab","Hacklab.html",["HackLab","Hacking","Beginners"],"Learn to hack web apps through ten fun mini challenges for beginners.","Leer om webtoepassings te hack met tien prettige mini-uitdagings vir beginners."],
-    ["Pattern Assessment","patternassesment.html",["Secure","Patterns","Live"],"A secure way to pass data between windows using only HTML and JavaScript.","'n Veilige manier om data tussen vensters oor te dra met net HTML en JavaScript."],
-    ["CSS Filter Showcase","Filterlab.html",["CSS","Filters","Interactive"],"Every CSS filter function, visualised. Click any card to copy the code.","Elke CSS-filterfunksie, visueel gewys. Klik op enige kaart om die kode te kopieer."],
-    ["Particle Generator Showcase","ParticleGen.html",["Particle","Themes","Interactive"],"Design your own particle effects and copy them into your project.","Ontwerp jou eie deeltjie-effekte en kopieer dit na jou projek."],
-    ["Text Motion Showcase","TextMotion.html",["Text","CSS","Animation"],"Hover a card to preview it · click copy to grab the CSS and JS.","Beweeg oor 'n kaart vir 'n voorskou · klik op kopieer vir die CSS en JS."],
-    ["Demo Dashboard","demodash.html",["HTML","Visual","Dashboard"],"Just for show: a fun, modern-looking dashboard.","Net vir die pret: 'n moderne, speelse paneelbord."]
-  ];
-
-  const GAMES = [
-    ["2048","2048-master/index.html",["Puzzle","Classic","GitHub"],"The original sliding tile puzzle — merge the numbers until you reach 2048. From gabrielecirulli's open-source repo on GitHub.","Die oorspronklike skuifteël-legkaart — voeg die getalle saam tot jy 2048 bereik. Van gabrielecirulli se oopbronprojek op GitHub."],
-    ["Minesweeper","minesweeper.html",["Puzzle","Classic","JavaScript"],"Classic Minesweeper with several difficulty levels.","Die klassieke Minesweeper met verskeie moeilikheidsvlakke."],
-    ["Platformer","platformer.html",["Action","Platform","Canvas"],"A side-scrolling platformer with tricky obstacles.","'n Sy-rollende platformspeletjie met uitdagende hindernisse."],
-    ["Pong","pong.html",["Arcade","Classic","Multiplayer"],"The classic arcade game — play against the computer or a friend.","Die klassieke arcade-speletjie — speel teen die rekenaar of 'n vriend."],
-    ["Snake Game","snake_game.html",["Arcade","Classic","JavaScript"],"Guide the snake to eat and grow without hitting the walls.","Lei die slang om te eet en te groei sonder om teen die mure vas te loop."],
-    ["Tower Blocks","tower_blocks.html",["Puzzle","Stacking","Skill"],"Stack the blocks as high as you can — precision required.","Stapel die blokke so hoog as wat jy kan — dit vra presisie."],
-    ["Word Guess","word_guess.html",["Word","Puzzle","Brain"],"Guess the hidden word before you run out of tries.","Raai die versteekte woord voordat jou kanse opraak."],
-    ["Slots","slots.html",["Luck","Skill","Fun"],"A slot machine I made myself. Give it a spin.","'n Slotmasjien wat ek self gemaak het. Gee dit 'n draai."]
   ];
 
   const SKILLS = [
@@ -1782,23 +1979,6 @@
       '</div></article>';
   }
 
-  function liveCardHTML(item, i, base, kind, cta){
-    const accent = ACCENTS[(i + 2) % 4];
-    const url = base + item[1];
-    return '<article class="card" style="--accent: ' + accent + '" data-anim="up">' +
-      '<div class="shot">' +
-        '<div class="art">' + loadingArt() + '</div>' +
-        '<iframe data-src="' + esc(url) + '" title="' + esc(item[0]) + '" loading="lazy" ' +
-        'tabindex="-1" scrolling="no"></iframe>' +
-        '<span class="poster">' + kind + '</span>' +
-      '</div>' +
-      '<div class="card-body">' +
-        '<h4>' + esc(item[0]) + '</h4>' +
-        '<p>' + esc(item[LANG === "af" ? 4 : 3]) + '</p>' +
-        '<div class="tags">' + item[2].map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>' +
-        '<a class="arrow-link" href="' + esc(url) + '" target="_blank" rel="noopener"><span>' + cta + '</span><span>↗</span></a>' +
-      '</div></article>';
-  }
 
   /* =================================================================
      SHOWCASE — "Selected work" (home) and the Projects page's hero, after
@@ -1954,51 +2134,6 @@
     });
   }
 
-  let frameObserver = null;
-  function lazyFrames(){
-    if (booting) return;   // as initEmbeds: the loader starts them as it lifts
-    if (frameObserver) frameObserver.disconnect();
-    /* Previews load as they near the viewport and are unloaded again once
-       scrolled away. They're same-origin, so the browser doesn't throttle
-       them off-screen: without this, every game and demo scrolled past
-       (three.js, tsParticles, canvas loops) keeps running in the background. */
-    frameObserver = new IntersectionObserver(entries => {
-      entries.forEach(en => {
-        const f = en.target;
-        if (en.isIntersecting){ if (!f.dataset.live) frameQueue.add(f); return; }
-        frameQueue.delete(f);
-        if (f.dataset.live){
-          delete f.dataset.live;
-          f.classList.remove("ready");
-          f.src = "about:blank";
-        }
-      });
-      frameLater();
-    }, { rootMargin: "150px 0px" });
-    $$(".shot iframe[data-src]").forEach(f => frameObserver.observe(f));
-  }
-  /* Starting a preview (a whole page, on this page's main thread) is a long task, 100-300ms on the
-     Playground (measured): several at once, mid-scroll, and the scrolling stuttered. So they start
-     one at a time, each once the scrolling has paused (300ms) and the browser has a quiet moment. */
-  const frameQueue = new Set();
-  let frameWait = 0, frameBusy = false;
-  function frameLater(){ clearTimeout(frameWait); if (frameQueue.size) frameWait = setTimeout(frameNext, 300); }
-  addEventListener("scroll", () => { if (frameQueue.size) frameLater(); }, { passive: true });
-  function frameNext(){
-    if (frameBusy) return;
-    const f = frameQueue.values().next().value;
-    if (!f) return;
-    frameQueue.delete(f);
-    if (!f.isConnected || f.dataset.live) return frameNext();
-    frameBusy = true;
-    f.dataset.live = "1";
-    let done = false;
-    const next = () => { if (done) return; done = true; frameBusy = false; frameLater(); };
-    f.addEventListener("load", () => { f.classList.toggle("ready", !!f.dataset.live); next(); }, { once: true });
-    setTimeout(next, 4000);   // a slow one doesn't hold up the rest
-    (window.requestIdleCallback || setTimeout)(() => { if (f.dataset.live) f.src = f.dataset.src; else next(); }, { timeout: 1000 });
-  }
-
   function renderAll(){
     showcaseRender();
     $$("[data-letters]").forEach(splitLetters);
@@ -2014,11 +2149,6 @@
       (LANG === "af" ? "Alles" : "All") + '</button>' +
       used.map(c => '<button class="chip" type="button" aria-pressed="false" data-cat="' + c + '">' +
         esc(CATS[c][LANG]) + '</button>').join("");
-
-    $("#pages-grid").innerHTML = PAGES.map((p, i) =>
-      liveCardHTML(p, i, PAGE_BASE, LANG === "af" ? "Bladsy" : "Page", LANG === "af" ? "Bekyk die bladsy" : "View page")).join("");
-    $("#games-grid").innerHTML = GAMES.map((g, i) =>
-      liveCardHTML(g, i + 9, GAME_BASE, LANG === "af" ? "Speletjie" : "Game", LANG === "af" ? "Speel nou" : "Play game")).join("");
 
     $("#skills").innerHTML =
       '<div class="sk-tabs" role="tablist" aria-label="' + (LANG === "af" ? "Vaardigheidskategorieë" : "Skill categories") + '">' +
@@ -2055,8 +2185,6 @@
           (LANG === "af" ? "Laai af" : "Download") + '</span><span>↓</span></a>' : '') +
         '</div></article>';
     }).join("");
-
-    lazyFrames();
   }
 
   $("#filters").addEventListener("click", function(e){
@@ -2186,15 +2314,17 @@
 
       // the hero's entrance (HERO): the name stamps in, the badge drops in on its strap, the dot's off
       if (route === "portfolio") HERO.enter(immediate);
-      /* the contact page's title rises in as the page opens, as the hero's name does (a beat late, as
-         the page wipe uncovers it), then hops (.stamp.is-idle). A language switch only re-letters it. */
-      if (route === "contact"){
-        const title = $(".c3-title", scope);
+      /* a page's lettered title (data-stamp: Contact's, the Playground's) rises in as the page opens, as
+         the hero's name does (a beat late, as the page wipe uncovers it), then its idle starts (.is-idle).
+         A language switch only re-letters it. */
+      $$("[data-stamp]", scope).forEach(title => {
         if (immediate) title.classList.add("is-idle");
         else gsap.timeline().add(stampIn(title), .35);
-      }
+      });
       // About's record: its heading and tracks rise in, the record slides out and plays (ABOUT)
       if (route === "about") ABOUT.enter(immediate);
+      // the Playground's shapes pop in from the middle
+      if (route === "play" && !immediate) PLAY.pop();
       // the home page's "Williams OS": its letters rise in as it's scrolled to, then it hops and underlines
       const osName = $(".os-name", scope);
       if (osName){
@@ -2211,7 +2341,7 @@
         el.classList.remove("is-in");
         const base = { yPercent: 0, opacity: 1, duration: .9, ease: EASE, stagger: { each: .035 }, onComplete: () => el.classList.add("is-in") };
         gsap.set(spans, { yPercent: 115, opacity: 0 });
-        if (aboveFold && idx < 2) gsap.to(spans, Object.assign({ delay: immediate ? 0 : .08 }, base));
+        if (aboveFold && idx < 2) gsap.to(spans, Object.assign({ delay: immediate ? 0 : +(el.dataset.delay || .08) }, base));
         else gsap.to(spans, Object.assign({ scrollTrigger: { trigger: el, start: "top 88%", once: true } }, base));
       });
 
@@ -2219,11 +2349,6 @@
         /* clearProps hands transform back to CSS, so :hover lifts
            (cards, tiles) aren't overridden by a leftover inline style */
         gsap.from(el, { y: 32, opacity: 0, duration: .75, ease: EASE, clearProps: "transform",
-          scrollTrigger: { trigger: el, start: "top 92%", once: true } });
-      });
-
-      $$(".embed-host", scope).forEach(el => {
-        gsap.from(el, { y: 40, opacity: 0, duration: .9, ease: EASE,
           scrollTrigger: { trigger: el, start: "top 92%", once: true } });
       });
 
@@ -3351,12 +3476,12 @@
     // the page's lead photo (its LCP) loads now rather than waiting on the lazy-load check
     $$(".sc-slide.is-active img, #a5-cover", $("#page-" + route)).forEach(img => { img.loading = "eager"; img.fetchPriority = "high"; });
     if (route !== "about") ABOUT.leave();   // the record stops when you leave
+    if (route !== "play") PLAY.leave();     // and the Playground's thing unloads
     $$("[data-route]").forEach(a => {
       if (a.dataset.route === route) a.setAttribute("aria-current", "page");
       else a.removeAttribute("aria-current");
     });
     setTitle();
-    lazyFrames();
     initEmbeds();
     if (!booting) animatePage(route);   // at boot the loader builds it as it lifts (see the end of this file)
   }
@@ -3438,7 +3563,6 @@
       lifted = true;
       booting = false;
       document.documentElement.classList.remove("booting");
-      lazyFrames();
       initEmbeds();
       animatePage(current);
       /* the clock stops only now: under a stopped clock gsap.set() holds its values back until
