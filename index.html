@@ -495,77 +495,82 @@
   </section>
 
   <!-- ========================== CONTACT =========================== -->
+  <!-- "Stickers" (index.css and index.js, CONTACT). #contact-fx: the shapes that follow the cursor. -->
   <section class="page" id="page-contact" hidden>
     <div id="contact-fx" aria-hidden="true"></div>
-    <div class="shell block">
-      <section class="sec">
-        <div class="sec-head">
-          <div>
-            <span class="label"><b>[01]</b> <span data-i18n="contact.eyebrow">Contact</span></span>
-            <h2 data-split data-i18n="contact.title">Let's work out if this is a fit</h2>
-          </div>
-          <span class="status"><span class="dot" aria-hidden="true"></span><span data-i18n="contact.status">Open to freelance work</span></span>
+    <div class="c3">
+      <div class="shell c3-head">
+        <!-- the brand's seven shapes, to peel off and move about: decoration, so hidden from screen
+             readers. --l --t --s --r place them (--ml --mt on a phone), --fd --fdl set their float -->
+        <div class="c3-peel" aria-hidden="true">
+          <i class="c3-s" style="--l: 66%; --t: -2%; --s: 92px; --r: -8deg; --ml: 6%; --mt: 0px; --fd: 6.2s; --fdl: -1.1s; --c: var(--pink); --sh: var(--circle)"></i>
+          <i class="c3-s" style="--l: 84%; --t: 18%; --s: 70px; --r: 12deg; --ml: 20%; --mt: 12px; --fd: 5.4s; --fdl: -3.6s; --c: var(--blue); --sh: var(--square)"></i>
+          <i class="c3-s" style="--l: 72%; --t: 54%; --s: 78px; --r: -4deg; --ml: 34%; --mt: 2px; --fd: 7.1s; --fdl: -.4s; --c: var(--yellow); --sh: var(--triangle)"></i>
+          <i class="c3-s" style="--l: 89%; --t: 68%; --s: 84px; --r: 16deg; --ml: 48%; --mt: 14px; --fd: 6.6s; --fdl: -5.2s; --c: var(--mint); --sh: var(--hexagon)"></i>
+          <i class="c3-s" style="--l: 56%; --t: 82%; --s: 56px; --r: 6deg; --ml: 62%; --mt: 0px; --fd: 5.8s; --fdl: -2.3s; --c: var(--pink); --sh: var(--diamond)"></i>
+          <i class="c3-s" style="--l: 61%; --t: 30%; --s: 62px; --r: -10deg; --ml: 74%; --mt: 12px; --fd: 7.4s; --fdl: -4.4s; --c: var(--blue); --sh: var(--pentagon)"></i>
+          <i class="c3-s" style="--l: 79%; --t: 40%; --s: 58px; --r: 8deg; --ml: 88%; --mt: 4px; --fd: 6s; --fdl: -2.9s; --c: var(--yellow); --sh: var(--star)"></i>
         </div>
+        <span class="label"><b>[01]</b> <span data-i18n="contact.eyebrow">Contact</span></span>
+        <!-- letters (data-letters) that rise in as the page opens, as the hero's name does, then hop (.stamp) -->
+        <h2 class="c3-title stamp is-idle" data-letters data-i18n="contact.title">Let's work out if this is a fit</h2>
+        <span class="status"><span class="dot" aria-hidden="true"></span><span data-i18n="contact.status">Open to freelance work</span></span>
+      </div>
 
-        <div class="contact-grid">
-          <div id="form-card">
-            <form id="contact-form" action="https://formsubmit.co/williamsham90@gmail.com" method="POST" novalidate>
-              <input type="hidden" name="_subject" value="New Portfolio Contact Message">
-              <input type="hidden" name="_captcha" value="false">
-              <div class="two">
-                <div class="field">
-                  <label for="c-name" data-i18n="form.name">Your name</label>
-                  <input type="text" id="c-name" name="name" autocomplete="name" placeholder="William Sham">
-                  <span class="err" id="e-name"></span>
-                </div>
-                <div class="field">
-                  <label for="c-email" data-i18n="form.email">Email</label>
-                  <input type="email" id="c-email" name="email" autocomplete="email" placeholder="you@company.com" data-i18n-ph="form.phEmail">
-                  <span class="err" id="e-email"></span>
-                </div>
+      <div class="shell c3-grid">
+        <div class="c3-card" id="form-card">
+          <form id="contact-form" action="https://formsubmit.co/williamsham90@gmail.com" method="POST" novalidate>
+            <input type="hidden" name="_subject" value="New Portfolio Contact Message">
+            <input type="hidden" name="_captcha" value="false">
+            <input class="honey" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <div class="two">
+              <div class="field">
+                <label for="c-name" data-i18n="form.name">Your name</label>
+                <input type="text" id="c-name" name="name" autocomplete="name" placeholder="William Sham" required aria-describedby="e-name">
+                <span class="err" id="e-name"></span>
               </div>
               <div class="field">
-                <label for="c-subject" data-i18n="form.subject">Subject</label>
-                <input type="text" id="c-subject" name="subject" placeholder="New website for…" data-i18n-ph="form.phSubject">
+                <label for="c-email" data-i18n="form.email">Email</label>
+                <input type="email" id="c-email" name="email" autocomplete="email" inputmode="email" placeholder="you@company.com" data-i18n-ph="form.phEmail" required aria-describedby="e-email">
+                <span class="err" id="e-email"></span>
               </div>
-              <div class="field">
-                <label for="c-msg" data-i18n="form.msg">What are you trying to build?</label>
-                <textarea id="c-msg" name="message" placeholder="A sentence or ten. Deadlines, limits and any existing code all help." data-i18n-ph="form.phMsg"></textarea>
-                <span class="err" id="e-msg"></span>
-              </div>
-              <button class="btn btn-accent" type="submit" data-i18n="form.send">Send message →</button>
-              <p class="mono" style="margin-top:16px; color:var(--ink-faint)" data-i18n="form.note">I usually reply within one working day.</p>
-            </form>
-          </div>
-
-          <div>
-            <span class="label" data-i18n="contact.direct">Direct lines</span>
-            <dl class="lines" style="margin-top:14px; margin-bottom:0">
-              <div class="line"><dt data-i18n="contact.email">Email</dt><dd><a href="mailto:williamsham90@gmail.com">williamsham90@gmail.com</a></dd></div>
-              <div class="line"><dt data-i18n="contact.loc">Location</dt><dd data-i18n="contact.locVal">Krugersdorp, Gauteng, South Africa</dd></div>
-              <div class="line"><dt>GitHub</dt><dd><a href="https://github.com/WilliamSham90" target="_blank" rel="noopener">github.com/WilliamSham90</a></dd></div>
-              <div class="line"><dt>CodePen</dt><dd><a href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener">codepen.io/WilliamSham90</a></dd></div>
-              <div class="line"><dt data-i18n="contact.tz">Time zone</dt><dd>SAST · UTC+2</dd></div>
-            </dl>
-
-            <span class="label" style="display:block; margin-top:40px" data-i18n="contact.faq">Before you write</span>
-            <div style="margin-top:8px">
-              <details>
-                <summary data-i18n="faq.q1">Are you available right now?</summary>
-                <p data-i18n="faq.a1">I'm a full-time software developer, so freelance work happens evenings and weekends. That means I take on fewer projects but finish the ones I start.</p>
-              </details>
-              <details>
-                <summary data-i18n="faq.q2">What do you work on most?</summary>
-                <p data-i18n="faq.a2">WordPress and Laravel builds, Umbraco and Perfex CRM work, Azure hosting and performance rescues. Anything from a landing page to a multi-market corporate platform.</p>
-              </details>
-              <details>
-                <summary data-i18n="faq.q3">Do you do 3D and game work too?</summary>
-                <p data-i18n="faq.a3">Yes. Blender, Maya, Unreal and Radiant. I've shipped custom Call of Duty zombie maps and mod tools to the Steam Workshop.</p>
-              </details>
             </div>
+            <div class="field">
+              <label for="c-subject"><span data-i18n="form.subject">Subject</span> <span class="opt">(<span data-i18n="form.optional">optional</span>)</span></label>
+              <input type="text" id="c-subject" name="subject" placeholder="New website for…" data-i18n-ph="form.phSubject">
+            </div>
+            <div class="field">
+              <label for="c-msg" data-i18n="form.msg">What are you trying to build?</label>
+              <textarea id="c-msg" name="message" placeholder="A sentence or ten. Deadlines, limits and any existing code all help." data-i18n-ph="form.phMsg" required aria-describedby="e-msg"></textarea>
+              <span class="err" id="e-msg"></span>
+            </div>
+            <div class="form-foot">
+              <button class="btn btn-accent" type="submit" data-i18n="form.send">Send message →</button>
+              <p class="form-note" data-i18n="form.note">I usually reply within one working day.</p>
+              <p class="form-status" id="form-status" role="status"></p>
+            </div>
+          </form>
+        </div>
+
+        <div class="c3-side">
+          <h3 class="label" data-i18n="contact.direct">Direct lines</h3>
+          <dl class="lines">
+            <div class="line wide k-pink"><dt data-i18n="contact.email">Email</dt><dd class="c3-mail"><a id="c3-mail" href="mailto:williamsham90@gmail.com">williamsham90@gmail.com</a><button class="ghost" id="c3-copy" type="button" data-i18n="contact.copy">Copy</button></dd></div>
+            <div class="line k-mint"><dt data-i18n="contact.loc">Location</dt><dd data-i18n="contact.locVal">Krugersdorp, Gauteng, South Africa</dd></div>
+            <div class="line k-diamond"><dt data-i18n="contact.tz">Time zone</dt><dd>SAST · UTC+2</dd></div>
+            <div class="line wide k-blue"><dt>GitHub</dt><dd><a href="https://github.com/WilliamSham90" target="_blank" rel="noopener">github.com/WilliamSham90</a></dd></div>
+            <div class="line wide k-yellow"><dt>CodePen</dt><dd><a href="https://codepen.io/WilliamSham90" target="_blank" rel="noopener">codepen.io/WilliamSham90</a></dd></div>
+          </dl>
+          <p class="sr-only" id="c3-copied" role="status"></p>
+
+          <h3 class="label" data-i18n="contact.faq">Before you write</h3>
+          <div class="faq">
+            <details><summary data-i18n="faq.q1">Are you available right now?</summary><p data-i18n="faq.a1">I'm a full-time software developer, so freelance work happens evenings and weekends. That means I take on fewer projects but finish the ones I start.</p></details>
+            <details><summary data-i18n="faq.q2">What do you work on most?</summary><p data-i18n="faq.a2">WordPress and Laravel builds, Umbraco and Perfex CRM work, Azure hosting and performance rescues. Anything from a landing page to a multi-market corporate platform.</p></details>
+            <details><summary data-i18n="faq.q3">Do you do 3D and game work too?</summary><p data-i18n="faq.a3">Yes. Blender, Maya, Unreal and Radiant. I've shipped custom Call of Duty zombie maps and mod tools to the Steam Workshop.</p></details>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   </section>
 

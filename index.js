@@ -109,7 +109,8 @@
     "contact.status":"Beskikbaar vir vryskutwerk","contact.direct":"Direkte kontak",
     "contact.email":"E-pos","contact.loc":"Ligging",
     "contact.locVal":"Krugersdorp, Gauteng, Suid-Afrika","contact.tz":"Tydsone","contact.faq":"Voordat jy skryf",
-    "form.name":"Jou naam","form.email":"E-pos","form.subject":"Onderwerp",
+    "contact.copy":"Kopieer",
+    "form.name":"Jou naam","form.email":"E-pos","form.subject":"Onderwerp","form.optional":"opsioneel",
     "form.msg":"Wat wil jy bou?","form.send":"Stuur boodskap →",
     "form.note":"Ek antwoord gewoonlik binne een werksdag.",
     "form.phEmail":"jy@maatskappy.co.za","form.phSubject":"Nuwe webwerf vir…",
@@ -658,12 +659,14 @@
             moving, which the dot bounces off relative to its motion and knocks back. It
             cruises at one speed (anything faster eases back), and off a wall it usually aims
             at a word, so the name keeps getting hit. The cursor is a bat; a click adds a dot. ---- */
-    const SHAPES = [   // .morph's five outlines (index.css): 24 points each, so clip-path morphs between them
+    const SHAPES = [   // the brand's seven outlines (index.css, :root): 24 points each, so clip-path morphs between them
       "polygon(50% 0%,62.9% 1.7%,75% 6.7%,85.4% 14.6%,93.3% 25%,98.3% 37.1%,100% 50%,98.3% 62.9%,93.3% 75%,85.4% 85.4%,75% 93.3%,62.9% 98.3%,50% 100%,37.1% 98.3%,25% 93.3%,14.6% 85.4%,6.7% 75%,1.7% 62.9%,0% 50%,1.7% 37.1%,6.7% 25%,14.6% 14.6%,25% 6.7%,37.1% 1.7%)",
       "polygon(50% 10%,60.7% 10%,73.1% 10%,90% 10%,90% 26.9%,90% 39.3%,90% 50%,90% 60.7%,90% 73.1%,90% 90%,73.1% 90%,60.7% 90%,50% 90%,39.3% 90%,26.9% 90%,10% 90%,10% 73.1%,10% 60.7%,10% 50%,10% 39.3%,10% 26.9%,10% 10%,26.9% 10%,39.3% 10%)",
       "polygon(50% 3%,59.9% 20.1%,65.6% 30%,69.8% 37.2%,73.4% 43.5%,77% 49.8%,81.2% 57%,86.9% 66.9%,96.8% 84%,77% 84%,65.6% 84%,57.2% 84%,50% 84%,42.8% 84%,34.4% 84%,23% 84%,3.2% 84%,13.1% 66.9%,18.8% 57%,23% 49.8%,26.6% 43.5%,30.2% 37.2%,34.4% 30%,40.1% 20.1%)",
       "polygon(50% 0%,61.6% 6.7%,71.7% 12.5%,81.7% 18.3%,93.3% 25%,93.3% 38.4%,93.3% 50%,93.3% 61.6%,93.3% 75%,81.7% 81.7%,71.7% 87.5%,61.6% 93.3%,50% 100%,38.4% 93.3%,28.3% 87.5%,18.3% 81.7%,6.7% 75%,6.7% 61.6%,6.7% 50%,6.7% 38.4%,6.7% 25%,18.3% 18.3%,28.3% 12.5%,38.4% 6.7%)",
-      "polygon(50% 0%,60.6% 10.6%,68.3% 18.3%,75% 25%,81.7% 31.7%,89.4% 39.4%,100% 50%,89.4% 60.6%,81.7% 68.3%,75% 75%,68.3% 81.7%,60.6% 89.4%,50% 100%,39.4% 89.4%,31.7% 81.7%,25% 75%,18.3% 68.3%,10.6% 60.6%,0% 50%,10.6% 39.4%,18.3% 31.7%,25% 25%,31.7% 18.3%,39.4% 10.6%)"
+      "polygon(50% 0%,60.6% 10.6%,68.3% 18.3%,75% 25%,81.7% 31.7%,89.4% 39.4%,100% 50%,89.4% 60.6%,81.7% 68.3%,75% 75%,68.3% 81.7%,60.6% 89.4%,50% 100%,39.4% 89.4%,31.7% 81.7%,25% 75%,18.3% 68.3%,10.6% 60.6%,0% 50%,10.6% 39.4%,18.3% 31.7%,25% 25%,31.7% 18.3%,39.4% 10.6%)",
+      "polygon(50% 2.5%,60.7% 10.2%,69.3% 16.5%,77.5% 22.5%,86.4% 29%,97.6% 37%,93.3% 50%,89.9% 60.7%,86.5% 71.1%,82.7% 82.7%,79.4% 93%,61.5% 93%,50% 93%,38.5% 93%,20.6% 93%,17.3% 82.7%,13.5% 71.1%,10.1% 60.7%,6.7% 50%,2.4% 37%,13.6% 29%,22.5% 22.5%,30.7% 16.5%,39.3% 10.2%)",
+      "polygon(50% 2.5%,57% 24%,59.9% 32.9%,61.2% 37%,72.4% 37%,97.6% 37%,79.7% 50%,71.7% 55.8%,68.2% 58.4%,72.9% 72.9%,79.4% 93%,57.2% 76.8%,50% 71.6%,42.8% 76.8%,20.6% 93%,27.1% 72.9%,31.8% 58.4%,28.3% 55.8%,20.3% 50%,2.4% 37%,27.6% 37%,38.8% 37%,40.1% 32.9%,43% 24%)"
     ];
     const INKS = ["#E0206A", "#2B4BFF", "#E09200", "#00967F"];   // pink, blue, yellow, mint (as hex: WAAPI animates them)
     const MAX_SPEED = 1100;
@@ -2008,6 +2011,13 @@
 
       // the hero's entrance (HERO): the name stamps in, the badge drops in on its strap, the dot's off
       if (route === "portfolio") HERO.enter(immediate);
+      /* the contact page's title rises in as the page opens, as the hero's name does (a beat late, as
+         the page wipe uncovers it), then hops (.stamp.is-idle). A language switch only re-letters it. */
+      if (route === "contact"){
+        const title = $(".c3-title", scope);
+        if (immediate) title.classList.add("is-idle");
+        else gsap.timeline().add(stampIn(title), .35);
+      }
 
       $$("[data-split]", scope).forEach((el, idx) => {
         const spans = splitWords(el);
@@ -2227,54 +2237,134 @@
   }
 
   /* =================================================================
-     CONTACT FORM
+     CONTACT — the form, the stickers, the email's copy button and the
+     questions (index.html #page-contact, index.css CONTACT).
+     The form is checked here and sent to FormSubmit with fetch; if that
+     fails, the message goes to the visitor's mail app instead, so it's
+     never lost. A field is checked when you leave it, and again as you
+     type once it's been marked, so a fix clears its error at once. A
+     failed check sends focus to the first field to fix; once sent, focus
+     goes to the thank-you, which gets a big sticker slapped on it.
      ================================================================= */
-  $("#contact-form").addEventListener("submit", async function(e){
-    e.preventDefault();
-    const form = e.currentTarget;
-    const name = $("#c-name"), email = $("#c-email"), msg = $("#c-msg");
-    let ok = true;
-    $("#e-name").textContent = ""; $("#e-email").textContent = ""; $("#e-msg").textContent = "";
-    if (!name.value.trim()){ $("#e-name").textContent = LANG === "af" ? "Sê my wat om jou te noem." : "Tell me what to call you."; ok = false; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())){
-      $("#e-email").textContent = LANG === "af" ? "Dié e-posadres lyk nie reg nie." : "That address doesn't look right."; ok = false;
+  {
+    const say = (en, af) => LANG === "af" ? af : en;
+    const pop = "cubic-bezier(.34,1.56,.64,1)";   // a little past, and back: a sticker landing
+    const form = $("#contact-form"), status = $("#form-status");
+    const F = { name: $("#c-name"), email: $("#c-email"), msg: $("#c-msg") };
+    const RULES = { name: v => v !== "", email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), msg: v => v.length >= 12 };
+    const ERR = {
+      name: ["Tell me what to call you.", "Sê my wat om jou te noem."],
+      email: ["That address doesn't look right.", "Dié e-posadres lyk nie reg nie."],
+      msg: ["A few more words would help.", "'n Paar woorde meer sal help."]
+    };
+    let tried = false;
+    function check(key){
+      const el = F[key], ok = RULES[key](el.value.trim());
+      el.setAttribute("aria-invalid", String(!ok));
+      $("#e-" + key).textContent = ok ? "" : say(...ERR[key]);
+      return ok;
     }
-    if (msg.value.trim().length < 12){
-      $("#e-msg").textContent = LANG === "af" ? "'n Paar woorde meer sal help." : "A few more words would help."; ok = false;
+    // with every error fixed, "Please check the form." goes too
+    const settled = () => { if (!$$('[aria-invalid="true"]', form).length) status.textContent = ""; };
+    Object.keys(F).forEach(k => {
+      F[k].addEventListener("blur", () => { if (F[k].value.trim() || tried){ check(k); settled(); } });
+      F[k].addEventListener("input", () => { if (F[k].hasAttribute("aria-invalid")){ check(k); settled(); } });
+    });
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      if (form.elements._honey.value) return;   // a bot filled the field people never see
+      tried = true;
+      const bad = Object.keys(F).filter(k => !check(k));
+      if (bad.length){
+        status.textContent = say("Please check the form.", "Kyk asseblief weer na die vorm.");
+        F[bad[0]].focus();
+        return;
+      }
+      status.textContent = "";
+      const btn = $('button[type="submit"]', form);
+      btn.textContent = say("Sending…", "Stuur tans…");
+      btn.disabled = true;
+      let delivered = false;
+      try {
+        const res = await fetch(form.action, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } });
+        delivered = res.ok;
+      } catch (err) { delivered = false; }
+      const first = F.name.value.trim().split(/\s+/)[0];
+      const mailto = "mailto:williamsham90@gmail.com?subject=" + encodeURIComponent($("#c-subject").value.trim() || "Portfolio") + "&body=" + encodeURIComponent(F.msg.value.trim());
+      thank(delivered, first, mailto);
+    });
+
+    // the thank-you (or "send it by email instead"), built as elements so a name can't inject markup
+    function thank(delivered, first, mailto){
+      const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; };
+      const box = el("div", "sent");
+      const h = el("h3", "", (delivered ? say("Thanks, ", "Dankie, ") : say("Sorry, ", "Jammer, ")) + first);
+      h.tabIndex = -1;
+      const a = el("a", "btn btn-sm " + (delivered ? "btn-line" : "btn-accent"), delivered ? say("Back to the start", "Terug na die begin") : say("Send by email →", "Stuur per e-pos →"));
+      a.href = delivered ? "#portfolio" : mailto;
+      box.append(h, el("p", "", delivered
+        ? say("Your message is on its way. I usually reply within one working day.", "Jou boodskap is gestuur. Ek antwoord gewoonlik binne een werksdag.")
+        : say("That didn't go through, but your message isn't lost. Send it by email instead.", "Dit het nie deurgegaan nie, maar jou boodskap is nie verlore nie. Stuur dit eerder per e-pos.")), a);
+      const sticker = el("div", "c3-sent" + (delivered ? "" : " is-no"), delivered ? say("Sent!", "Gestuur!") : say("Oops", "Oeps"));
+      sticker.setAttribute("aria-hidden", "true");
+      $("#form-card").replaceChildren(box, sticker);
+      h.focus({ preventScroll: true });
+      h.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+      if (reduced) return;
+      [...box.children].forEach((c, i) => c.animate([{ opacity: 0, translate: "0 20px" }, { opacity: 1, translate: "0 0" }], { duration: 600, delay: i * 80, easing: "cubic-bezier(.22,1,.36,1)", fill: "backwards" }));
+      sticker.animate([{ scale: 2.4, rotate: "-44deg", opacity: 0 }, { scale: 1, rotate: "-10deg", opacity: 1 }], { duration: 560, delay: 150, easing: pop, fill: "backwards" });
     }
-    if (!ok){ toast(LANG === "af" ? "Kyk asseblief weer na die vorm" : "Please check the form"); return; }
 
-    const btn = form.querySelector('button[type="submit"]');
-    btn.textContent = LANG === "af" ? "Stuur tans…" : "Sending…";
-    btn.disabled = true;
+    /* the stickers: pick one up, drag it anywhere, drop it (it lands at a new tilt). They move by
+       translate and tilt by rotate, so their float (index.css, on transform) carries on over both. */
+    let zTop = 1;
+    $$(".c3-s").forEach(s => {
+      let x = 0, y = 0, sx = 0, sy = 0, held = false;
+      s.addEventListener("pointerdown", e => {
+        if (e.button) return;
+        held = true; sx = e.clientX - x; sy = e.clientY - y;
+        s.setPointerCapture(e.pointerId);
+        s.classList.add("is-held");
+        s.style.zIndex = ++zTop;
+      });
+      s.addEventListener("pointermove", e => {
+        if (!held) return;
+        x = e.clientX - sx; y = e.clientY - sy;
+        s.style.translate = x + "px " + y + "px";
+      });
+      const drop = () => {
+        if (!held) return;
+        held = false;
+        s.classList.remove("is-held");
+        const r = Math.round(Math.random() * 30 - 15) + "deg";
+        if (!reduced) s.animate([{ rotate: getComputedStyle(s).rotate }, { rotate: r }], { duration: 500, easing: pop });
+        s.style.setProperty("--r", r);
+      };
+      s.addEventListener("pointerup", drop);
+      s.addEventListener("pointercancel", drop);
+    });
 
-    let delivered = false;
-    try{
-      const res = await fetch(form.action, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } });
-      delivered = res.ok;
-    } catch (err){ delivered = false; }
+    /* the email sticker copies the address (no clipboard here: it selects it, ready to copy) */
+    const copy = $("#c3-copy"), said = $("#c3-copied");
+    let reset;
+    copy.addEventListener("click", async () => {
+      let ok = false;
+      try { await navigator.clipboard.writeText("williamsham90@gmail.com"); ok = true; } catch (err) {}
+      if (!ok) getSelection().selectAllChildren($("#c3-mail"));
+      const keys = /Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘C" : "Ctrl+C";
+      copy.textContent = ok ? say("Copied ✓", "Gekopieer ✓") : say("Press " + keys, "Druk " + keys);
+      said.textContent = ok ? say("Email address copied.", "E-posadres gekopieer.") : "";
+      if (ok && !reduced) copy.animate([{ scale: 1, rotate: "0deg" }, { scale: 1.2, rotate: "-8deg" }, { scale: 1, rotate: "0deg" }], { duration: 450, easing: pop });
+      clearTimeout(reset);
+      reset = setTimeout(() => { copy.textContent = T("contact.copy", "Copy"); said.textContent = ""; }, 2000);
+    });
 
-    const first = esc(name.value.trim().split(" ")[0]);
-    const af = LANG === "af";
-    /* on failure the form is gone, so hand the visitor's text to their
-       mail client rather than losing it */
-    const mail = "mailto:williamsham90@gmail.com?subject=" + encodeURIComponent($("#c-subject").value.trim() || "Portfolio") +
-      "&body=" + encodeURIComponent(msg.value.trim());
-    $("#form-card").innerHTML =
-      '<div class="sent"><div class="sent-mark" aria-hidden="true"' + (delivered ? '>✓' : ' style="border-color:var(--pink);color:var(--pink)">!') + '</div>' +
-      '<h3 style="font-size:clamp(1.5rem,1.25rem + 1.2vw,2.2rem)">' +
-        (delivered ? (af ? "Dankie, " : "Thanks, ") : (af ? "Jammer, " : "Sorry, ")) + first + '</h3>' +
-      '<p class="prose">' + (delivered
-        ? (af ? "Jou boodskap is gestuur. Ek antwoord gewoonlik binne een werksdag."
-              : "Your message is on its way. I usually reply within one working day.")
-        : (af ? "Dit het nie deurgegaan nie, maar jou boodskap is nie verlore nie. Stuur dit eerder per e-pos."
-              : "That didn't go through, but your message isn't lost. Send it by email instead.")) + '</p>' +
-      (delivered
-        ? '<a class="btn btn-line btn-sm" href="#portfolio">' + (af ? "Terug na die begin" : "Back to the start") + '</a>'
-        : '<a class="btn btn-accent btn-sm" href="' + esc(mail) + '">' + (af ? "Stuur per e-pos →" : "Send by email →") + '</a>') +
-      '</div>';
-    if (GS && !reduced) gsap.from("#form-card .sent > *", { y: 20, opacity: 0, duration: .6, stagger: .08, ease: "power3.out" });
-  });
+    /* a question card wiggles as it opens or closes */
+    if (!reduced) $$(".faq details").forEach(d => d.addEventListener("toggle", () => {
+      d.animate([{ rotate: "0deg" }, { rotate: "-1.4deg" }, { rotate: ".9deg" }, { rotate: "0deg" }], { duration: 450, easing: "ease-out" });
+    }));
+  }
 
   /* =================================================================
      CONTACT PAGE — hover-to-scatter background shapes
@@ -2288,7 +2378,7 @@
   function initShapeFx(host, page){
     if (!host || !page || !GS || reduced || coarse) return;
 
-    const SHAPES = ["fx-circle", "fx-square", "fx-triangle", "fx-diamond"];
+    const SHAPES = ["fx-circle", "fx-square", "fx-triangle", "fx-diamond", "fx-pentagon", "fx-star"];
     const POOL_SIZE = 10;
     const pool = [];
     for (let i = 0; i < POOL_SIZE; i++){
@@ -2307,7 +2397,8 @@
       const size = gsap.utils.random(10, 20);
       gsap.killTweensOf(el);
       el.className = "fx-shape " + SHAPES[Math.floor(gsap.utils.random(0, SHAPES.length))];
-      el.style.background = ACCENTS[Math.floor(gsap.utils.random(0, ACCENTS.length))];
+      // at 80% of the ink, as the accent edges and the stickers are: at full strength they shouted
+      el.style.background = "color-mix(in srgb, " + ACCENTS[Math.floor(gsap.utils.random(0, ACCENTS.length))] + " 80%, transparent)";
       /* clearProps runs as post-tween cleanup, so it must land in its own
          call — bundled into the same .set() as the new x/y, it wipes the
          values that call just applied. */
