@@ -78,13 +78,13 @@
     "skills.eyebrow":"Vaardighede","skills.title":"Waarmee ek werk",
     "exp.eyebrow":"Ervaring","exp.title":"Waar ek al gewerk het",
     "ride.title":"Die Loopbaan-tuimeltrein","ride.sub":"Hou jou arms binne die waentjie · blaai om te ry ↓",
-    "ride.stop":"Halte","ride.admit":"Toegang vir een","ride.next":"Word vervolg…","ride.credit":"Pixel-effekte",
+    "ride.stop":"Halte","ride.admit":"Toegang vir een","ride.next":"Word vervolg…",
     "lb.title":"Foto's","lb.open":"Bekyk foto","lb.prev":"Vorige foto","lb.next":"Volgende foto","lb.close":"Maak toe",
     "after.eyebrow":"Ná werk","after.title":"Wat ek vir die pret maak",
     "band.aboutTitle":"Nuuskierig oor die kode?",
     "band.aboutText":"Vra my daaroor... Nee, doen dit regtig net. Ek belowe ek sal nie byt nie ;)",
     "proj.eyebrow":"Projekte · 2021—2026","proj.title":"Ses-en-dertig werwe, almal nou aanlyn",
-    "sc.prev":"Vorige projek","sc.next":"Volgende projek","sc.of":"van","sc.visit":"Besoek die werf",
+    "sc.prev":"Vorige projek","sc.next":"Volgende projek","sc.of":"van",
     "proj.all":"Die res","proj.none":"Niks in dié kategorie nie — probeer 'n ander filter.",
     "band.projTitle":"Moet Nie Uitmis Nie",
     "band.projText":"Pasop! Jy het FOMO. Kliek die knoppie om ontslae te raak van FOMO",
@@ -3059,46 +3059,53 @@
 
   /* =================================================================
      SPIDER-MAN — THE SHOW (after "I'm Spider-Man", BRAND below)
-     Six acts, a different six each time, on a canvas of its own over
-     everything (the pointer goes through it): he climbs the side of
-     the screen to the bar and crawls along under it, drops from it on
-     a web line, swings off it from web to web, fills the screen with
-     webs, flips about, or lands, idles and tells you to stay in school.
-     Each act starts where the one before left him (off screen, or
-     under the bar), and the last takes him off screen. Escape ends it.
-     The sprites: Images/Spiderman/anim, a strip per move cut from the
-     sprite sheet beside it. anims.js gives each strip's cell size and
-     frame count, the point every frame is lined up on (his feet, his
-     hand on the web, a web's hub), its frame rate and the way the art
-     faces; the swing's frames come with their angle on the web, so a
-     real pendulum picks them. Fetched when the brand is first pointed
-     at or focused, decoded off the main thread, drawn once out of
-     sight (the first draw uploads each to the GPU: not mid-show), then
-     drawn on GSAP's ticker only while the show is on: each frame
-     clears the canvas and draws a handful of images.
+     One story, on a canvas of its own over everything (the pointer goes
+     through it). He runs in from the left and stops mid-screen; shoots
+     a web into each corner of the screen; runs to the bottom-right
+     corner and climbs the right edge; swings across the top to the left
+     from web to web, each web stuck just above (a pendulum: slow at the
+     top of each swing, fast through the bottom); drops on a web at the
+     top left and hangs upside down: "Stay in school, kids!"; and jumps
+     off to the left as the webs fall apart. Escape ends it.
+     The sprites: Spider-Man: Maximum Carnage (SNES), cut into a strip per
+     move (Images/Spiderman/anim/snes, moves.js: each strip's cell size,
+     frame count and the point every frame is lined up on: his feet, his
+     hand on the web). The swing's frames had their web drawn in: it's
+     taken out and the page draws the real one, and each frame comes with
+     the angle its web had, so the one nearest the web's angle now is
+     drawn, turned to match it exactly. The web splats and balls are the
+     arcade sheet's (anim/anims.js). Fetched when the brand is first
+     pointed at or focused, decoded off the main thread, drawn once out
+     of sight (the first draw uploads each to the GPU: not mid-show),
+     then drawn on GSAP's ticker only while the show is on.
      ================================================================= */
   const SHOW = (() => {
     const DIR = IMG_BASE + "Spiderman/anim/", DEG = Math.PI / 180;
-    const rand = (a, b) => a + Math.random() * (b - a);
-    let A = null, loading = null, cv = null, ctx = null, W = 0, H = 0, S = 1, stop = null, act = null;
+    const NEED = ["run", "stop", "stand", "shoot", "climb", "swing", "hang", "jump"];   // his moves in the story
+    // W x H: the canvas; V: the height in view (a phone's toolbar takes the rest)
+    let M = null, FX = null, loading = null, cv = null, ctx = null, W = 0, H = 0, V = 0, S = 1, K = 1, stop = null;
     // him: his move and since when (i: a set frame instead), where its anchor is, the way he faces, how far he's turned
-    const me = { move: "idle", t0: 0, i: -1, x: -999, y: -999, dir: 1, rot: 0 };
+    const me = { move: "stand", t0: 0, i: -1, x: -999, y: -999, dir: 1, rot: 0 };
     // besides him: webs stuck to the screen, web balls in flight, web lines (each a function giving its two ends), a speech bubble
     let webs = [], balls = [], lines = [], said = null;
 
-    /* The list of moves is a script and the strips plain images, so they load wherever the site
-       does, opened straight from disk too (a fetch from file:// is blocked: no show at all, only
-       the bubble). decode() readies each image off the main thread. */
+    /* The move lists are scripts and the strips plain images, so they load wherever the site does,
+       opened straight from disk too (a fetch from file:// is blocked). decode() readies each image
+       off the main thread. */
+    const script = src => new Promise((ok, fail) => {
+      const s = document.createElement("script");
+      s.src = src; s.onload = ok;
+      s.onerror = () => fail(new Error(src + " didn't load"));
+      document.head.append(s);
+    });
+    const image = (base, a) => { a.img = new Image(); a.img.src = base + a.src; return a.img.decode(); };
     function load(){
-      return loading || (loading = new Promise((ok, fail) => {
-        const s = document.createElement("script");
-        s.src = DIR + "anims.js";
-        s.onload = ok;
-        s.onerror = () => fail(new Error("anims.js didn't load"));
-        document.head.append(s);
-      }).then(() => {
-        const m = window.SPIDEY_ANIMS;
-        return Promise.all(Object.values(m).map(a => { a.img = new Image(); a.img.src = DIR + a.src; return a.img.decode(); })).then(() => { A = m; });
+      return loading || (loading = Promise.all([script(DIR + "anims.js"), script(DIR + "snes/moves.js")]).then(() => {
+        const spec = window.SPIDEY_MOVES, m = {};
+        NEED.forEach(k => { m[k] = spec.moves[k]; });
+        const fx = window.SPIDEY_ANIMS;   // the web splat and the web ball
+        return Promise.all([...NEED.map(k => image(spec.base, m[k])), image(DIR, fx.web), image(DIR, fx.ball)])   // spec.base: from the site's root
+          .then(() => { M = m; FX = fx; (window.requestIdleCallback || setTimeout)(prepare); });
       }).catch(e => { loading = null; console.warn("Spider-Man's sprites didn't load:", e); throw e; }));
     }
 
@@ -3108,32 +3115,40 @@
       cv.width = Math.round(W * d); cv.height = Math.round(H * d);
       ctx.setTransform(d, 0, 0, d, 0, 0);
       ctx.imageSmoothingEnabled = false;   // pixel art: crisp, not blurred
-      S = Math.max(.7, Math.min(1.3, W / 1000, H / 720));
+      // about 125px tall standing (84 on a phone); the web art kept to his size
+      const tall = W < 700 ? 84 : 125;
+      S = tall / M.stand.h;
+      K = tall / 94;   // the web art was drawn for a Spider-Man 94px tall (anims.js)
+    }
+    /* The canvas, made, sized and each image drawn once (the first draw of an image uploads it to the
+       GPU): done in a quiet moment once the sprites are in, not as the show starts (on a phone that was
+       a stall of ~20ms just as he appears). Hidden until the show. */
+    function prepare(){
+      if (cv) return;
+      cv = document.createElement("canvas");
+      cv.className = "spidey-stage";
+      cv.setAttribute("aria-hidden", "true");
+      cv.hidden = true;
+      document.body.append(cv);
+      ctx = cv.getContext("2d");
+      cv.hidden = false;   // sized while it can be measured, in the same task: never painted
+      fit();
+      cv.hidden = true;
+      [...Object.values(M), FX.web, FX.ball].forEach(a => ctx.drawImage(a.img, 0, 0, 1, 1, 0, 0, 1, 1));
+      ctx.clearRect(0, 0, W, H);
     }
     function stage(){
-      if (!cv){
-        cv = document.createElement("canvas");
-        cv.className = "spidey-stage";
-        cv.setAttribute("aria-hidden", "true");
-        document.body.append(cv);
-        ctx = cv.getContext("2d");
-      }
+      prepare();
       cv.hidden = false;
-      fit();
-      Object.values(A).forEach(a => ctx.drawImage(a.img, 0, 0, 1, 1, 0, 0, 1, 1));
-      ctx.clearRect(0, 0, W, H);
+      if (cv.clientWidth !== W || cv.clientHeight !== H) fit();   // a different size since it was made
     }
 
     const now = () => gsap.ticker.time;
-    const N = () => Math.max(0, $(".topbar").getBoundingClientRect().bottom);   // just under the bar
-    const G = () => H - 6;                                                      // the ground: the screen's foot
     function moveTo(move, i = -1){ me.move = move; me.t0 = now(); me.i = i; }
-    // a move with his feet (the bottom of its cells) on the ground
-    function ground(move, i){ moveTo(move, i); const a = A[move]; me.y = G() - (a.h - 1 - a.ay) * S; me.rot = 0; }
     function frameOf(a, t){
       const k = Math.floor(t * a.fps);
       if (a.mode === "once") return Math.min(k, a.n - 1);
-      if (a.mode === "pingpong"){ const p = 2 * a.n - 2, m = k % p; return m < a.n ? m : p - m; }
+      if (a.mode === "pingpong"){ const p = 2 * a.n - 2 || 1, m = k % p; return m < a.n ? m : p - m; }
       return k % a.n;
     }
     // which way a strip's art is mirrored to face dir (1 right, -1 left)
@@ -3148,14 +3163,6 @@
       ctx.drawImage(a.img, i * a.w, 0, a.w, a.h, -a.ax, -a.ay, a.w, a.h);
       ctx.restore();
     }
-    // the swing's frame for a web at th (radians off straight down; > 0: he's right of where it's stuck), swinging d;
-    // and the turn that lines his body up with the web exactly
-    function swingFrame(th, d){
-      const as = A.swing.angles, g = d * th / DEG;
-      let k = 0;
-      as.forEach((v, i) => { if (Math.abs(v - g) < Math.abs(as[k] - g)) k = i; });
-      return { i: k, rot: -(th - d * as[k] * DEG) };
-    }
 
     function draw(){
       const t = now();
@@ -3165,7 +3172,7 @@
         let i = Math.min(3, Math.floor((t - w.t0) * 14)), alpha = 1;
         if (w.t1){ const e = t - w.t1; i = Math.min(6, 4 + Math.floor(e * 10)); alpha = 1 - Math.max(0, e - .3) / .35; }
         if (alpha <= 0) return false;
-        sprite(A.web, i, w.x, w.y, w.sx, w.sy, 0, w.k, alpha);
+        sprite(FX.web, i, w.x, w.y, w.sx, w.sy, 0, w.k, alpha);
         return true;
       });
       // web lines: white over a dark edge, to read on the page and on photos alike
@@ -3173,17 +3180,16 @@
       for (const l of lines){
         const [x1, y1, x2, y2] = l();
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-        ctx.strokeStyle = "rgba(19,17,26,.4)"; ctx.lineWidth = 4 * S; ctx.stroke();
-        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2 * S; ctx.stroke();
+        ctx.strokeStyle = "rgba(19,17,26,.4)"; ctx.lineWidth = 4; ctx.stroke();
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
       }
-      const a = A[me.move];
-      sprite(a, me.i >= 0 ? me.i : frameOf(a, t - me.t0), me.x, me.y, facing(a, me.dir), 1, me.rot);
-      for (const b of balls) sprite(A.ball, frameOf(A.ball, t - b.t0), b.x, b.y, -1, 1, b.ang);   // the art points left: mirrored, then turned along its way
+      const a = M[me.move];
+      sprite(a, me.i >= 0 ? me.i : frameOf(a, t - me.t0), me.x, me.y, facing(a, me.dir), 1, me.rot + (a.rot || 0) * DEG);
+      for (const b of balls) sprite(FX.ball, frameOf(FX.ball, t - b.t0), b.x, b.y, -1, 1, b.ang, K);   // the art points left: mirrored, then turned along its way
       if (said) speech(said);
     }
 
-    /* a speech bubble that pops out of the point at x(), y(): one of the sheet's ("HEY!"), or words
-       in the site's own (the brand's): white, an ink outline and a hard ink shadow, its tail on him */
+    // a speech bubble that pops out of the point at x(), y(), in the site's style: white, an ink outline, a hard ink shadow
     function say(b){ said = Object.assign({ k: 0 }, b); gsap.to(said, { k: 1, duration: .35, ease: "back.out(2.4)" }); }
     function unsay(){
       const b = said;
@@ -3192,181 +3198,176 @@
     function speech(b){
       const x = b.x(), y = b.y();
       if (b.k <= .01) return;
-      if (b.img !== undefined) return sprite(A.bubble, b.img, x, y, 1, 1, 0, S * 1.4 * b.k);
-      const fs = Math.max(14, 17 * S), pad = 11 * S, r = 12 * S;   // 14px at least: readable on a phone
+      const fs = Math.max(15, 18 * K), pad = 12, r = 13;   // 15px at least: readable on a phone
       ctx.save();
       ctx.translate(x, y); ctx.scale(b.k, b.k); ctx.translate(-x, -y);
       ctx.font = "800 " + fs + 'px "Bricolage Grotesque", system-ui, sans-serif';
-      const w = ctx.measureText(b.text).width + 2 * pad, h = fs + 1.5 * pad;
-      const bx = Math.max(8, Math.min(W - w - 8, x - w / 2)), by = y - h - 14 * S, tx = Math.max(bx + r + 8 * S, Math.min(bx + w - r - 8 * S, x));
-      ctx.fillStyle = ctx.strokeStyle = "#13111A"; ctx.lineWidth = 2 * S; ctx.lineJoin = "round";
-      ctx.beginPath(); ctx.roundRect(bx + 3 * S, by + 3 * S, w, h, r); ctx.fill();
+      const w = ctx.measureText(b.text).width + 2 * pad, h = fs + 1.6 * pad;
+      const bx = Math.max(8, Math.min(W - w - 8, x - 26)), by = y - h - 16, tx = Math.max(bx + r + 8, Math.min(bx + w - r - 8, x));
+      ctx.fillStyle = ctx.strokeStyle = "#13111A"; ctx.lineWidth = 2; ctx.lineJoin = "round";
+      ctx.beginPath(); ctx.roundRect(bx + 4, by + 4, w, h, r); ctx.fill();
       ctx.fillStyle = "#fff";
       ctx.beginPath(); ctx.roundRect(bx, by, w, h, r); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(tx - 8 * S, by + h - 1); ctx.lineTo(tx, y); ctx.lineTo(tx + 8 * S, by + h - 1); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(tx - 8 * S, by + h); ctx.lineTo(tx, y); ctx.lineTo(tx + 8 * S, by + h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(tx - 8, by + h - 1); ctx.lineTo(tx - 4, y); ctx.lineTo(tx + 8, by + h - 1); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(tx - 8, by + h); ctx.lineTo(tx - 4, y); ctx.lineTo(tx + 8, by + h); ctx.stroke();
       ctx.fillStyle = "#13111A"; ctx.textBaseline = "middle"; ctx.fillText(b.text, bx + pad, by + h / 2 + 1);
       ctx.restore();
     }
 
-    /* ---- the acts. Each builds its timeline when it starts, from where he is then ---- */
-    // in from a side, along an arc (move: a leap, or a tumble), landing at x
-    function enter(tl, from, x, move){
-      const a = A[move], cy = G() - (a.h - 1 - a.ay) * S, top = cy - Math.min(H * .4, 300 * S);
-      return tl.call(() => { moveTo(move); Object.assign(me, { x: from < 0 ? -150 * S : W + 150 * S, y: cy - 40 * S, dir: -from, rot: 0 }); })
-        .to(me, { x, duration: .8, ease: "power1.out" })
-        .to(me, { keyframes: [{ y: top, duration: .38, ease: "power2.out" }, { y: cy, duration: .42, ease: "power2.in" }] }, "<")
-        .call(() => ground("land"))
-        .to({}, { duration: .32 });
-    }
-    // a crouch, then up and away off the top
-    function leaveUp(tl){
-      return tl.call(() => ground("land", 2)).to({}, { duration: .13 })
-        .call(() => ground("rise"))
-        .to(me, { y: -200 * S, duration: .55, ease: "power2.in" });
-    }
-    const ACTS = {
-      // up the side of the screen to the bar, round onto its underside, and a little way in along it
-      climb(){
-        const side = Math.random() < .5 ? -1 : 1, x = side > 0 ? W : 0, n = N();
-        return gsap.timeline()
-          .call(() => { moveTo("crawl"); Object.assign(me, { x, y: H + 30 * S, dir: side, rot: -side * 90 * DEG }); })
-          .to(me, { y: n + 140 * S, duration: 2.4, ease: "none" })
-          .to(me, { x: x - side * 14 * S, y: n, rot: -side * 180 * DEG, duration: .4, ease: "power1.inOut" })
-          .to(me, { x: side > 0 ? W * .8 : W * .2, duration: .9, ease: "none" });
-      },
-      // along under the bar, upside down, to its other half
-      crawl(){
-        const n = N(), from = me.x, d = from > W / 2 ? -1 : 1, to = Math.max(.1 * W, Math.min(.9 * W, from + d * W * rand(.4, .6)));
-        return gsap.timeline()
-          .call(() => { moveTo("crawl"); Object.assign(me, { y: n, dir: -d, rot: 180 * DEG }); })
-          .to(me, { x: to, duration: Math.abs(to - from) / (W * .22), ease: "none" });
-      },
-      // down from the bar on a web line, a bounce, "HEY!", a sway, and back up
-      hang(){
-        const n = N(), x = me.x, back = me.dir, drop = Math.min(H * .34, 340 * S + 60), w = { len: 0, ang: 0 };
-        const line = () => [x, n, me.x, me.y];
-        const put = () => { me.x = x + w.len * Math.sin(w.ang); me.y = n + w.len * Math.cos(w.ang); me.rot = -w.ang; };
-        return gsap.timeline({ onUpdate: put })
-          .call(() => { moveTo("hang"); lines.push(line); })
-          .to(w, { len: drop, duration: .5, ease: "power2.in" })
-          .to(w, { len: drop * .86, duration: .16, ease: "power1.out" })
-          .to(w, { len: drop, duration: .7, ease: "elastic.out(1, .45)" })
-          .call(() => say({ img: 1, x: () => me.x + 58 * S, y: () => me.y + 46 * S }))
-          .to(w, { ang: 9 * DEG, duration: .5, ease: "sine.out" }, "<")
-          .to(w, { ang: -9 * DEG, duration: 1, ease: "sine.inOut", repeat: 1, yoyo: true })
-          .to(w, { ang: 0, duration: .5, ease: "sine.in" })
-          .call(unsay)
-          .to(w, { len: 0, duration: .42, ease: "power3.in" })
-          .call(() => { lines = lines.filter(l => l !== line); moveTo("crawl", 0); Object.assign(me, { dir: back, rot: 180 * DEG }); });
-      },
-      // off the bar on a web, swinging, a tumble to the next web if there's room, and away
-      swing(){
-        const n = N(), d = me.x < W / 2 ? 1 : -1, B = 72 * S;   // B: his hand to his middle
-        const L = Math.max(140, Math.min(H * .42, W * .45, H - n - 170 * S));
-        const s = { th: -d * 80 * DEG }, at = { x: me.x + d * L * Math.sin(80 * DEG), y: n };
-        const web = () => [at.x, at.y, me.x, me.y];
-        const hangOn = () => { me.x = at.x + L * Math.sin(s.th); me.y = at.y + L * Math.cos(s.th); Object.assign(me, swingFrame(s.th, d)); };
-        const letGo = () => { lines = lines.filter(l => l !== web); moveTo("flip"); me.rot = 0; me.x += Math.sin(s.th) * B; me.y += Math.cos(s.th) * B; };
-        const tl = gsap.timeline()
-          .call(() => { moveTo("swing", 0); me.dir = d; lines.push(web); hangOn(); })
-          .to(s, { th: d * 62 * DEG, duration: 1.15, ease: "sine.inOut", onUpdate: hangOn })
-          .call(letGo);
-        // the next web: caught 55° back, stuck under the bar; only if that's on screen
-        const c1x = at.x + d * (L * Math.sin(62 * DEG) + B * Math.sin(62 * DEG)), c2x = c1x + d * .45 * L;
-        const ax2 = c2x + d * (B + L) * Math.sin(55 * DEG), c2y = n + (L + B) * Math.cos(55 * DEG);
-        if (ax2 > .05 * W && ax2 < .95 * W){
-          tl.to(me, { x: c2x, duration: .45, ease: "none" })
-            .to(me, { keyframes: [{ y: "-=" + 26 * S, duration: .18, ease: "power2.out" }, { y: c2y, duration: .27, ease: "power2.in" }] }, "<")
-            .call(() => { at.x = ax2; s.th = -d * 55 * DEG; moveTo("swing", 0); lines.push(web); hangOn(); })
-            .to(s, { th: d * 80 * DEG, duration: 1.05, ease: "sine.inOut", onUpdate: hangOn })
-            .call(letGo);
-        }
-        return tl.to(me, { x: d > 0 ? W + 220 * S : -220 * S, y: "-=" + H * .25, duration: .8, ease: "power1.in" });
-      },
-      // in, then a web at each corner of the screen, a tingle of spider-sense as they fall apart, and away
-      storm(){
-        const from = Math.random() < .5 ? -1 : 1, tl = enter(gsap.timeline(), from, W / 2 + rand(-.12, .12) * W, "leapin");
-        gsap.utils.shuffle([[0, 0, 1, 1], [W, 0, -1, 1], [0, H, 1, -1], [W, H, -1, -1]]).forEach(c => {
-          tl.call(() => { me.dir = c[0] < me.x ? -1 : 1; ground("shoot"); })
-            .call(() => fire(c), null, "+=" + A.shoot.muzzleAt / A.shoot.fps)
-            .to({}, { duration: .36 });
-        });
-        tl.call(() => ground("sense")).to({}, { duration: 1 })
-          .call(() => webs.forEach(w => { w.t1 = now(); }));
-        return leaveUp(tl);
-      },
-      // in, a little idle, a thumbs up and a word of advice, and off
-      school(){
-        const from = Math.random() < .5 ? -1 : 1, tl = enter(gsap.timeline(), from, W / 2 + from * rand(.05, .22) * W, "leapin");
-        tl.call(() => ground("stand")).to({}, { duration: 1.2 })
-          .call(() => { ground("thumbs"); say({ text: T("spidey.school", "Stay in school, kids!"), x: () => me.x, y: () => me.y - 124 * S }); })
-          .to({}, { duration: 2.6 })
-          .call(unsay);
-        return leaveUp(tl);
-      },
-      // in with a tumble, his fighting stance, a tingle of spider-sense, and a leap off the other side
-      acrobat(){
-        const from = Math.random() < .5 ? -1 : 1, tl = enter(gsap.timeline(), from, W / 2 + from * rand(0, .15) * W, "flip");
-        return tl.call(() => ground("idle")).to({}, { duration: 1.3 })
-          .call(() => ground("sense")).to({}, { duration: .7 })
-          .call(() => ground("land", 2)).to({}, { duration: .12 })
-          .call(() => { me.dir = -from; ground("leap"); })
-          .to(me, { x: from < 0 ? W + 160 * S : -160 * S, duration: .9, ease: "power1.in" })
-          .to(me, { y: "-=" + Math.min(H * .35, 260 * S), duration: .45, ease: "power2.out" }, "<")
-          .call(() => moveTo("flip"), null, "<.3");
-      }
-    };
-    // where each act starts and ends: off screen, or under the bar
-    const ENDS = { climb: ["off", "nav"], crawl: ["nav", "nav"], hang: ["nav", "nav"], swing: ["nav", "off"], storm: ["off", "off"], school: ["off", "off"], acrobat: ["off", "off"] };
-    // six different acts, each starting where the last ended, from off screen and back off it
-    function plan(){
-      for (let tries = 0; tries < 500; tries++){
-        const out = [];
-        let at = "off";
-        for (let k = 0; k < 6; k++){
-          const can = Object.keys(ENDS).filter(n => ENDS[n][0] === at && !out.includes(n));
-          if (!can.length) break;
-          const n = can[Math.floor(Math.random() * can.length)];
-          out.push(n); at = ENDS[n][1];
-        }
-        if (out.length === 6 && at === "off") return out;
-      }
-      return ["school", "climb", "crawl", "hang", "swing", "storm"];
-    }
-
     // a web ball from his hand to near a corner, where it becomes a web
     function fire([cx, cy, sx, sy]){
-      const a = A.shoot, f = facing(a, me.dir), m = a.muzzle;
+      const a = M.shoot, f = facing(a, me.dir), m = a.muzzle;
       const b = { x: me.x + f * (m[0] - a.ax) * S, y: me.y + (m[1] - a.ay) * S, t0: now() };
-      const tx = cx + sx * W * .1, ty = cy + sy * H * .12;
+      const tx = cx + sx * W * .1, ty = cy + sy * V * .12;
       b.ang = Math.atan2(ty - b.y, tx - b.x);
       balls.push(b);
-      gsap.to(b, { x: tx, y: ty, duration: Math.max(.18, Math.hypot(tx - b.x, ty - b.y) / 1800), ease: "none", onComplete(){
+      gsap.to(b, { x: tx, y: ty, duration: Math.max(.2, Math.hypot(tx - b.x, ty - b.y) / 1700), ease: "none", onComplete(){
         balls = balls.filter(o => o !== b);
-        webs.push({ x: cx, y: cy, sx, sy, k: Math.max(.8, Math.min(3.2, Math.min(W, H) * .55 / A.web.w)), t0: now() });
+        webs.push({ x: cx, y: cy, sx, sy, k: Math.max(.8, Math.min(3, Math.min(W, V) * .5 / FX.web.w)), t0: now() });
       } });
+    }
+
+    /* The swing between two points p and q (his hand), on a web stuck at a point above them: on the line
+       halfway between them, so both lie on its circle, and as high as makes the circle's bottom `sag`
+       below the lower of the two. Found by halving (the bottom rises steadily as the point does). */
+    function pivot(p, q, sag){
+      const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2, len = Math.hypot(q.x - p.x, q.y - p.y) || 1;
+      let nx = (q.y - p.y) / len, ny = -(q.x - p.x) / len;
+      if (ny > 0){ nx = -nx; ny = -ny; }   // the way up
+      const half = len / 2, want = Math.max(p.y, q.y) + sag;
+      let lo = 0, hi = half * 30;
+      for (let k = 0; k < 40; k++){
+        const t = (lo + hi) / 2, bottom = my + t * ny + Math.hypot(half, t);
+        if (bottom > want) lo = t; else hi = t;
+      }
+      const t = (lo + hi) / 2, A = { x: mx + t * nx, y: my + t * ny };
+      return { A, L: Math.hypot(p.x - A.x, p.y - A.y) };
+    }
+    // him on the web at th (radians off straight down; > 0: right of where it's stuck): the frame whose drawn
+    // web lay nearest the web's angle now, turned to lie along it exactly (mirrored: he swings to the left)
+    function swingPose(A, L, th){
+      const as = M.swing.angles, g = th / DEG;
+      let i = 0;
+      as.forEach((v, k) => { if (Math.abs(v - g) < Math.abs(as[i] - g)) i = k; });
+      Object.assign(me, { x: A.x + L * Math.sin(th), y: A.y + L * Math.cos(th), i, rot: (as[i] - g) * DEG });
+    }
+
+    /* ---- the story, built from where everything is on screen when it starts ---- */
+    function story(){
+      /* laid out in what's in view: on a phone the canvas is as tall as the screen with its toolbar gone
+         (so it isn't resized mid-show as that slides), and the ground is the bottom of what's showing */
+      V = (window.visualViewport && visualViewport.height) || innerHeight;
+      const G = V - 12, top = Math.max(0, $(".topbar").getBoundingClientRect().bottom);   // the ground; just under the bar
+      const feet = name => G - (M[name].h - 1 - M[name].ay) * S;   // y that puts a move's feet on the ground
+      const speed = Math.max(300, W * .34);
+      const tl = gsap.timeline();
+      // 1. in from the left, and stop mid-screen
+      const mid = W * .45;
+      tl.call(() => { moveTo("run"); Object.assign(me, { x: -M.run.w * S, y: feet("run"), dir: 1, rot: 0 }); })
+        .to(me, { x: mid, duration: (mid + M.run.w * S) / speed, ease: "none" })
+        .call(() => { moveTo("stop"); me.y = feet("stop"); })
+        .to({}, { duration: .3 })
+        .call(() => { moveTo("stand"); me.y = feet("stand"); })
+        .to({}, { duration: .45 });
+      // 2. a web into each corner of the screen
+      [[0, 0, 1, 1], [W, 0, -1, 1], [W, V, -1, -1], [0, V, 1, -1]].forEach(c => {
+        tl.call(() => { me.dir = c[0] < me.x ? -1 : 1; moveTo("shoot"); me.y = feet("shoot"); })
+          .call(() => fire(c), null, "+=" + M.shoot.muzzleAt / M.shoot.fps)
+          .to({}, { duration: .5 });
+      });
+      tl.call(() => { moveTo("stand"); me.y = feet("stand"); }).to({}, { duration: .35 });
+      // 3. to the bottom-right corner, and up the right edge (seen from behind, against it)
+      const c = M.climb, wallX = W - (c.w - c.ax) * S * .85, climbTop = top + c.ay * S + 24;
+      tl.call(() => { me.dir = 1; moveTo("run"); me.y = feet("run"); })
+        .to(me, { x: W - 24 * S, duration: Math.max(.3, (W - 24 * S - mid) / speed), ease: "none" })
+        .call(() => { moveTo("climb"); Object.assign(me, { x: wallX, y: G - (c.h - c.ay) * S, dir: 1, rot: 0 }); })
+        .to(me, { y: climbTop, duration: Math.max(1.6, (G - (c.h - c.ay) * S - climbTop) / Math.max(260, V * .3)), ease: "none" });
+      /* 4. across the top to the left. A swing off the wall; he lets go on the way up, somersaults through
+         the air (the tumble he leaves on), and a second web catches him, still moving, and swings him up
+         to the top left. A phone's too narrow for two good swings: one, the width of the screen, then
+         the somersault takes him up to where he'll hang. Each swing is a pendulum (pivot): his hand
+         along the web's circle, slowest at the top, fastest through the bottom. A swing's clock (0 to 1,
+         sine-eased) is cut: he lets go at 3/4 of it and is caught at 1/4 of the next, so he flies at
+         the speed he let go at. */
+      const hangAt = { x: Math.max(40, W * .12), y: top - 4 };
+      const p0 = { x: wallX - 6 * S, y: climbTop - c.ay * S + 10 }, end = { x: hangAt.x, y: top + 30 };
+      const span = p0.x - end.x, two = W >= 600, B = 32 * S;   // B: his hand to his middle, along the web
+      const ease = p => (1 - Math.cos(Math.PI * p)) / 2;
+      // a swing's circle, from p (his hand) towards the top q
+      const arc = (p, q) => {
+        const { A, L } = pivot(p, q, Math.max(50, Math.min(V * .22, .46 * (p.x - q.x), 240)));
+        return { A, L, t0: Math.atan2(p.x - A.x, p.y - A.y), t1: Math.atan2(q.x - A.x, q.y - A.y) };
+      };
+      const angleAt = (r, a, c) => r.t0 + (r.t1 - r.t0) * (ease(c) - ease(a)) / (1 - ease(a));   // started at clock a, now at c
+      const middle = (r, t) => ({ x: r.A.x + (r.L + B) * Math.sin(t), y: r.A.y + (r.L + B) * Math.cos(t) });
+      // a swing, its clock run from a to b; the web shoots up to where it'll stick as it begins
+      function swing(r, a, b){
+        const s = { c: a, shot: 0 }, pose = () => swingPose(r.A, r.L, angleAt(r, a, s.c));
+        const web = () => [me.x, me.y, me.x + (r.A.x - me.x) * s.shot, me.y + (r.A.y - me.y) * s.shot];
+        tl.call(() => { lines = [web]; me.dir = -1; moveTo("swing", 0); pose(); })
+          .to(s, { shot: 1, duration: .12, ease: "power2.out" })
+          .to(s, { c: b, duration: Math.min(1.3, Math.max(.75, .55 + r.L / 600)) * (b - a), ease: "none", onUpdate: pose }, "<");
+      }
+      // the somersault: his middle from where he let go to where he's caught, up and over
+      function flip(from, to){
+        // up and over, but never up into the bar
+        const rise = Math.min(60, Math.max(28, Math.abs(from.x - to.x) * .25));
+        const peak = Math.max(top + M.jump.h * S / 2 + 6, Math.min(from.y, to.y) - rise);
+        // timed as a throw: rising and falling each take time with the square root of the height
+        const up = Math.sqrt(from.y - peak), fall = Math.sqrt(to.y - peak), T = .55;
+        tl.call(() => { lines = []; moveTo("jump"); Object.assign(me, { x: from.x, y: from.y, rot: 0, dir: -1 }); })
+          .to(me, { x: to.x, duration: T, ease: "none" })
+          .to(me, { keyframes: [{ y: peak, duration: T * up / (up + fall), ease: "power2.out" }, { y: to.y, duration: T * fall / (up + fall), ease: "power2.in" }] }, "<");
+      }
+      // the tops of the swings a little under the bar: room above for the somersault
+      const r1 = arc(p0, { x: p0.x - span * (two ? .5 : .88), y: top + 70 });
+      swing(r1, 0, .75);
+      const letGo = middle(r1, angleAt(r1, 0, .75));
+      if (two){
+        const r2 = arc({ x: p0.x - span * .66, y: top + 90 }, end);
+        flip(letGo, middle(r2, r2.t0));
+        swing(r2, .25, 1);
+      } else flip(letGo, { x: end.x, y: end.y + B });
+      // 5. a web straight up from the top left, and down it, upside down: a bounce, a word, a sway
+      const h = M.hang, down = h.ay * S, drop = Math.min(V * .34, 320), w = { len: Math.max(10, end.y - hangAt.y), ang: 0 };
+      const put = () => { me.x = hangAt.x + w.len * Math.sin(w.ang); me.y = hangAt.y + w.len * Math.cos(w.ang); me.rot = -w.ang; };
+      tl.call(() => { moveTo("hang"); lines = [() => [hangAt.x, hangAt.y, me.x, me.y]]; put(); })
+        .to(w, { len: drop, duration: .5, ease: "power2.in", onUpdate: put })
+        .to(w, { len: drop * .85, duration: .16, ease: "power1.out", onUpdate: put })
+        .to(w, { len: drop, duration: .7, ease: "elastic.out(1, .45)", onUpdate: put })
+        .call(() => say({ text: T("spidey.school", "Stay in school, kids!"), x: () => me.x + 24, y: () => me.y + down * .55 }))
+        .to(w, { ang: 7 * DEG, duration: .6, ease: "sine.inOut", yoyo: true, repeat: 3, onUpdate: put })
+        .to({}, { duration: .2 })
+        .call(unsay);
+      // 6. off to the left, and the webs fall apart
+      tl.call(() => { lines = []; moveTo("jump"); me.rot = 0; me.dir = -1; me.y += down * .5; })
+        .to(me, { x: -M.jump.w * S * 2, duration: .9, ease: "power1.in" })
+        .to(me, { keyframes: [{ y: "-=70", duration: .35, ease: "power2.out" }, { y: "+=180", duration: .55, ease: "power2.in" }] }, "<")
+        .call(() => webs.forEach(x => { x.t1 = now(); }))
+        .to({}, { duration: .8 });
+      return tl;
     }
 
     const esc = e => { if (e.key === "Escape" && stop) stop(); };
     // the whole show; resolves when it's over (or Escape), rejects if the sprites can't load
     async function play(){
       await load();
+      // a frame after "I'm Spider-Man" (its bubble and confetti): the two in one frame were a stall on a phone
+      await new Promise(requestAnimationFrame);
       stage();
       gsap.ticker.add(draw);
-      addEventListener("resize", fit);
+      const stopped = new Promise(r => { stop = r; }), tl = story(), w0 = W;
+      // a new width (a phone turned round, a window resized): it was laid out for the old one, so it ends
+      const resized = () => { if (cv.clientWidth !== w0 && stop) stop(); };
+      addEventListener("resize", resized);
       addEventListener("keydown", esc);
-      const stopped = new Promise(r => { stop = r; });
-      for (const name of plan()){
-        act = ACTS[name]();
-        if (!(await Promise.race([act.then(() => true), stopped]))) break;
-      }
-      act.kill();
+      await Promise.race([tl.then(), stopped]);
+      tl.kill();
       balls.forEach(b => gsap.killTweensOf(b));
       if (said) gsap.killTweensOf(said);
       webs = []; balls = []; lines = []; said = null; stop = null;
       gsap.ticker.remove(draw);
-      removeEventListener("resize", fit);
+      removeEventListener("resize", resized);
       removeEventListener("keydown", esc);
       ctx.clearRect(0, 0, W, H);
       cv.hidden = true;

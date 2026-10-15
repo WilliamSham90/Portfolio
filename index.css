@@ -241,7 +241,8 @@ button{ font: inherit; color: inherit; }
   background: #fff; border-left: 2px solid var(--ink); border-top: 2px solid var(--ink); transform: rotate(45deg);
 }
 /* the Spider-Man show (index.js SHOW): its own canvas, over everything; the pointer goes through it */
-.spidey-stage{ position: fixed; inset: 0; z-index: 120; width: 100%; height: 100%; pointer-events: none; }
+/* as tall as the screen with a phone's toolbar gone (lvh): it isn't resized, and wiped, as that slides */
+.spidey-stage{ position: fixed; left: 0; top: 0; z-index: 120; width: 100%; height: 100vh; height: 100lvh; pointer-events: none; }
 .spidey-confetti{ position: fixed; z-index: 80; width: 0; height: 0; pointer-events: none; }
 .spidey-confetti i{ position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; }
 .spidey-confetti svg{ display: block; width: 100%; height: 100%; fill: currentColor; stroke: currentColor; }
@@ -695,13 +696,6 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
    under it — its infinite animation otherwise keeps repainting unseen */
 .shot:has(.ready) .art{ display: none; }
 .shot img{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; object-fit: cover; object-position: top center; }
-.shot .poster{
-  position: absolute; inset: auto 10px 10px 10px; z-index: 2;
-  font-family: "JetBrains Mono", monospace; font-size: .62rem; color: var(--ink-soft);
-  background: color-mix(in srgb, var(--paper) 90%, transparent);
-  border: 1px solid var(--hair); border-radius: 999px; padding: 5px 11px;
-  display: inline-flex; width: fit-content; gap: 7px; align-items: center;
-}
 
 .tags{ display: flex; flex-wrap: wrap; gap: 7px; }
 .tag{ font-family: "JetBrains Mono", monospace; font-size: .68rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--hair); color: var(--ink-faint); }
@@ -1554,9 +1548,7 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 .cz-fx{ position: absolute; left: 0; top: 0; pointer-events: none; }
 .cz-fx--click{ right: 0; bottom: 0; z-index: 2; }
 .cz-fx i{ position: absolute; display: none; background-repeat: no-repeat; image-rendering: pixelated; will-change: transform; }
-.cz-credit{ margin-top: 14px; }
-.coaster:not(.is-ride) .cz-fx--click,
-.coaster:not(.is-ride) .cz-credit{ display: none; }
+.coaster:not(.is-ride) .cz-fx--click{ display: none; }
 
 @media (max-width: 760px){
   .cz-board-in{ grid-template-columns: minmax(0, 1fr); align-content: start; gap: 26px; }
