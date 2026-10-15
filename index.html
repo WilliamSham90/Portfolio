@@ -266,26 +266,60 @@
       </div>
     </section>
 
-    <div class="shell block">
-      <section class="sec">
+    <!-- Williams OS, the guided tour: the live site in a browser window, with notes round it saying
+         what to try, each phrase in the nav's highlighter and an arrow to the very thing (index.js OS) -->
+    <section class="os-sec" aria-labelledby="live-title">
+      <div class="shell">
         <div class="sec-head">
           <div>
             <span class="label"><b>[03]</b> <span data-i18n="live.eyebrow">Live preview</span></span>
-            <h2 data-split data-i18n="live.title">Williams OS, running right here</h2>
+            <!-- "Williams OS": the hero name's letters, rise-in, hop and underline (.stamp, index.js animatePage);
+                 the rest: words that rise in (data-split) -->
+            <h2 id="live-title"><span class="os-name stamp" data-letters data-i18n="live.name">Williams OS</span><span data-split data-i18n="live.titleRest">, running right here</span></h2>
           </div>
-          <a class="arrow-link" href="https://williamsham90.github.io/Portfolio-2/" target="_blank" rel="noopener"><span data-i18n="live.open">Open full size</span><span>↗</span></a>
+          <a class="arrow-link" data-anim="up" href="https://williamsham90.github.io/Portfolio-2/" target="_blank" rel="noopener"><span data-i18n="live.open">Open full size</span><span class="sr-only" data-i18n="newtab">(opens in a new tab)</span><span aria-hidden="true">↗</span></a>
         </div>
-        <div class="embed-intro" style="--accent: var(--mint)">
-          <p class="prose" data-i18n="live.copy">This is the real site, not a screenshot. It adapts to whatever width it gets, so you see the desktop layout here and the mobile layout on a phone.</p>
-          <div class="embed-meta">
+        <div class="embed-intro">
+          <p class="prose" data-anim="up" data-i18n="live.copy">This is the real site, not a screenshot. It adapts to whatever width it gets, so you see the desktop layout here and the mobile layout on a phone.</p>
+          <div class="embed-meta" data-anim="up">
             <span data-i18n="live.p1">Loads automatically as you scroll to it</span>
             <span data-i18n="live.p2">Sandboxed</span>
             <span data-i18n="live.p3">Responsive, not scaled</span>
           </div>
         </div>
-        <div class="embed-host" data-embed="https://williamsham90.github.io/Portfolio-2/" data-label="Williams OS"></div>
-      </section>
-    </div>
+      </div>
+      <!-- wider than the page's column on a wide screen: the window gets the room, the notes sit beside it -->
+      <div class="os-wide">
+        <div class="tour" id="tour">
+          <!-- what to try: a list (and so read as one); on a wide screen each note sits by what it's about -->
+          <ul class="notes">
+            <li class="note n-icons" data-to="icons"><b class="hl" data-i18n="live.icons">Click any icon</b> <span data-i18n="live.iconsRest">to open it</span></li>
+            <li class="note n-apps" data-to="apps"><b class="hl" data-i18n="live.apps">Paint, Calculator, Music:</b> <span data-i18n="live.appsRest">try them</span></li>
+            <li class="note n-menu" data-to="menu"><b class="hl" data-i18n="live.menu">Right-click</b> <span data-i18n="live.menuRest">the desktop: new folders, settings, or a clean slate</span></li>
+            <li class="note n-clock" data-to="clock"><b class="hl" data-i18n="live.clock">That clock</b> <span data-i18n="live.clockRest">is your real time</span></li>
+          </ul>
+          <div class="embed" data-anim="up">
+            <div class="embed-bar">
+              <span class="embed-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="embed-url">williamsham90.github.io/Portfolio-2/</span>
+              <a class="embed-open" href="https://williamsham90.github.io/Portfolio-2/" target="_blank" rel="noopener"><span data-i18n="live.open">Open full size</span> ↗<span class="sr-only" data-i18n="newtab">(opens in a new tab)</span></a>
+            </div>
+            <div class="embed-stage">
+              <!-- the site's own loader (#loader), until Williams OS has loaded -->
+              <div class="embed-loader" aria-hidden="true">
+                <div class="loader-ring">
+                  <span style="--i:0">N</span><span style="--i:1">O</span><span style="--i:2">W</span><span style="--i:4">L</span><span style="--i:5">O</span><span style="--i:6">A</span><span style="--i:7">D</span><span style="--i:8">I</span><span style="--i:9">N</span><span style="--i:10">G</span><span style="--i:11">.</span><span style="--i:12">.</span><span style="--i:13">.</span><span style="--i:14">✦</span>
+                </div>
+              </div>
+              <button class="embed-hint" type="button"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2v18l5-5 3.5 7 3-1.4-3.4-6.9H20z"/></svg><span data-i18n="live.hint">It's live · click, drag &amp; explore</span></span></button>
+              <!-- no sandbox attribute: the site is this site's own origin, where it would isolate nothing -->
+              <iframe data-src="https://williamsham90.github.io/Portfolio-2/" title="Williams OS (live preview)" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+          </div>
+          <svg class="arrows" aria-hidden="true" focusable="false"></svg>
+        </div>
+      </div>
+    </section>
 
     <div class="shell block">
       <div class="band" style="--accent: var(--pink)">

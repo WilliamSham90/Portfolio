@@ -73,7 +73,7 @@
     "step.3p":"Toetse, 'n README wat op 'n splinternuwe skootrekenaar werk, CI wat met elke merge ontplooi, en 'n deurloop vir wie dit ook al oorneem.",
     "band.homeTitle":"Mooi so, jy het die onderkant gehaal.",
     "band.homeText":"Om dankie te sê, wat van ek jou uitneem vir 'n koffie? Klik net op die swart knoppie (definitief nie my kontakbladsy of iets nie).",
-    "live.eyebrow":"Regstreekse voorskou","live.title":"Williams OS, reg hier voor jou","live.title2":"Williams OS",
+    "live.eyebrow":"Regstreekse voorskou","live.titleRest":", reg hier voor jou","live.title2":"Williams OS",
     "live.open":"Maak volskerm oop",
     "live.copy":"Dis die regte werf, nie 'n skermskoot nie. Dit pas by enige breedte aan, so jy sien die rekenaaruitleg hier en die selfoonuitleg op 'n foon.",
     "live.copy2":"Die regte werf, regstreeks in die raam hieronder. Maak dit volskerm oop vir die volle ervaring.",
@@ -124,7 +124,11 @@
     "faq.q3":"Doen jy ook 3D- en speletjiewerk?",
     "faq.a3":"Ja. Blender, Maya, Unreal en Radiant. Ek het al pasgemaakte Call of Duty-zombiekaarte en mod-gereedskap op die Steam Workshop gepubliseer.",
     "foot.built":"Alle eer aan GOD · Psalm 115",
-    "live.hint":"Dis lewendig · klik, sleep en verken","live.hintTouch":"Dis lewendig · tik, sleep en verken"
+    "live.hint":"Dis lewendig · klik, sleep en verken","live.hintTouch":"Dis lewendig · tik, sleep en verken",
+    "live.icons":"Klik op enige ikoon","live.iconsTouch":"Tik op enige ikoon","live.iconsRest":"om dit oop te maak",
+    "live.appsRest":"probeer hulle","live.menu":"Regsklik","live.menuRest":"op die lessenaar: nuwe vouers, instellings, of 'n skoon blad",
+    "live.clock":"Daai horlosie","live.clockRest":"wys jou regte tyd",
+    "newtab":"(maak in 'n nuwe oortjie oop)"
   };
 
   let LANG = store("ws-lang") === "af" ? "af" : "en";
@@ -151,6 +155,7 @@
     renderAll();
     HERO.text();
     ABOUT.text();
+    OS.relayout();
     /* strings inside JS-built markup are repainted by hand, because they
        are created after this pass has already walked the document */
     $$(".embed-host[data-built]").forEach(el => {
@@ -230,23 +235,30 @@
       frame.parentElement.classList.add("used");
       frame.focus();
     });
-    /* It starts once it's within a screen AND the reader has paused (no
-       scrolling for 300ms, then an idle moment): a whole site starting up
-       in a frame cost the page frames of 200ms+ (measured), a visible
-       hitch mid-scroll; while reading, nobody sees it. On GitHub Pages
-       the embed is this site's own origin, so it even shares this page's
-       main thread. Up to a screen ahead, it's usually ready on arrival. */
+    whenNear($(".embed-stage", el), () => {
+      revealWhenEmbedded(frame);
+      frame.src = frame.dataset.src;
+    });
+  }
+
+  /* A live site starts (`start`) once `el` is within a screen AND the
+     reader has paused (no scrolling for 300ms, then an idle moment): a
+     whole site starting up in a frame cost the page frames of 200ms+
+     (measured), a visible hitch mid-scroll; while reading, nobody sees
+     it. On GitHub Pages the embed is this site's own origin, so it even
+     shares this page's main thread. Up to a screen ahead, it's usually
+     ready on arrival. */
+  function whenNear(el, start){
     let started = false, wait = 0;
-    const start = () => {
+    const go = () => {
       if (started) return;
       started = true;
       removeEventListener("scroll", later);
-      revealWhenEmbedded(frame);
-      frame.src = frame.dataset.src;
+      start();
     };
     function later(){
       clearTimeout(wait);
-      wait = setTimeout(() => "requestIdleCallback" in window ? requestIdleCallback(start, { timeout: 1000 }) : start(), 300);
+      wait = setTimeout(() => "requestIdleCallback" in window ? requestIdleCallback(go, { timeout: 1000 }) : go(), 300);
     }
     const io = new IntersectionObserver(entries => {
       if (!entries.some(e => e.isIntersecting)) return;
@@ -254,12 +266,13 @@
       addEventListener("scroll", later, { passive: true });
       later();
     }, { rootMargin: "100% 0px" });
-    io.observe($(".embed-stage", el));
+    io.observe(el);
   }
 
   function initEmbeds(){
     if (booting) return;   // live previews wait for the loader to lift (it starts them), not compete with the first screen
     $$(".embed-host[data-embed]").forEach(buildEmbed);
+    OS.start();
   }
   /* Clicking into an iframe moves focus out of this window. That blur is
      the only signal a cross-origin frame gives, and it's enough to retire
@@ -268,6 +281,141 @@
     const f = document.activeElement;
     if (f && f.matches(".embed-stage iframe")) f.parentElement.classList.add("used");
   }));
+
+  /* =================================================================
+     WILLIAMS OS — THE GUIDED TOUR (index.html .os-sec, home page)
+     The live site starts as the other embeds do (whenNear), under the
+     site's own loader until it has loaded (the frame's load: its page
+     and everything on it), which then sweeps away as the page's does.
+     The notes draw in one by one as the tour comes into view; on a wide
+     screen each sits beside what it's about, with an arrow from its
+     words to the very thing. Where those sit inside Williams OS,
+     measured in it (the same at every width it's shown at here): the
+     My Computer icon's picture 70,50 from its top left, Calculator's
+     376,50, the taskbar clock 96px in from the right and 31px up from
+     the bottom. Laid out again whenever the tour's size or its words
+     change, from offsets rather than on-screen boxes: the window's
+     rise-in (data-anim) moves it, and must not move the arrows.
+     ================================================================= */
+  const OS = (() => {
+    const tour = $("#tour"), embed = $(".embed", tour), stage = $(".embed-stage", tour), frame = $("iframe", stage);
+    const loader = $(".embed-loader", stage), svg = $(".arrows", tour), notes = $$(".note", tour);
+    const NS = "http://www.w3.org/2000/svg", wide = matchMedia("(min-width: 1181px)"), GAP = 42;   // GAP: a note to the window
+
+    // the touch words, in before applyLang first reads the English
+    if (coarse){
+      const icons = $(".n-icons .hl", tour), hint = $(".embed-hint [data-i18n]", stage);
+      icons.dataset.i18n = "live.iconsTouch"; icons.textContent = "Tap any icon";
+      hint.dataset.i18n = "live.hintTouch"; hint.textContent = "It's live · tap, drag & explore";
+    }
+    $(".embed-hint", stage).addEventListener("click", () => { stage.classList.add("used"); frame.focus(); });
+
+    let begun = false;
+    function start(){
+      if (begun) return;
+      begun = true;
+      whenNear(stage, () => {
+        frame.addEventListener("load", () => {
+          frame.classList.add("ready");
+          loader.classList.add("out");
+          setTimeout(() => { loader.hidden = true; }, 800);   // swept away: its ring stops for good
+          up = true;
+          reveal();
+        }, { once: true });
+        frame.src = frame.dataset.src;
+      });
+    }
+
+    // where `el` sits in the tour
+    const at = el => { let x = 0, y = 0; for (let n = el; n && n !== tour; n = n.offsetParent){ x += n.offsetLeft; y += n.offsetTop; } return [x, y]; };
+    function layout(){
+      svg.replaceChildren();
+      notes.forEach(n => n.removeAttribute("style"));
+      if (!wide.matches || !tour.offsetWidth) return;   // a list, or the page isn't showing
+      const [ex, ey] = at(embed), [sx, sy] = at(stage), sw = stage.offsetWidth, sh = stage.offsetHeight;
+      const win = { left: ex, right: ex + embed.offsetWidth, top: ey, bottom: ey + embed.offsetHeight };
+      svg.setAttribute("viewBox", "0 0 " + tour.offsetWidth + " " + tour.offsetHeight);
+      const target = {
+        icons: [sx + 70, sy + 50],
+        apps:  [sx + 376, sy + 50],
+        menu:  [sx + sw * .72, sy + sh * .62],   // an empty spot of desktop, clear of the "it's live" pill
+        clock: [sx + sw - 96, sy + sh - 31]
+      };
+      const place = (n, left, top, width) => { if (width) n.style.maxWidth = width + "px"; n.style.left = left + "px"; n.style.top = top + "px"; };
+      const side = win.left - GAP;   // the room beside the window, either side
+      notes.forEach(n => {
+        if (getComputedStyle(n).display === "none") return;
+        const to = target[n.dataset.to];
+        let from, bend, stop = 24;
+        if (n.dataset.to === "icons"){         // on the left, level with the icon
+          place(n, 0, 0, side);
+          place(n, win.left - GAP - n.offsetWidth, to[1] - n.offsetHeight / 2);
+          from = [win.left - GAP + 10, to[1]]; bend = -.22;
+        } else if (n.dataset.to === "apps"){   // above the window, over the icon
+          place(n, 0, 0, 320);
+          place(n, to[0] - n.offsetWidth / 2, win.top - GAP - 26 - n.offsetHeight);
+          from = [to[0], win.top - GAP - 18]; bend = .1; stop = 30;
+        } else if (n.dataset.to === "menu"){   // on the right, level with the spot
+          place(n, win.right + GAP, 0, side);
+          place(n, win.right + GAP, to[1] - n.offsetHeight / 2);
+          from = [win.right + GAP - 10, to[1]]; bend = .22; stop = 18;
+        } else {                               // under the window, its words ending just before the clock
+          place(n, to[0] - n.offsetWidth - 16, win.bottom + GAP + 18);
+          from = [to[0] - 8, win.bottom + GAP + 18 + n.offsetHeight / 2]; bend = .3; stop = 16;
+        }
+        draw(n, from, to, bend, stop, n.dataset.to === "menu");
+      });
+    }
+    // a curve from `a` towards `b`, stopping `stop` short, bowed by `bend` of its length, a head along its end
+    function draw(note, a, b, bend, stop, ring){
+      const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+      const end = [b[0] - dx / len * stop, b[1] - dy / len * stop];
+      const c = [(a[0] + end[0]) / 2 - dy * bend, (a[1] + end[1]) / 2 + dx * bend];
+      const pt = p => p.map(v => v.toFixed(1)).join(" ");
+      const mk = (tag, cls, attrs) => { const el = document.createElementNS(NS, tag); el.setAttribute("class", cls); for (const k in attrs) el.setAttribute(k, attrs[k]); return el; };
+      const lineD = "M" + pt(a) + "Q" + pt(c) + " " + pt(end);
+      const tx = end[0] - c[0], ty = end[1] - c[1], tl = Math.hypot(tx, ty) || 1, ux = tx / tl, uy = ty / tl, H = 11, A = .5;
+      const wing = s => [end[0] - H * (ux * Math.cos(A) - s * uy * Math.sin(A)), end[1] - H * (uy * Math.cos(A) + s * ux * Math.sin(A))];
+      const headD = "M" + pt(wing(1)) + "L" + pt(end) + "L" + pt(wing(-1));
+      const g = document.createElementNS(NS, "g"), halo = mk("path", "line halo", { d: lineD }), line = mk("path", "line", { d: lineD });
+      g.append(halo, mk("path", "head halo", { d: headD }));
+      if (ring){   // the spot to right-click, ringed
+        const c0 = { cx: b[0].toFixed(1), cy: b[1].toFixed(1), r: "13" };
+        g.append(mk("circle", "ring halo", c0), line, mk("path", "head", { d: headD }), mk("circle", "ring", c0));
+      } else g.append(line, mk("path", "head", { d: headD }));
+      svg.append(g);
+      g.style.setProperty("--len", line.getTotalLength());
+      if (note.classList.contains("is-shown")) g.classList.add("is-shown");
+      note._arrow = g;
+    }
+    const relayout = () => requestAnimationFrame(layout);
+    new ResizeObserver(relayout).observe(tour);
+    wide.addEventListener("change", relayout);
+    // the notes' sizes come from their font: laid out again as fonts arrive
+    if (document.fonts){ document.fonts.ready.then(relayout); document.fonts.addEventListener("loadingdone", relayout); }
+
+    /* the notes (and their arrows) draw in one by one once the tour's in view and Williams OS is
+       up, so they point at real things, not at the loader (or after 5s in view: a slow site's
+       notes are still worth reading) */
+    const show = n => { n.classList.add("is-shown"); if (n._arrow) n._arrow.classList.add("is-shown"); };
+    let seen = false, up = false, revealed = false;
+    function reveal(){
+      if (revealed || !seen || !up) return;
+      revealed = true;
+      notes.forEach((n, i) => setTimeout(() => show(n), 250 + i * 380));
+    }
+    if (reduced) notes.forEach(show);
+    else new IntersectionObserver((en, io) => {
+      if (!en[0].isIntersecting) return;
+      io.disconnect();
+      seen = true;
+      reveal();
+      setTimeout(() => { up = true; reveal(); }, 5000);
+    }, { threshold: .3 }).observe(tour);
+
+    // relayout: the words changed (applyLang)
+    return { start, relayout };
+  })();
 
   /* =================================================================
      DATA — straight from index.js
@@ -2027,6 +2175,13 @@
       }
       // About's record: its heading and tracks rise in, the record slides out and plays (ABOUT)
       if (route === "about") ABOUT.enter(immediate);
+      // the home page's "Williams OS": its letters rise in as it's scrolled to, then it hops and underlines
+      const osName = $(".os-name", scope);
+      if (osName){
+        osName.classList.remove("is-idle");
+        gsap.set($$(".nm-w > span", osName), { opacity: 0 });
+        ScrollTrigger.create({ trigger: osName, start: "top 88%", once: true, onEnter: () => stampIn(osName) });
+      }
 
       $$("[data-split]", scope).forEach((el, idx) => {
         const spans = splitWords(el);

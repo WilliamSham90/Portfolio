@@ -740,7 +740,7 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 .embed-open:hover{ color: var(--ink); border-color: var(--hair); }
 
 .embed-stage{
-  position: relative; width: 100%;
+  position: relative; width: 100%; overflow: hidden;
   height: clamp(460px, 72vh, 760px);
   background: #fff;
 }
@@ -781,11 +781,11 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
   display: flex; align-items: center; gap: 10px;
   padding: 12px 20px 12px 15px; border-radius: 999px;
   background: rgba(19,17,26,.86); color: #fff; backdrop-filter: blur(6px);
-  font-family: "JetBrains Mono", monospace; font-size: .78rem; letter-spacing: .02em; text-align: center;
+  font-family: "JetBrains Mono", monospace; font-size: clamp(.6rem, 2.8vw, .78rem); letter-spacing: .02em; white-space: nowrap;   /* one row: smaller words on a small screen */
   box-shadow: 0 0 0 1px rgba(255,255,255,.16), 0 16px 32px -14px rgba(19,17,26,.7);
   transition: transform .25s cubic-bezier(.22,1,.36,1), background .2s;
 }
-.embed-hint:hover > span{ transform: scale(1.05); background: var(--ink); }
+.embed-hint:is(:hover, :focus-visible) > span{ transform: scale(1.05); background: var(--ink); }
 /* the cursor acts out a press, drag and release */
 .embed-hint svg{ width: 18px; height: 18px; flex: none; fill: #fff; stroke: var(--ink); stroke-width: 1.2; animation: hintDrag 2.2s ease-in-out infinite; }
 @keyframes hintDrag{
@@ -797,10 +797,80 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 .embed-caption{ margin-top: 14px; font-family: "JetBrains Mono", monospace; font-size: .68rem; color: var(--ink-faint); }
 
 @media (max-width: 760px){
-  .embed-stage{ height: clamp(420px, 68vh, 620px); }
+  .embed-stage{ height: clamp(420px, 68vh, 620px); height: clamp(420px, 68svh, 620px); }
   .embed-url{ font-size: .62rem; }
   .embed-open{ display: none; }
+  .embed-hint > span{ gap: 8px; padding: 10px 14px 10px 12px; }
+  .embed-hint svg{ width: 15px; height: 15px; }
 }
+
+/* ===============================================================
+   WILLIAMS OS — the guided tour (index.html .os-sec, index.js OS).
+   The live site in the window above, on a band of the site's blue,
+   with notes round it saying what to try: each sits beside what it's
+   about, its phrase in the nav's highlighter, and an arrow runs from
+   its words to the very thing (index.js lays them out). Narrower than
+   1180px, the notes are a short list above the window, no arrows.
+   =============================================================== */
+.os-sec{
+  padding-block: calc(var(--v) * 1.5);
+  background: color-mix(in srgb, var(--blue) 9%, transparent);
+  border-block: 1px solid color-mix(in srgb, var(--blue) 16%, transparent);
+}
+/* wider than the page's column on a wide screen */
+.os-wide{ max-width: 1680px; margin-inline: auto; padding-inline: var(--gut); }
+.tour{ position: relative; padding: 118px clamp(160px, 16%, 220px) 104px; }
+/* once Williams OS is in use (clicked into), the arrows go behind its window: what lay over the
+   desktop is out of the way, what's round it stays */
+.tour .embed{ position: relative; z-index: 1; }
+.tour:has(.embed-stage.used) .arrows{ z-index: 0; }
+.notes{ list-style: none; margin: 0; padding: 0; }
+.note{
+  position: absolute; z-index: 3; width: max-content; max-width: 220px;
+  font-weight: 700; font-size: .96rem; line-height: 1.34; text-wrap: balance;   /* no word left alone on a line */
+  opacity: 0; translate: 0 8px; transition: opacity .4s, translate .5s var(--ease);
+}
+.note.is-shown{ opacity: 1; translate: none; }
+/* its phrase: the nav's highlighter (.hl), drawn in once the note's shown; as tall on its words as
+   on a nav link's, a little past either end (not onto the next word) */
+.note .hl{ font-weight: 800; white-space: nowrap; --hl-inset: 6% -3px -7%; }
+.note .hl::before{ transition-delay: .25s; }
+.note.is-shown .hl::before{ clip-path: var(--hl-on); }
+.n-icons{ --c: var(--pink); }
+.n-apps{ --c: var(--mint); }
+.n-menu{ --c: var(--blue); }
+.n-clock{ --c: var(--yellow); }
+/* the arrows: one drawing over the window (the pointer goes through it). index.js sets each
+   line's --len; it draws as its dash offset runs down to 0 */
+.arrows{ position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; overflow: visible; pointer-events: none; fill: none; stroke: var(--ink-soft); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.arrows .line{ stroke-dasharray: var(--len); stroke-dashoffset: var(--len); transition: stroke-dashoffset .6s .3s cubic-bezier(.65,0,.35,1); }
+.arrows .head, .arrows .ring{ opacity: 0; transition: opacity .25s .85s; }
+.arrows .is-shown .line{ stroke-dashoffset: 0; }
+.arrows .is-shown :is(.head, .ring){ opacity: 1; }
+.arrows .ring{ stroke: var(--blue); stroke-dasharray: 4 4; }
+/* a halo under each line, head and ring: they read on the band and on Williams OS's dark wallpaper alike */
+.arrows .halo{ stroke: var(--paper); stroke-width: 6; opacity: .9; }
+.arrows .ring.halo{ stroke-dasharray: none; stroke-width: 5; opacity: .75; }
+/* wide: each note's words meet its arrow (the left one ends at it, the top one centres on it) */
+@media (min-width: 1181px){
+  .n-icons{ text-align: right; }
+  .n-apps{ text-align: center; }
+}
+@media (max-width: 1180px){
+  .tour{ padding: 0; }
+  .notes{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; margin-bottom: 22px; }
+  .note{ position: static; width: auto; max-width: none; }
+  .arrows{ display: none; }
+}
+@media (max-width: 760px){
+  .os-sec .sec-head{ justify-items: center; text-align: center; }
+  .os-sec .embed-intro{ align-items: center; text-align: center; }
+  .os-sec .embed-meta{ justify-content: center; }
+  .notes{ text-align: center; }
+}
+@media (max-width: 560px){ .notes{ grid-template-columns: minmax(0, 1fr); } }
+/* the right-click note only where there's a mouse */
+@media (hover: none), (pointer: coarse){ .n-menu{ display: none; } }
 
 /* ===============================================================
    CARDS + FILTERS
@@ -1648,22 +1718,24 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
    orbits on a pink panel; once the page has loaded (index.js, BOOT) the
    panel collapses to the bottom edge with its slanted ink band (::before)
    sweeping down behind it. loader-bail hides it anyway if index.js never
-   runs. Reduced motion is covered by the global rule below. */
-#loader{
-  position: fixed; inset: 0; z-index: 100;
+   runs. Reduced motion is covered by the global rule below. The same
+   loader, in its box, covers Williams OS until it has loaded
+   (.embed-loader, index.js OS); its slanted band is clipped by the box. */
+#loader, .embed-loader{
   display: grid; place-items: center;
   color: var(--wipe-fg);
   transform-origin: bottom;
   transition: transform .6s cubic-bezier(1,.885,.32,1) .1s;
-  animation: loader-bail 0s 4s forwards;
 }
-#loader::before{
+#loader{ position: fixed; inset: 0; z-index: 100; animation: loader-bail 0s 4s forwards; }
+.embed-loader{ position: absolute; inset: 0; z-index: 3; }
+:is(#loader, .embed-loader)::before{
   content:""; position: absolute; left: 0; top: -75%; width: 100%; height: 75%;
   background: var(--ink); clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
 }
-#loader.out{ transform: scaleY(0); }
+:is(#loader, .embed-loader).out{ transform: scaleY(0); }
 .loader-ring{ position: relative; width: 0; height: 0; animation: loader-spin 5s linear infinite; transition: opacity .3s; }
-#loader.out .loader-ring{ opacity: 0; }
+:is(#loader, .embed-loader).out .loader-ring{ opacity: 0; }
 /* 15 slots (--i in the markup); slot 3 is the gap between words */
 .loader-ring span{
   position: absolute; left: -.5em; top: -72px; width: 1em; text-align: center;
@@ -1699,7 +1771,7 @@ a.hl[aria-current="page"]::before, a[aria-current="page"] > .hl::before{ backgro
 
 /* the site's dot texture (body::before sits under these overlays), a
    little stronger so it still reads on colour */
-#loader, #wipe i + i{
+#loader, .embed-loader, #wipe i + i{
   background: var(--wipe) radial-gradient(rgba(19,17,26,.16) 1px, transparent 1.15px) 0 0 / 4px 4px;
 }
 
